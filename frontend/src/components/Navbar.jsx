@@ -1,99 +1,100 @@
-import { Link, useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min";
-import { FaHome, FaUser, FaCommentDots, FaSignInAlt, FaSearch, FaSignOutAlt, FaUserPlus } from "react-icons/fa";
-import "../assets/css/Navbar.css";
+import { Link, useNavigate,useParams } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import {
+  FaHome,
+  FaUser,
+  FaCommentDots,
+  FaSearch,
+  FaSignOutAlt,
+  FaSignInAlt,
+  FaUserPlus,
+} from "react-icons/fa";
+import "../assets/css/Navbar.css";
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+
 
   const handleLogout = () => {
     logout();
     navigate("/");
   };
 
-  const closeNavbar = () => {
-    const navbar = document.getElementById("navbarNav");
-    if (navbar.classList.contains("show")) {
-      navbar.classList.remove("show");
-    }
-  };
-
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-3">
-      <div className="container-fluid">
-        {/* App Logo */}
-        <Link className="navbar-brand fw-bold fs-4" to="/">
-          SocialApp
-        </Link>
+    <>
+      {/* Top Navbar */}
+      <nav className="main-navbar shadow-sm">
+        <div className="container-fluid d-flex justify-content-between align-items-center px-3 py-2">
+          {/* Logo */}
+          <Link to="/" className="logo text-primary fw-bold fs-4">
+            VibeNet
+          </Link>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        {/* Navbar Links */}
-        <div className="collapse navbar-collapse justify-content-center" id="navbarNav">
-          <ul className="navbar-nav">
-            <li className="nav-item mx-2">
-              <Link className="nav-link d-flex align-items-center" to="/" onClick={closeNavbar}>
-                <FaHome className="me-1" /> Home
-              </Link>
-            </li>
-            {user && (
-              <li className="nav-item mx-2">
-                <Link className="nav-link d-flex align-items-center" to="/profile" onClick={closeNavbar}>
-                  <FaUser className="me-1" /> Profile
-                </Link>
-              </li>
-            )}
-            {user && (
-              <li className="nav-item mx-2">
-                <Link className="nav-link d-flex align-items-center" to="/chat" onClick={closeNavbar}>
-                  <FaCommentDots className="me-1" /> Chat
-                </Link>
-              </li>
-            )}
-          </ul>
-        </div>
-
-        {/* Search & Auth Buttons */}
-        <div className="d-flex align-items-center">
-          <div className="input-group search-bar me-3">
-            <span className="input-group-text bg-light">
-              <FaSearch />
-            </span>
-            <input type="text" className="form-control" placeholder="Search..." />
+          {/* Center Search */}
+          <div className="search-box d-none d-md-flex">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search..."
+            />
           </div>
 
-          {user ? (
-            <button className="btn btn-outline-danger logout-btn" onClick={handleLogout}>
-              <FaSignOutAlt /> Logout
-            </button>
-          ) : (
-            <>
-              <Link className="btn btn-outline-primary me-2" to="/login">
-                <FaSignInAlt /> Login
-              </Link>
-              <Link className="btn btn-outline-success" to="/register">
-                <FaUserPlus /> Signup
-              </Link>
-            </>
-          )}
+          {/* Right Side */}
+          <div className="d-flex align-items-center">
+            {user ? (
+              <>
+                <Link to={`/users/${user.id}`} className="me-2">
+                  <img
+                    src={
+                      user.profilePic ||
+                      "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                    }
+                    alt="Avatar"
+                    className="avatar"
+                  />
+                </Link>
+                <Link to="/chat" className="me-2">
+                  <FaCommentDots className="chat-icon" />
+                </Link>
+                <button onClick={handleLogout} className="btn btn-sm btn-outline-danger">
+                  <FaSignOutAlt className="me-1" />
+                  <span className="d-none d-md-inline">Logout</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="btn btn-outline-primary btn-sm me-2">
+                  <FaSignInAlt className="me-1" /> Login
+                </Link>
+                <Link to="/register" className="btn btn-outline-success btn-sm">
+                  <FaUserPlus className="me-1" /> Signup
+                </Link>
+              </>
+            )}
+          </div>
         </div>
+      </nav>
+
+      {/* Bottom Navigation for Mobile */}
+      <div className="bottom-nav d-md-none shadow-sm">
+        <Link to="/" className="bottom-icon">
+          <FaHome />
+        </Link>
+        {user && (
+          <>
+            <Link to="/chat" className="bottom-icon">
+              <FaCommentDots />
+            </Link>
+            <Link to={`/users/${user.id}`} className="bottom-icon">
+              <FaUser />
+            </Link>
+          </>
+        )}
       </div>
-    </nav>
+    </>
   );
 };
 

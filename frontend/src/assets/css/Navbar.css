@@ -1,35 +1,71 @@
-.navbar {
-    background-color: #fff;
-    padding: 10px 20px;
-  }
-  
-  .navbar-nav .nav-link {
-    font-size: 16px;
-    font-weight: 500;
-    color: #333;
-    transition: 0.3s;
-  }
-  
-  .navbar-nav .nav-link:hover {
-    color: #007bff;
-  }
-  
-  .search-bar {
-    width: 250px;
-  }
-  
-  .search-bar .form-control {
-    border-radius: 20px;
-    border: none;
-    background: #f1f1f1;
-  }
-  
-  .search-bar .input-group-text {
-    border: none;
-    background: #f1f1f1;
-  }
-  
-  .btn-outline-primary {
-    border-radius: 20px;
-  }
-  
+.main-navbar {
+  background-color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo {
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1.5rem;
+}
+
+.search-box {
+  position: relative;
+  width: 300px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 6px 12px 6px 32px;
+  border: 1px solid #ccc;
+  border-radius: 30px;
+  font-size: 0.9rem;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: #777;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #eee;
+}
+
+.chat-icon {
+  font-size: 1.6rem;
+  color: #007bff;
+}
+
+.chat-icon:hover {
+  color: #0056b3;
+}
+
+/* Bottom Mobile Nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #fff;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid #ddd;
+}
+
+.bottom-icon {
+  color: #555;
+  font-size: 1.4rem;
+  text-decoration: none;
+}
+
+.bottom-icon:hover {
+  color: #007bff;
+}

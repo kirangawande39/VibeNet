@@ -5,6 +5,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext"; // AuthContext import
 import "../assets/css/Login.css";
 
+import { ToastContainer,toast } from "react-toastify";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,23 +18,26 @@ const Login = () => {
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", { email, password });
       localStorage.setItem("token", res.data.token);  // Store token in localStorage
-      console.log("res data:", res.data.message); // Log response message
-      alert(res.data.message);  // Show alert with server message
+      // console.log("res data:", res.data.message); // Log response message
+      
+      // alert(res.data.message)
 
-      // Log the user in using the context login function
-      login(res.data.user);  // Corrected to use `res` instead of `response`
-
-      // Navigate to home page after login
-      navigate("/");
+      toast.success(res.data.message)
+      
+      setTimeout(() => {
+        login(res.data.user);
+        navigate("/");
+      }, 1000);
     } catch (error) {
       console.error("Login Failed:", error);
-      alert("Login failed. Please check your credentials.");
+      toast.error("Login failed. Please check your credentials.");
     }
   };
 
   return (
     <div className="login-container d-flex align-items-center justify-content-center vh-100">
       <div className="login-box shadow-lg p-4 rounded bg-white">
+      <ToastContainer />
         <h2 className="text-center mb-4">Login</h2>
         <form onSubmit={handleLogin}>
           <div className="mb-3">

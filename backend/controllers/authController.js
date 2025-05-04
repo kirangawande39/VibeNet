@@ -9,6 +9,9 @@ const generateToken = (id) => {
 
 // Register User
 const register = async (req, res) => {
+
+
+    
     const { name, email, password,username } = req.body;
 
     const userExists = await User.findOne({ email });
@@ -38,6 +41,8 @@ const login = async (req, res) => {
 
     let redirectUrl = "/";
     const {id ,username,email}=req.user;
+
+    
      const userData = {
          id: id,
          username:username,
