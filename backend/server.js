@@ -36,6 +36,8 @@ app.use(cors({
 }));
 
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static('uploads'));
+
 
 const mongodb_url=process.env.MONGODB_URL;
 const store = MongoStore.create({

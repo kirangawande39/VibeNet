@@ -54,7 +54,7 @@ const EditProfile = () => {
       <div className="row align-items-center">
         <div className="col-md-3 text-center">
           <img
-            src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+            src={user.profilePic || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
             alt="Profile"
             className="rounded-circle img-fluid border"
             style={{ width: "150px", height: "150px" }}
