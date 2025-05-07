@@ -18,14 +18,15 @@ const getUserProfile = async (req, res) => {
 // Update User Profile
 const updateUserProfile = async (req, res) => {
     console.log("updateUserProfile is here");
-    console.log("User ID:", req.params.id);
-    console.log("New Bio:", req.body.bio);
+    // console.log("User ID:", req.params.id);
+    // console.log("New Bio:", req.body);
 
     try {
         const user = await User.findById(req.params.id);
         
         if (user) {
             user.bio = req.body.bio || user.bio;
+            user.name = req.body.name || user.name;
 
             const updatedUser = await user.save();
 
