@@ -3,14 +3,19 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-
+import { ToastContainer, toast } from 'react-toastify';
+import { BsFillPostcardHeartFill } from "react-icons/bs";
 import "../assets/css/Profile.css"
+
 
 const Profile = () => {
   const [file, setFile] = useState(null);
   const [mpost, setMpost] = useState(false);
-  const [mreals, setMreals] = useState(false);
+  const [mreals, setMreals] = useState(true);
   const { user } = useContext(AuthContext);
+  const [postText, setPostText] = useState(null);
+  const [postImage, setPostImage] = useState(null);
+
 
   const { id } = useParams();
 
@@ -30,6 +35,26 @@ const Profile = () => {
 
     fetchProfileData();
   }, [user]);
+
+
+  useEffect(() => {
+    const fetchPostData = async () => {
+      if (!user) return;
+      try {
+        const res = await axios.get(`http://localhost:5000/api/posts/${id}`);
+        setProfileData(prev => ({
+          ...prev,
+          posts: res.data.posts
+        }));
+
+      } catch (err) {
+        console.error("Failed to fetch profile data:", err);
+      }
+    };
+
+    fetchPostData();
+  }, [user, id]); // Also add `id` to dependencies if it's dynamic
+
 
   if (!user) {
     return (
@@ -54,143 +79,144 @@ const Profile = () => {
   };
 
 
+  const handlePostImage = (e) => {
+    const selectedPost = e.target.files[0];
 
-  
-    const handleProfileImage = (e) => {
-      // Get the file from input
-      const selectedFile = e.target.files[0];
-  
-      // If file is selected, update the state
-      if (selectedFile) {
-        setFile(selectedFile);
-        alert(`File selected: ${selectedFile.name}`);
-      }
-    };
-  
-    const handleUpload = async () => {
-      if (!file) {
-        alert("Please select a profile picture first.");
-        return;
-      }
-    
-      const formData = new FormData();
-      formData.append("profilePic", file); // "profilePic" should match your backend field name
-    
-      try {
-        const res = await axios.put(`http://localhost:5000/api/users/${user.id}/uploadProfilePic`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-    
-        alert("Profile picture updated successfully!");
-        setProfileData({ ...profileData, profilePic: res.data.profilePic }); // update the UI
-        setFile(null);
-      } catch (err) {
-        console.error("Error uploading profile picture:", err);
-        alert("Failed to upload profile picture");
-      }
-    };
-    
+    // If file is selected, update the state
+    if (selectedPost) {
+      setPostImage(selectedPost);
+      alert(`File selected: ${selectedPost.name}`);
+    }
+  }
+
+  // const handlePostText = (e) => {
+  //     const postText=e.target.value;
+
+  //     setPostText(postText)
+
+  // }
+
+  const handleCreatePost = async () => {
+    // console.log('Post Image:' + postImage.name)
+    // console.log('Post Text:' + postText)
+
+
+    const formData = new FormData();
+    formData.append("description", postText); // 'dis' is your post description
+    formData.append("postImage", postImage);
+
+    try {
+      const res = await axios.post(`http://localhost:5000/api/posts/${user.id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success(res.data.message); // shows: "Post created successfully"
+      console.log(res.data.post);
+      console.l
+    }
+    catch (err) {
+      console.error("Error post create :", err);
+      alert("Failed to create post");
+    }
+  }
+
 
   return (
-    <div className="container mt-4">
-      <div className="row align-items-center">
-        <div className="col-md-3 text-center">
+    <div className="profile-container">
+      <ToastContainer />
+      <div className="profile-header d-flex justify-content-between align-items-center">
+        <div className="d-flex align-items-center">
           <img
             src={profileData.profilePic || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
             alt="Profile"
-            className="rounded-circle img-fluid border"
-            style={{ width: "150px", height: "150px" }}
+            className="profile-img"
           />
-           <h3>{profileData.name}</h3>
+          <div className="ms-4">
+            <h3 className="username">{profileData.username}</h3>
+            <p className="bio">{profileData.bio || "No bio available"}</p>
+            <button className="btn btn-outline-primary btn-sm" onClick={handleEdit}>
+              Edit Profile
+            </button>
+          </div>
         </div>
-        <div className="col-md-6">
-          {/* <h3>{profileData.profilePic}</h3> */}
-          <h3>{profileData.username}</h3>
-          
-          {/* <h3>{profileData._id}</h3>
-          <h3>Id:{id}</h3> */}
-          <p>{profileData.bio || "No bio available"}</p>
-          <button onClick={handleEdit} className="btn btn-outline-primary btn-sm">
-            Edit Profile
+        <div className="text-end">
+          <div className="profile-stats">
+            <span><strong>{profileData.posts?.length || 0}</strong> Posts</span>
+            <span><strong>{profileData.followers || 0}</strong> Followers</span>
+            <span><strong>{profileData.following || 0}</strong> Following</span>
+          </div>
+        </div>
+      </div>
+  
+      <div className="media-switcher my-4 d-flex justify-content-center gap-3">
+        <button className={`btn ${mpost ? "btn-dark" : "btn-outline-dark"}`} onClick={() => { setMpost(true); setMreals(false); }}>
+          <BsFillPostcardHeartFill /> Posts
+        </button>
+        <button className={`btn ${mreals ? "btn-dark" : "btn-outline-dark"}`} onClick={() => { setMpost(false); setMreals(true); }}>
+          Reels
+        </button>
+      </div>
+  
+      {mpost ? (
+        <div className="post-gallery row">
+          {profileData.posts && profileData.posts.length > 0 ? (
+            profileData.posts.map((post) => (
+              <div key={post._id} className="col-md-4 mb-4">
+                <div className="post-card shadow-sm">
+                  <img src={post.image} alt="Post" className="post-img" />
+                  <p className="post-caption">{post.text}</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-center">No posts available</p>
+          )}
+        </div>
+      ) : (
+        <div className="create-post-card">
+          <h2>Create Post</h2>
+          <p className="text-muted">Share your thoughts and optionally add an image.</p>
+          <input type="file" accept="image/*" className="form-control mb-3" onChange={handlePostImage} />
+          <textarea
+            className="form-control mb-3"
+            rows="4"
+            placeholder="Write a description..."
+            onChange={(e) => setPostText(e.target.value)}
+          ></textarea>
+          <button className="btn btn-primary w-100 rounded-pill" onClick={handleCreatePost}>
+            Post
           </button>
         </div>
-        <div className="col-md-3 text-center">
-          <p><strong>{profileData.posts?.length || 0}</strong> Posts</p>
-          <p><strong>{profileData.followers || 0}</strong> Followers</p>
-          <p><strong>{profileData.following || 0}</strong> Following</p>
+      )}
+  
+      <div className="suggestion-section mt-5">
+        <h4 className="mb-4">Complete your profile</h4>
+        <div className="row gap-3 justify-content-center">
+          <div className="profile-box">
+            <img src="https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg" alt="bio" />
+            <h6>Add Bio</h6>
+            <p>Tell your followers about yourself.</p>
+            <button onClick={handleEdit}>Add Bio</button>
+          </div>
+          <div className="profile-box">
+            <img src="https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg" alt="name" />
+            <h6>Add Your Name</h6>
+            <p>Help your friends recognize you.</p>
+            <button onClick={handleEdit}>Edit Name</button>
+          </div>
+          <div className="profile-box">
+            <img src="https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg" alt="pic" />
+            <h6>Add Profile Picture</h6>
+            <p>Choose a picture to represent yourself.</p>
+            <button onClick={handleEdit}>Change Picture</button>
+          </div>
         </div>
       </div>
-
-      <hr />
-      <div className="media-post">
-      <button onClick={()=>setMpost(true)}>post</button>
-      <button  onClick={()=>setMreals(true)}>reals</button>
-      </div>
-      <hr />
-     {mpost ? <h1>po is here</h1> : <h1>post is not here</h1>}
-     {mreals ? <h1>reals is here</h1> : <h1>rea is not here</h1>}
-      <div className="row">
-        {profileData.posts && profileData.posts.length > 0 ? (
-          profileData.posts.map((post) => (
-            <div key={post._id} className="col-md-4 mb-3">
-              <img
-                src={post.image}
-                alt="Post"
-                className="img-fluid rounded"
-                style={{ width: "100%", height: "250px", objectFit: "cover" }}
-              />
-            </div>
-          ))
-        ) : (
-          <p>No posts available</p>
-        )}
-      </div>
-
-      <div className="row p-4 bg-light rounded-4 shadow-sm text-center" style={{ maxWidth: "400px", margin: "40px auto" }}>
-      <h2 className="mb-2" style={{ fontWeight: "600" }}>Add a Profile Photo</h2>
-      <p className="text-muted mb-4" style={{ fontSize: "14px" }}>
-        Add a profile picture so your friends can recognize you.
-      </p>
-
-      {/* File input with handleProfileImage onChange */}
-      <input
-        type="file"
-        accept="image/*"
-        className="form-control mb-3"
-        onChange={handleProfileImage}
-      />
-
-      {/* Upload button triggering handleUpload */}
-      <button className="btn btn-dark w-100 rounded-pill" onClick={handleUpload}>Upload Picture</button>
-    </div>
-
-
-      <h2>Complete your profile</h2>
-    <div className="container profile-boxs">
-      <div className="profile-box">
-        <img src="https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg" alt="" />
-        <h6>Add bio</h6>
-        <p>Tell your followers a title bit <br />about yourself.</p>
-        <button onClick={handleEdit}>Add bio</button>
-      </div>
-      <div className="profile-box">
-        <img src="https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg" alt="" />
-        <h6>Add yo name</h6>
-        <p>Add your full name so your friends  <br />know it's you.</p>
-        <button onClick={handleEdit}>Edit name</button>
-      </div>
-      <div className="profile-box">
-        <img src="https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg" alt="" />
-        <h6>Add profile picture</h6>
-        <p>Choose a profile picture to represent <br /> yourself on Instagram.</p>
-        <button onClick={handleEdit}>Change picture</button>
-      </div>
-    </div>
-
     </div>
   );
+  
 };
 
 

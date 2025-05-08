@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { FaEdit, FaSave, FaTimes } from "react-icons/fa";
+import "react-toastify/dist/ReactToastify.css";
 
 const EditProfile = () => {
   const { updateUser } = useContext(AuthContext);
@@ -57,10 +58,13 @@ const EditProfile = () => {
       const formData = new FormData();
       formData.append("profilePic", file);
 
-      const res = await fetch(`http://localhost:5000/api/users/${user._id}/uploadProfilePic`, {
-        method: "PUT",
-        body: formData,
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/users/${user._id}/uploadProfilePic`,
+        {
+          method: "PUT",
+          body: formData,
+        }
+      );
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Upload failed");
@@ -82,16 +86,23 @@ const EditProfile = () => {
   return (
     <div className="container mt-5">
       <ToastContainer />
-      <div className="row">
+      <div className="row gy-5">
+        {/* Profile Card */}
         <div className="col-md-4">
-          <div className="card p-4 shadow-lg border-0 rounded-4 text-center">
+          <div className="card p-4 shadow rounded-4 text-center">
             <img
-              src={user.profilePic || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
+              src={
+                user.profilePic ||
+                "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+              }
               alt="Profile"
-              className="rounded-circle border mb-3"
-              style={{ width: "150px", height: "150px", objectFit: "cover" }}
+              className="rounded-circle mb-3 border"
+              style={{
+                width: "150px",
+                height: "150px",
+                objectFit: "cover",
+              }}
             />
-            {/* Hidden file input */}
             <input
               type="file"
               accept="image/*"
@@ -99,25 +110,34 @@ const EditProfile = () => {
               style={{ display: "none" }}
               onChange={handleProfilePicUpload}
             />
-            {/* Button to trigger file input */}
-            <button
-              className="btn btn-outline-primary btn-sm"
-              onClick={triggerFileInput}
-            >
+            <button className="btn btn-outline-primary btn-sm mb-3" onClick={triggerFileInput}>
               Change Profile Picture
             </button>
 
-            <h4 className="fw-bold mt-3">@{user.username}</h4>
-            <p className="mb-1"><strong>{user.posts?.length || 0}</strong> Posts</p>
-            <p className="mb-1"><strong>{user.followers || 0}</strong> Followers</p>
-            <p><strong>{user.following || 0}</strong> Following</p>
+            <h4 className="fw-bold">@{user.username}</h4>
+            <div className="d-flex justify-content-around mt-3">
+              <div>
+                <strong>{user.posts?.length || 0}</strong>
+                <p className="mb-0 small">Posts</p>
+              </div>
+              <div>
+                <strong>{user.followers || 0}</strong>
+                <p className="mb-0 small">Followers</p>
+              </div>
+              <div>
+                <strong>{user.following || 0}</strong>
+                <p className="mb-0 small">Following</p>
+              </div>
+            </div>
           </div>
         </div>
 
+        {/* Edit Bio and Name Section */}
         <div className="col-md-8">
-          <div className="card p-4 shadow-lg border-0 rounded-4">
+          <div className="card p-4 shadow rounded-4">
             {isEditingBioName ? (
               <>
+                <h5 className="mb-3 fw-bold">Edit Profile</h5>
                 <input
                   type="text"
                   className="form-control mb-3"
@@ -132,20 +152,24 @@ const EditProfile = () => {
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                 />
-                <button className="btn btn-success me-2" onClick={handleBioNameSave}>
-                  <FaSave className="me-1" /> Save Changes
-                </button>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setIsEditingBioName(false)}
-                >
-                  <FaTimes className="me-1" /> Cancel
-                </button>
+                <div className="d-flex gap-2">
+                  <button className="btn btn-success" onClick={handleBioNameSave}>
+                    <FaSave className="me-1" />
+                    Save Changes
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => setIsEditingBioName(false)}
+                  >
+                    <FaTimes className="me-1" />
+                    Cancel
+                  </button>
+                </div>
               </>
             ) : (
               <>
-                <h3 className="fw-bold">Welcome, {user.name || user.username}!</h3>
-                <p className="mb-2"><strong>Bio:</strong> {user.bio || "No bio available"}</p>
+                <h3 className="fw-bold">Hello, {user.name || user.username} 👋</h3>
+                <p className="mt-3"><strong>Bio:</strong> {user.bio || "No bio available"}</p>
                 <button
                   className="btn btn-outline-primary btn-sm mt-3"
                   onClick={() => setIsEditingBioName(true)}
@@ -156,25 +180,28 @@ const EditProfile = () => {
             )}
           </div>
 
-          <hr className="my-5" />
-          <h4 className="mb-4">Your Posts</h4>
-          <div className="row">
-            {user.posts && user.posts.length > 0 ? (
-              user.posts.map((post) => (
-                <div key={post.id} className="col-md-4 mb-4">
-                  <div className="card border-0 shadow-sm">
-                    <img
-                      src={post.image}
-                      alt="Post"
-                      className="card-img-top"
-                      style={{ height: "250px", objectFit: "cover" }}
-                    />
+          {/* User Posts */}
+          <div className="mt-5 mb-5">
+            <h4 className="mb-4 fw-semibold">Your Posts</h4>
+            <div className="row g-3">
+              {user.posts && user.posts.length > 0 ? (
+                user.posts.map((post) => (
+                  <div key={post.id} className="col-6 col-md-4">
+                    <div className="card border-0 shadow-sm mb-3">
+                      <img
+                        src={post.image}
+                        alt="Post"
+                        className="card-img-top"
+                        style={{ height: "250px", objectFit: "cover" }}
+                      />
+                    </div>
+
                   </div>
-                </div>
-              ))
-            ) : (
-              <p>No posts available</p>
-            )}
+                ))
+              ) : (
+                <p className="text-muted">No posts available</p>
+              )}
+            </div>
           </div>
         </div>
       </div>

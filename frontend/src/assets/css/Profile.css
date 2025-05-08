@@ -1,119 +1,70 @@
-.profile-boxs{
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 500px;
-    flex-wrap: wrap;
+.profile-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
 }
 
-.profile-box{
-    border: 1px solid rgb(63, 62, 62);
-    padding: 20px;
-    border-radius: 5px;
-    text-align: center;
-    margin-top: 50px;
-   
-    
+.profile-img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #ddd;
 }
 
-.profile-box img{
-    height: 50px;
-    width: 50px;
-    border: 2px solid rgb(63, 62, 62);
-    border-radius: 50%;
+.profile-stats span {
+  margin-right: 20px;
+  font-size: 14px;
 }
 
-.profile-box button{
-    border: 2px solid white;
-    background-color: #206bbd;
-    color: white;
-    border-radius: 10px;
-    padding: 5px;
+.media-switcher button {
+  width: 150px;
 }
 
-.media-post{
-    display: flex;
-    justify-content: space-around;
+.post-gallery {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-
-
-
-
-
-
-
-
-
-
-.create-post-container {
+.post-card {
   background-color: #fff;
   border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-.create-post-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 1.1rem;
-  font-weight: bold;
-  margin-bottom: 10px;
+.post-img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  color: #888;
-  cursor: pointer;
-}
-
-.close-btn:hover {
-  color: #000;
-}
-
-.create-post-form {
-  display: flex;
-  flex-direction: column;
-}
-
-.image-upload {
-  position: relative;
-}
-
-.image-upload input {
-  border: 2px dashed #ccc;
-  background-color: #f9f9f9;
-  padding: 20px;
-  font-size: 14px;
-  color: #333;
-}
-
-.image-upload input:focus {
-  outline: none;
-  border-color: #007bff;
-}
-
-.image-preview {
-  margin-top: 10px;
-}
-
-.create-btn {
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  font-size: 1rem;
+.post-caption {
   padding: 10px;
-  cursor: pointer;
-  border-radius: 5px;
+  font-size: 14px;
 }
 
-.create-btn:hover {
-  background-color: #0056b3;
+.create-post-card {
+  max-width: 500px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
 }
 
-textarea {
-  height: 100px;
-  resize: none;
+.suggestion-section .profile-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 250px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.suggestion-section .profile-box img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 10px;
 }
