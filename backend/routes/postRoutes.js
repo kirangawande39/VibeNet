@@ -21,7 +21,7 @@ const upload = multer({ storage });
 router.post("/:id" , upload.single('postImage'),  createPost); // Create a post
 
 router.get("/", getAllPosts); // Get all posts
-router.get("/", getPostById);
+// router.get("/", getPostById);
 
 // Get a single post by ID
 

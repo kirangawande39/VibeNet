@@ -1,5 +1,10 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import CommentBox from "./CommentBox"; // ✅ Import CommentBox component
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
+
 
 const PostCard = ({ post }) => {
   return (
@@ -7,13 +12,13 @@ const PostCard = ({ post }) => {
       {/* Post Header */}
       <div className="card-header d-flex align-items-center bg-white">
         <img
-          src={`https://i.pravatar.cc/40?u=${post.username}`}
+          src={post.user.profilePic}
           alt="profile"
           className="rounded-circle me-2"
           width="40"
           height="40"
         />
-        <strong>{post.username || "Unknown"}</strong>
+        <strong>{post.user.username || "Unknown"}</strong>
       </div>
 
       {/* Post Image */}
@@ -21,13 +26,15 @@ const PostCard = ({ post }) => {
 
       {/* Post Body */}
       <div className="card-body">
-        <p className="mb-1">
-          <strong>{post.username || "Unknown"}</strong> {post.caption || "Default caption for testing."}
-        </p>
         <div className="d-flex justify-content-between text-muted">
           <span>❤️ {post.likes || 0} Likes</span>
           <span>💬 {post.comments?.length || 0} Comments</span>
         </div>
+        <p className="mb-1">
+          <strong>{post.user.username || "Unknown"}</strong> {post.text || "Default caption for testing."}
+        </p>
+        <span>{dayjs(post.createdAt).fromNow()}</span>
+
       </div>
 
       {/* ✅ Comment Box Added Here */}

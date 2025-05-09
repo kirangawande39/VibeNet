@@ -28,8 +28,24 @@ const createPost = async (req, res) => {
 
 // Get All Posts
 const getAllPosts = async (req, res) => {
-    const posts = await Post.find().populate("user", "name");
-    res.json(posts);
+
+    console.log("getAllPosts is here");
+
+    try{
+
+      const posts = await Post.find().populate("user");
+      console.log("posts is :"+posts)
+      // res.json(posts);
+      // res.json({posts})
+      res.status(201).json({posts:posts,message:"post fetch sucessfully..."});
+
+    }
+    catch(error){
+      console.error("Error post getting :",error)
+      res.status(500).json({message:"Internal server error"});
+    }
+
+    
 };
 
 // Get Single Post by ID
