@@ -1,32 +1,66 @@
-import "bootstrap/dist/css/bootstrap.min.css";
-import CommentBox from "./CommentBox"; // ✅ Import CommentBox component
+import { useState, useContext } from "react";
+import axios from "axios";
+import { AuthContext } from "../context/AuthContext"; // Import AuthContext
+import { AiFillLike } from "react-icons/ai";
+import { LiaCommentSolid } from "react-icons/lia";
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { AiFillLike } from "react-icons/ai";
+import "../assets/css/PostCard.css"
 dayjs.extend(relativeTime);
-import { LiaCommentSolid } from "react-icons/lia";
-import { useState } from "react";
-
 
 const PostCard = ({ post }) => {
   const [liked, setLiked] = useState(false); // whether the user liked
-  const [likeCount, setLikeCount] = useState(0); // total like count
+  // total like count
+  const { user } = useContext(AuthContext);  // Accessing user from context
+  const [totalLikes, setTotalLikes] = useState(post.likes.length)
+  const token = user?.token || localStorage.getItem("token"); // Use token from context or localStorage
 
-  const handleLike = () => {
+  const handleLikeAndUnlike = () => {
     if (liked) {
-      setLikeCount(prev => prev - 1); // user is unliking
+      handleUnlike();
     } else {
-      setLikeCount(prev => prev + 1); // user is liking
+      handleLike();
     }
-    setLiked(!liked); // toggle like state
+    setLiked(!liked);
   };
 
-  const handleComments = () => {
-    alert("like this button ")
-  }
 
+  const handleLike = async () => {
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/api/likes/${post._id}/like`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Send token in headers
+          },
+        }
+      );
 
+      setTotalLikes(res.data.totalLikes)
+      // alert(res.data.message)
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
+  };
 
+  const handleUnlike = async () => {
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/api/likes/${post._id}/unlike`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Send token in headers
+          },
+        }
+      );
+      setTotalLikes(res.data.totalLikes)
+      // alert(res.data.message)
+    } catch (error) {
+      console.error("Error unliking post:", error);
+    }
+  };
 
   return (
     <div className="card shadow-sm my-3">
@@ -40,7 +74,6 @@ const PostCard = ({ post }) => {
           height="40"
         />
         <strong>{post.user.username || "Unknown"}</strong>
-
       </div>
 
       {/* Post Image */}
@@ -49,27 +82,25 @@ const PostCard = ({ post }) => {
       {/* Post Body */}
       <div className="card-body">
         <div className="like-comments" style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <button onClick={handleLike}><AiFillLike /></button>
-          <button onClick={handleComments}><LiaCommentSolid /></button>
+          <h3 className={liked ? 'like' : 'unlike'} onClick={handleLikeAndUnlike}><AiFillLike /></h3>
+          <h3><LiaCommentSolid /></h3>
         </div>
         <br />
         <div className="d-flex justify-content-between text-muted">
-          <span>❤️ {post.likes || 0} Likes</span>
+          <span>❤️ {totalLikes || 0} Likes</span>
           <span>💬 {post.comments?.length || 0} Comments</span>
+          {/* <span>TotalLikes : {totalLikes} </span> */}
         </div>
+        {/* <span>{token ? 'Token: ' + token : 'No Token'}</span> Token display */}
         <p className="mb-1">
           <strong>{post.user.username || "Unknown"}</strong> {post.text || "Default caption for testing."}
         </p>
         <span>{dayjs(post.createdAt).fromNow()}</span>
-        <br/>
+        <br />
 
-        {liked ? 'Unlike' : 'Like'}
-        <p>Like Count:{likeCount}</p>
-        
+        {/* {liked ? 'Unlike' : 'Like'} */}
+        {/* <p>Like Count: {likeCount}</p> */}
       </div>
-
-      {/* ✅ Comment Box Added Here */}
-      {/* <CommentBox postId={post._id || "12345"} /> */}
     </div>
   );
 };

@@ -1,0 +1,19 @@
+
+.ullike {
+    color: #333;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.like {
+    font-size: 30px;
+    color: rgb(29, 67, 206);
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.3s ease;
+}
+
+.like:hover {
+    color: rgb(0, 102, 255);
+    transform: scale(1.2);
+}
+

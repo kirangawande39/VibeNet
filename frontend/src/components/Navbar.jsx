@@ -13,7 +13,7 @@ import {
 import "../assets/css/Navbar.css";
 
 const Navbar = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user,updateUser, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
 
@@ -50,7 +50,8 @@ const Navbar = () => {
                   <img
                     src={
                       user.profilePic ||
-                      "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                      "https://cdn-icons-png.flaticon.com/512/149/149071.png"  || 
+                      updateUser.profilePic
                     }
                     alt="Avatar"
                     className="avatar"

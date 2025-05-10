@@ -1,10 +1,11 @@
 const express = require("express");
 const { likePost, unlikePost } = require("../controllers/likeController");
-const { protect } = require("../middlewares/authMiddleware");
+const { protect } = require("../middlewares/authMiddleware"); // ✅ correct
+
 
 const router = express.Router();
 
-router.post("/:postId/like",  likePost); // Like a post
-router.post("/:postId/unlike", unlikePost); // Unlike a post
+router.post("/:postId/like",protect, likePost);    // 👈 protect added
+router.post("/:postId/unlike",protect, unlikePost); // 👈 protect added
 
 module.exports = router;
