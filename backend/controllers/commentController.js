@@ -31,15 +31,46 @@ const getComments = async (req, res) => {
 
     console.log("All comments is here"+req.params.postId)
     const comments = await Comment.find({ post: req.params.postId }).populate("user");
-
-    console.log("Comments:"+comments)
+    
+    // console.log("Comments:"+comments)
 
     res.json({comments});
 };
 
 // Delete Comment
 const deleteComment = async (req, res) => {
-    res.send("Delete comment logic here");
+  console.log("Delete comment logic here");
+  console.log("CommentId:"+req.params.commentId)
+   const commentId = req.params.commentId;
+
+  try{
+
+    // Find the comment to get the postId
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    const postId = comment.post; // Assuming comment has a post field
+
+    const comments = await Comment.findByIdAndDelete(commentId);
+
+    console.log("deleted comment:"+comments)
+
+    await Post.findByIdAndUpdate(postId, {
+      $pull: { comments: commentId }
+    });
+    res.status(200).json({ message: "Comment deleted and removed from post" });
+
+  }
+  catch (error) {
+    console.error("Error delete comment:", error);
+    res.status(500).json({ error: "Failed to delete comment" });
+  }
+
+
+
+
 };
 
 module.exports = { addComment, getComments, deleteComment };

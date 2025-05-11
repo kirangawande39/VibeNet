@@ -49,7 +49,7 @@
   background: #fff;
   padding: 25px;
   border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
@@ -59,7 +59,7 @@
   border-radius: 12px;
   width: 250px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .suggestion-section .profile-box img {
@@ -67,4 +67,29 @@
   height: 80px;
   border-radius: 50%;
   margin-bottom: 10px;
+}
+
+
+.story-btn {
+  width: 60px;
+  height: 60px;
+  /* border: 3px solid #0d6efd; */
+  border-radius: 50%;
+  background-color: rgb(74, 73, 73); /* Instagram blue */
+  color: rgb(206, 198, 198);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+  /* border: none; */
+  margin: 10px auto;
+}
+
+.story-btn:hover {
+  border: 3px solid #0d6efd;
+  /* background-color: #0056b3; */
+  transform: scale(1.05);
 }

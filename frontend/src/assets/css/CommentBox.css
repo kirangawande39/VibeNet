@@ -77,3 +77,12 @@
 .comment-form button:hover {
   background-color: #0056b3;
 }
+.comment-delete-btn spam{
+ 
+  cursor: pointer;
+}
+
+.comment-delete-btn spam:hover{
+  color: rgb(214, 29, 29);
+  cursor: pointer;
+}

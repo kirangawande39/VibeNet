@@ -6,7 +6,7 @@ import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import { BsFillPostcardHeartFill } from "react-icons/bs";
 import "../assets/css/Profile.css"
-
+import { FaPlus } from "react-icons/fa";
 
 const Profile = () => {
   const [file, setFile] = useState(null);
@@ -122,6 +122,10 @@ const Profile = () => {
     }
   }
 
+  const handleStory=()=>{
+    alert("Story is here")
+  }
+
 
   return (
     <div className="profile-container">
@@ -150,6 +154,9 @@ const Profile = () => {
         </div>
       </div>
   
+            <h3 className="story-btn" onClick={handleStory}>
+            <FaPlus/>
+            </h3>
       <div className="media-switcher my-4 d-flex justify-content-center gap-3">
         <button className={`btn ${mpost ? "btn-dark" : "btn-outline-dark"}`} onClick={() => { setMpost(true); setMreals(false); }}>
           <BsFillPostcardHeartFill /> Posts

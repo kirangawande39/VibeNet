@@ -5,6 +5,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { AuthContext } from "../context/AuthContext";
+import { MdDeleteForever } from "react-icons/md";
 
 dayjs.extend(relativeTime);
 
@@ -49,6 +50,21 @@ const CommentBox = ({ postId }) => {
     }
   };
 
+  const handleCommentDelete=async(commentId)=>{
+    alert("Comment is here");
+      try {
+      const res=await axios.delete(
+        `http://localhost:5000/api/comments/${commentId}`);
+        
+      // setComments([...comments, res.data]);
+      // setNewComment("");
+      alert(res.data.message);
+    } catch (err) {
+      console.error("Error posting comment:", err);
+    }
+  
+  };
+
   return (
     <div className="comment-box">
       <div className="comments-list">
@@ -63,6 +79,16 @@ const CommentBox = ({ postId }) => {
               <div className="comment-header">
                 <strong>{comment.user?.username || user.username}</strong>
                 <span className="comment-time">{dayjs(comment.createdAt).fromNow()}</span>
+                {comment.user._id === user.id ?
+                  <div className="comment-delete-btn">
+                   <spam onClick={()=>handleCommentDelete(comment._id)}>
+                   <MdDeleteForever/>
+                    </spam>
+                </div>
+                 :
+                 " "
+                 }
+               
               </div>
               <p className="comment-text">{comment.text}</p>
             </div>
