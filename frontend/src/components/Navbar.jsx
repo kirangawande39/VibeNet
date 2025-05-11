@@ -50,8 +50,8 @@ const Navbar = () => {
                   <img
                     src={
                       user.profilePic ||
-                      "https://cdn-icons-png.flaticon.com/512/149/149071.png"  || 
                       updateUser.profilePic
+                    || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                     }
                     alt="Avatar"
                     className="avatar"

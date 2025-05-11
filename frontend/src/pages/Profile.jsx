@@ -144,8 +144,8 @@ const Profile = () => {
         <div className="text-end">
           <div className="profile-stats">
             <span><strong>{profileData.posts?.length || 0}</strong> Posts</span>
-            <span><strong>{profileData.followers || 0}</strong> Followers</span>
-            <span><strong>{profileData.following || 0}</strong> Following</span>
+            <span><strong>{profileData.followers.length || 0}</strong> Followers</span>
+            <span><strong>{profileData.following.length || 0}</strong> Following</span>
           </div>
         </div>
       </div>

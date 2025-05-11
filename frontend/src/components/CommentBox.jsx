@@ -1,47 +1,81 @@
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
 import { FaPaperPlane } from "react-icons/fa";
-
 import "../assets/css/CommentBox.css";
+import axios from "axios";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { AuthContext } from "../context/AuthContext";
+
+dayjs.extend(relativeTime);
 
 const CommentBox = ({ postId }) => {
-  // ✅ Default comments (Backend se connect hone tak ye use kar sakte ho)
-  const [comments, setComments] = useState([
-    { _id: 1, userId: { username: "john_doe" }, text: "Nice post!" },
-    { _id: 2, userId: { username: "jane_smith" }, text: "Amazing content ❤️" },
-    { _id: 3, userId: { username: "michael_23" }, text: "Keep it up! 🔥" }
-  ]);
-  
+  const { user , updateUser } = useContext(AuthContext);
+  const token = user?.token || localStorage.getItem("token");
+
+  const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
 
-  // ✅ Handle comment submission
-  const handleCommentSubmit = (e) => {
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/comments/${postId}`);
+        console.log("Fetched Comments:", res.data.comments);
+        setComments(res.data.comments);
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      }
+    };
+    fetchComments();
+  }, [postId]);
+
+  const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
-    // ✅ Add new comment to the list
-    const newCommentData = {
-      _id: Date.now(),
-      userId: { username: "test_user" }, // Default user for now
-      text: newComment
-    };
-
-    setComments([...comments, newCommentData]); // Update UI
-    setNewComment(""); // Clear input
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/api/comments/${postId}`,
+        { newComment },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setComments([...comments, res.data]);
+      setNewComment("");
+    } catch (err) {
+      console.error("Error posting comment:", err);
+    }
   };
 
   return (
     <div className="comment-box">
-      {/* Comments List */}
       <div className="comments-list">
-        {comments.map((comment) => (
+        {comments.slice(0).reverse().map((comment) => (
           <div key={comment._id} className="comment">
-            <strong>{comment.userId.username}:</strong> {comment.text}
+            <img
+              src={comment.user?.profilePic || user.profilePic}
+              alt="Profile"
+              className="comment-profile-pic"
+            />
+            <div className="comment-content">
+              <div className="comment-header">
+                <strong>{comment.user?.username || user.username}</strong>
+                <span className="comment-time">{dayjs(comment.createdAt).fromNow()}</span>
+              </div>
+              <p className="comment-text">{comment.text}</p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Comment Input */}
       <form className="comment-form" onSubmit={handleCommentSubmit}>
+        <img
+             src={user.profilePic || updateUser.profilePic ||  "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+             alt="Profile"
+             className="comment-profile-pic"
+           />
         <input
           type="text"
           placeholder="Add a comment..."
@@ -49,7 +83,7 @@ const CommentBox = ({ postId }) => {
           onChange={(e) => setNewComment(e.target.value)}
           required
         />
-        <button type="submit">
+        <button type="submit" title="Send">
           <FaPaperPlane />
         </button>
       </form>

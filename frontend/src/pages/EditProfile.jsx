@@ -121,11 +121,11 @@ const EditProfile = () => {
                 <p className="mb-0 small">Posts</p>
               </div>
               <div>
-                <strong>{user.followers || 0}</strong>
+                <strong>{user.followers?.length || 0}</strong>
                 <p className="mb-0 small">Followers</p>
               </div>
               <div>
-                <strong>{user.following || 0}</strong>
+                <strong>{user.following?.length || 0}</strong>
                 <p className="mb-0 small">Following</p>
               </div>
             </div>

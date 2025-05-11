@@ -17,3 +17,13 @@
     transform: scale(1.2);
 }
 
+.follow-btn spam{
+    margin-left: 10px;
+    color: #0095f6;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.follow-btn spam:hover{
+    color: rgb(41, 40, 40);
+}
