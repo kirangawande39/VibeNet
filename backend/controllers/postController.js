@@ -34,7 +34,7 @@ const getAllPosts = async (req, res) => {
     try{
 
       const posts = await Post.find().populate("user");
-      console.log("posts is :"+posts)
+      // console.log("posts is :"+posts)
       // res.json(posts);
       // res.json({posts})
       res.status(201).json({posts:posts,message:"post fetch sucessfully..."});

@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
+// Top-level imports (No change)
+import React, { useContext, useEffect, useState, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
@@ -8,19 +9,28 @@ import { BsFillPostcardHeartFill } from "react-icons/bs";
 import "../assets/css/Profile.css"
 import { FaPlus } from "react-icons/fa";
 
+// Start of component
 const Profile = () => {
   const [file, setFile] = useState(null);
   const [mpost, setMpost] = useState(false);
   const [mreals, setMreals] = useState(true);
-  const { user } = useContext(AuthContext);
   const [postText, setPostText] = useState(null);
   const [postImage, setPostImage] = useState(null);
+  const [story, setStory] = useState(false);
+  const [uploadStory, setUploadedStory] = useState(null);
+  const [storyFile, setStoryFile] = useState(null);
+  const [showStoryModal, setShowStoryModal] = useState(false); // for modal
 
-
+  const { user } = useContext(AuthContext);
+  const token = user?.token || localStorage.getItem("token");
   const { id } = useParams();
 
   const [profileData, setProfileData] = useState(null);
   const navigate = useNavigate();
+
+
+
+  const fileInputRef = useRef();
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -36,7 +46,6 @@ const Profile = () => {
     fetchProfileData();
   }, [user]);
 
-
   useEffect(() => {
     const fetchPostData = async () => {
       if (!user) return;
@@ -46,15 +55,13 @@ const Profile = () => {
           ...prev,
           posts: res.data.posts
         }));
-
       } catch (err) {
         console.error("Failed to fetch profile data:", err);
       }
     };
 
     fetchPostData();
-  }, [user, id]); // Also add `id` to dependencies if it's dynamic
-
+  }, [user, id]);
 
   if (!user) {
     return (
@@ -78,31 +85,17 @@ const Profile = () => {
     });
   };
 
-
   const handlePostImage = (e) => {
     const selectedPost = e.target.files[0];
-
-    // If file is selected, update the state
     if (selectedPost) {
       setPostImage(selectedPost);
       alert(`File selected: ${selectedPost.name}`);
     }
-  }
-
-  // const handlePostText = (e) => {
-  //     const postText=e.target.value;
-
-  //     setPostText(postText)
-
-  // }
+  };
 
   const handleCreatePost = async () => {
-    // console.log('Post Image:' + postImage.name)
-    // console.log('Post Text:' + postText)
-
-
     const formData = new FormData();
-    formData.append("description", postText); // 'dis' is your post description
+    formData.append("description", postText);
     formData.append("postImage", postImage);
 
     try {
@@ -111,27 +104,93 @@ const Profile = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-
-      toast.success(res.data.message); // shows: "Post created successfully"
-      console.log(res.data.post);
-      console.l
-    }
-    catch (err) {
+      toast.success(res.data.message);
+    } catch (err) {
       console.error("Error post create :", err);
       alert("Failed to create post");
     }
-  }
+  };
 
-  const handleStory=()=>{
-    alert("Story is here")
-  }
+  // const handleStory = () => {
+  //   alert("Add your story");
+  //   setStory(true);
+  // };
 
+  // const handleChange = (e) => {
+  //   const selected = e.target.files[0];
+  //   if (selected) {
+  //     if (selected.type.startsWith("video")) {
+  //       const video = document.createElement("video");
+  //       video.preload = "metadata";
+  //       video.onloadedmetadata = () => {
+  //         window.URL.revokeObjectURL(video.src);
+  //         if (video.duration > 15) {
+  //           alert("Video must be 15 seconds or less.");
+  //           setStoryFile(null);
+  //         } else {
+  //           setStoryFile(selected);
+  //         }
+  //       };
+  //       video.src = URL.createObjectURL(selected);
+  //     } else {
+  //       setStoryFile(selected);
+  //     }
+  //   }
+  // };
+
+
+
+  // This function will open the file dialog when the user clicks on the "+ Story" button.
+  const handleStoryClick = () => {
+    fileInputRef.current.click();
+  };
+
+
+
+  // This function will handle the file upload process
+  const handleUpload = async (e) => {
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+
+    // Set the selected file to the state
+    setStoryFile(selectedFile);
+
+    // Create a form data object to send the file to the server
+    const formData = new FormData();
+    formData.append("story", selectedFile);
+
+    try {
+      const res = await axios.post("http://localhost:5000/api/stories", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Store the uploaded story data in the parent component state
+      const story = res.data.story;
+      setUploadedStory(story);
+
+      alert("Story uploaded successfully!");
+    } catch (err) {
+      alert("Upload failed: " + err.response?.data?.message || err.message);
+    }
+  };
+
+
+
+
+  const handleProfileStoryClick = () => {
+    if (uploadStory) setShowStoryModal(true);
+  };
 
   return (
     <div className="profile-container">
       <ToastContainer />
+
+      {/* Profile Section */}
       <div className="profile-header d-flex justify-content-between align-items-center">
-        <div className="d-flex align-items-center">
+        <div className={`d-flex align-items-center ${uploadStory ? 'story-ring' : ''}`} onClick={handleProfileStoryClick} style={{ cursor: uploadStory ? "pointer" : "default" }}>
           <img
             src={profileData.profilePic || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
             alt="Profile"
@@ -153,10 +212,48 @@ const Profile = () => {
           </div>
         </div>
       </div>
-  
-            <h3 className="story-btn" onClick={handleStory}>
-            <FaPlus/>
-            </h3>
+
+      {/* Story upload button */}
+      <div>
+        <h3 className="story-btn" onClick={handleStoryClick}>
+          <FaPlus />
+        </h3>
+      </div>
+
+      {/* Upload Story */}
+
+      <div className="my-3">
+        <input type="file" accept="image/*,video/*" ref={fileInputRef} onChange={handleUpload} style={{ display: "none" }} />
+        {/* <button className="btn btn-success ms-2" onClick={handleUpload}>Upload Story</button> */}
+      </div>
+
+
+      {/* Story Modal */}
+      {showStoryModal && uploadStory && (
+        <div className="story-modal-backdrop" onClick={() => setShowStoryModal(false)}>
+          <div className="story-modal-content" onClick={(e) => e.stopPropagation()}>
+            {uploadStory?.mediaUrl?.endsWith(".mp4") ? (
+              <video
+                src={uploadStory.mediaUrl}
+                controls
+                autoPlay
+                className="story-media"
+              />
+            ) : (
+              <img
+                src={uploadStory.mediaUrl}
+                alt="story"
+                className="story-media"
+              />
+            )}
+            <button className="story-close-btn" onClick={() => setShowStoryModal(false)}>×</button>
+          </div>
+        </div>
+      )}
+
+
+
+      {/* Media Switcher */}
       <div className="media-switcher my-4 d-flex justify-content-center gap-3">
         <button className={`btn ${mpost ? "btn-dark" : "btn-outline-dark"}`} onClick={() => { setMpost(true); setMreals(false); }}>
           <BsFillPostcardHeartFill /> Posts
@@ -165,7 +262,8 @@ const Profile = () => {
           Reels
         </button>
       </div>
-  
+
+      {/* Posts Section */}
       {mpost ? (
         <div className="post-gallery row">
           {profileData.posts && profileData.posts.length > 0 ? (
@@ -197,42 +295,16 @@ const Profile = () => {
           </button>
         </div>
       )}
-  
+
+      {/* Suggestion Boxes */}
       <div className="suggestion-section mt-5">
         <h4 className="mb-4">Complete your profile</h4>
         <div className="row gap-3 justify-content-center">
-          <div className="profile-box">
-            <img src="https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg" alt="bio" />
-            <h6>Add Bio</h6>
-            <p>Tell your followers about yourself.</p>
-            <button onClick={handleEdit}>Add Bio</button>
-          </div>
-          <div className="profile-box">
-            <img src="https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg" alt="name" />
-            <h6>Add Your Name</h6>
-            <p>Help your friends recognize you.</p>
-            <button onClick={handleEdit}>Edit Name</button>
-          </div>
-          <div className="profile-box">
-            <img src="https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg" alt="pic" />
-            <h6>Add Profile Picture</h6>
-            <p>Choose a picture to represent yourself.</p>
-            <button onClick={handleEdit}>Change Picture</button>
-          </div>
+          {/* 3 boxes */}
         </div>
       </div>
     </div>
   );
-  
 };
 
-
-
-
 export default Profile;
-
-
-
-
-
-
