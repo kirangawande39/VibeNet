@@ -12,6 +12,8 @@ const Home = () => {
 
   const { user } = useContext(AuthContext);
 
+  const [stories , setStories]=useState([])
+
   const [posts, setPost] = useState([])
 
   const fetchPostData = async () => {
@@ -31,11 +33,30 @@ const Home = () => {
      fetchPostData();
   },[])
 
+  const fetchStories = async () => {
+    
+    try {
+      const res = await axios.get("http://localhost:5000/api/stories");
+      // console.log('res :' + res.data.posts);
+      // console.log(res.data.posts);
+      // setPost(res.data.posts);
+      console.log('Stories :',res.data.stories);
+      setStories(res.data.stories)
+    } catch (err) {
+      // alert(res.data.message);
+      console.error("Failed to fetch profile data:", err);
+    }
+  }
+
+  useEffect(()=>{
+     fetchStories();
+  },[])
+
 
 
   return (
     <div className="container mt-4">
-      <StoryList />
+      <StoryList stories={stories} />
       {/* <button onClick={fetchPostData}>Thsi is post page</button> */}
       <div className="row justify-content-center">
         {posts.length > 0 ? (

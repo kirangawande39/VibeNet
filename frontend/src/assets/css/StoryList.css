@@ -1,73 +1,261 @@
+/* Story List Container */
 .story-list-container {
   display: flex;
-  gap: 12px;
+  gap: 20px;
+  padding: 15px;
   overflow-x: auto;
-  padding: 10px 15px;
-  background-color: #fff;
-  scrollbar-width: thin;
-  scrollbar-color: #ccc transparent;
-  scroll-snap-type: x mandatory;
+  scrollbar-width: none; /* Firefox */
 }
 
 .story-list-container::-webkit-scrollbar {
-  height: 6px;
+  display: none; /* Chrome, Safari, Opera */
 }
 
-.story-list-container::-webkit-scrollbar-thumb {
-  background-color: #bbb;
-  border-radius: 5px;
+/* Story Item */
+.story-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
 }
 
-.story {
-  flex: 0 0 auto;
-  width: 80px;
-  text-align: center;
-  scroll-snap-align: start;
-}
-
+/* Story Circle */
 .story-circle {
+  position: relative;
   width: 70px;
   height: 70px;
+  margin-bottom: 8px;
+}
+
+.story-gradient-border {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid #007bff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  margin: auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  padding: 2px;
 }
 
-.story-video {
+.story-preview {
   width: 100%;
   height: 100%;
+  border-radius: 50%;
   object-fit: cover;
+  border: 2px solid white;
 }
 
 .story-username {
   font-size: 12px;
-  margin-top: 5px;
   color: #333;
-  font-weight: 500;
-  white-space: nowrap;
+  text-align: center;
+  max-width: 70px;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.story-modal {
+
+/* Story Modal */
+.story-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.9);
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+}
+
+.story-modal {
+  width: 100%;
+  max-width: 400px;
+  height: 80vh;
+  max-height: 700px;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Progress Bar */
+.story-progress-container {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.3);
+  z-index: 10;
+  border-radius: 3px;
+}
+
+.story-progress-bar {
+  height: 100%;
+  background-color: white;
+  border-radius: 3px;
+  transition: width 0.1s linear;
+}
+
+/* Modal Content */
+.story-modal-content {
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
 .story-modal-video {
-  max-width: 90%;
-  max-height: 90%;
-  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: black;
 }
+
+/* Overlay */
+.story-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 5;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%);
+}
+
+.story-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.story-profile-img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px solid white;
+  object-fit: cover;
+}
+
+.story-modal-username {
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.story-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.story-action-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .story-circle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .story-modal {
+    height: 100vh;
+    max-height: none;
+    border-radius: 0;
+  }
+}
+
+
+
+/* Navigation Arrows */
+.story-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
+}
+
+.story-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.prev-btn {
+  left: 15px;
+}
+
+.next-btn {
+  right: 15px;
+}
+
+.story-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s;
+}
+
+.story-close-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Touch areas for navigation */
+.story-modal-overlay {
+  cursor: default;
+}
+
+.story-modal-overlay::before,
+.story-modal-overlay::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 33%;
+  z-index: 5;
+}
+
+.story-modal-overlay::before {
+  left: 0;
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><polygon points='30,20 10,10 10,30' fill='white' opacity='0.5'/></svg>") 20 20, auto;
+}
+
+.story-modal-overlay::after {
+  right: 0;
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><polygon points='10,20 30,10 30,30' fill='white' opacity='0.5'/></svg>") 20 20, auto;
+}
+
+
+

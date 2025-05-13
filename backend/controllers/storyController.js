@@ -29,7 +29,16 @@ const createStory = async (req, res) => {
 };
 
 const getStories = async (req, res) => {
-    res.send("Get stories logic here");
+    console.log("Get stories logic here");
+
+    try{
+        const  stories=await Story.find().populate('user');
+        console.log("Stories:"+stories);
+        res.status(201).json({success: true, stories });
+    }
+    catch(err){
+        res.status(500).json({ message: err.message });
+    }
 };
 
 const deleteStory = async (req, res) => {
