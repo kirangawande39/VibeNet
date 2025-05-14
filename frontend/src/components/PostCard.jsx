@@ -128,23 +128,31 @@ const PostCard = ({ post }) => {
         <strong>{post.user.username || "Unknown"}</strong>
         <br />
         {user.id === post.user._id ?
-        
-        " "
-        :
-        <div className="follow-btn">
-          {isFollowing ? (
-            <spam onClick={handleUnfollow}>Unfollow</spam>
-          ) : (
-            <spam onClick={handleFollow}>Follow</spam>
-          )}
-        </div>
+
+          " "
+          :
+          <div className="follow-btn">
+            {isFollowing ? (
+              <spam onClick={handleUnfollow}>Unfollow</spam>
+            ) : (
+              <spam onClick={handleFollow}>Follow</spam>
+            )}
+          </div>
 
         }
 
       </div>
 
       {/* Post Image */}
-      <img src={post.image} alt="post" className="card-img-top" />
+      <div style={{ height: '300px', overflow: 'hidden' }}>
+        <img
+          src={post.image}
+          alt="post"
+          className="card-img-top img-fluid"
+          style={{ objectFit: 'contain', width: '100%', height: '100%' }}
+        />
+      </div>
+
 
       {/* Post Body */}
       <div className="card-body">

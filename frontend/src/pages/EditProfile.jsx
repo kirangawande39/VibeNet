@@ -10,8 +10,9 @@ const EditProfile = () => {
   const { updateUser } = useContext(AuthContext);
   const location = useLocation();
   const profileData = location.state?.profileData;
+  const posts = location.state?.posts;
 
-  const [user, setUser] = useState(profileData || null);
+  const [user, setUser] = useState(profileData ||  null);
   const [isEditingBioName, setIsEditingBioName] = useState(false);
   const [bio, setBio] = useState(profileData?.bio || "");
   const [name, setName] = useState(profileData?.name || "");
@@ -118,7 +119,7 @@ const EditProfile = () => {
             <h4 className="fw-bold">@{user.username}</h4>
             <div className="d-flex justify-content-around mt-3">
               <div>
-                <strong>{user.posts?.length || 0}</strong>
+                <strong>{posts?.length || 0}</strong>
                 <p className="mb-0 small">Posts</p>
               </div>
               <div>
@@ -185,8 +186,8 @@ const EditProfile = () => {
           <div className="mt-5 mb-5">
             <h4 className="mb-4 fw-semibold">Your Posts</h4>
             <div className="row g-3">
-              {user.posts && user.posts.length > 0 ? (
-                user.posts.map((post) => (
+              {posts && posts.length > 0 ? (
+                posts.map((post) => (
                   <div key={post.id} className="col-6 col-md-4">
                     <div className="card border-0 shadow-sm mb-3">
                       <img

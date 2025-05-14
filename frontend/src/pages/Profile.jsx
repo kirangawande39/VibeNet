@@ -8,7 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { BsFillPostcardHeartFill } from "react-icons/bs";
 import "../assets/css/Profile.css"
 import { FaPlus } from "react-icons/fa";
-
+import { MdOutlinePersonSearch } from "react-icons/md";
 // Start of component
 const Profile = () => {
   const [file, setFile] = useState(null);
@@ -22,11 +22,11 @@ const Profile = () => {
   const [showStoryModal, setShowStoryModal] = useState(false); // for modal
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
-
+  const [selectedImage, setSelectedImage] = useState(null);
   const [searchFollower, setSearchFollower] = useState("");
   const [searchFollowing, setSearchFollowing] = useState("");
 
-  const [posts,setPosts]=useState([])
+  const [posts, setPosts] = useState([])
 
 
   const { user } = useContext(AuthContext);
@@ -36,9 +36,18 @@ const Profile = () => {
   const [profileData, setProfileData] = useState(null);
   const navigate = useNavigate();
 
-
-
   const fileInputRef = useRef();
+
+
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
+  };
+
+  const closeModal = () => {
+    setSelectedImage(null);
+  };
+
+  
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -61,7 +70,7 @@ const Profile = () => {
       if (!user) return;
       try {
         const res = await axios.get(`http://localhost:5000/api/posts/${id}`);
-        console.log("Posts:",res.data.posts)
+        console.log("Posts:", res.data.posts)
         setPosts(res.data.posts);
       } catch (err) {
         console.error("Failed to fetch profile data:", err);
@@ -89,7 +98,7 @@ const Profile = () => {
 
   const handleEdit = () => {
     navigate(`/users/${user.id}/edit_profile`, {
-      state: { profileData },
+      state: { profileData, posts },
     });
   };
 
@@ -241,7 +250,7 @@ const Profile = () => {
             {/* Search Input */}
             <div className="input-group mb-2">
               <span className="input-group-text">
-                <i className="bi bi-search"></i>
+                <MdOutlinePersonSearch/>
               </span>
               <input
                 type="text"
@@ -295,7 +304,7 @@ const Profile = () => {
             {/* Search Input */}
             <div className="input-group mb-2">
               <span className="input-group-text">
-                <i className="bi bi-search"></i>
+                 <MdOutlinePersonSearch/>
               </span>
               <input
                 type="text"
@@ -393,40 +402,93 @@ const Profile = () => {
         </button>
       </div>
 
-      
+
 
       {/* Posts Section */}
+     <div className="post-container">
       {mpost ? (
-        <div className="post-gallery row">
+        <div className="post-gallery">
           {posts && posts.length > 0 ? (
-             posts.map((post) => (
-              <div key={post._id} className="col-md-4 mb-4">
-                <div className="post-card shadow-sm">
-                  <img src={post.image} alt="Post" className="post-img" />
-                  <p className="post-caption">{post.text}</p>
+            <div className="gallery-grid">
+              {posts.map((post) => (
+                <div key={post._id} className="gallery-item">
+                  <div 
+                    className="post-card"
+                    onClick={() => handleImageClick(post.image)}
+                  >
+                    <div className="post-img-container">
+                      <img
+                        src={post.image}
+                        alt="Post"
+                        className="post-image"
+                      />
+                    </div>
+                    <p className="post-caption">{post.text}</p>
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           ) : (
-            <p className="text-center">No posts available</p>
+            <div className="empty-state">
+              <p className="empty-message">No posts available</p>
+              <button 
+                className="create-first-btn"
+                onClick={() => setMpost(false)}
+              >
+                Create First Post
+              </button>
+            </div>
           )}
         </div>
       ) : (
         <div className="create-post-card">
-          <h2>Create Post</h2>
-          <p className="text-muted">Share your thoughts and optionally add an image.</p>
-          <input type="file" accept="image/*" className="form-control mb-3" onChange={handlePostImage} />
+          <h2 className="create-post-title">Create Post</h2>
+          <p className="create-post-subtitle">Share your thoughts and optionally add an image.</p>
+          <input 
+            type="file" 
+            accept="image/*" 
+            className="post-image-input" 
+            onChange={handlePostImage} 
+          />
           <textarea
-            className="form-control mb-3"
+            className="post-textarea"
             rows="4"
             placeholder="Write a description..."
             onChange={(e) => setPostText(e.target.value)}
           ></textarea>
-          <button className="btn btn-primary w-100 rounded-pill" onClick={handleCreatePost}>
-            Post
-          </button>
+          <div className="post-actions">
+            <button 
+              className="cancel-btn"
+              onClick={() => setMpost(true)}
+            >
+              Cancel
+            </button>
+            <button 
+              className="submit-btn" 
+              onClick={handleCreatePost}
+            >
+              Post
+            </button>
+          </div>
         </div>
       )}
+
+      {/* Image Modal */}
+      {selectedImage && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={closeModal}>
+              &times;
+            </button>
+            <img
+              src={selectedImage}
+              alt="Selected"
+              className="modal-image"
+            />
+          </div>
+        </div>
+      )}
+    </div>
 
       {/* Suggestion Boxes */}
       <div className="suggestion-section mt-5">
