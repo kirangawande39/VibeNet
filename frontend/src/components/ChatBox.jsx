@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 
-const ChatBox = ({ messages, onSendMessage }) => {
+const ChatBox = ({ messages, onSendMessage, user, selectedUser }) => {
   const [newMessage, setNewMessage] = useState("");
   const chatEndRef = useRef(null);
 
@@ -17,9 +17,23 @@ const ChatBox = ({ messages, onSendMessage }) => {
 
   return (
     <div className="card">
+      {/* Selected user info at top */}
+      {selectedUser && (
+        <div className="card-header d-flex align-items-center bg-light">
+          <img
+            src={selectedUser.profilePic || "/default-profile.png"}
+            alt="Profile"
+            className="rounded-circle me-2"
+            style={{ width: "40px", height: "40px", objectFit: "cover" }}
+          />
+          <strong>{selectedUser.username}</strong>
+        </div>
+      )}
+
+      {/* Chat Messages */}
       <div className="card-body chat-box" style={{ height: "300px", overflowY: "auto" }}>
         {messages.map((msg, index) => (
-          <div key={index} className={`mb-2 ${msg.sender === "You" ? "text-end" : ""}`}>
+          <div key={index} className={`mb-2 ${msg.sender === user.username ? "text-end" : ""}`}>
             <strong>{msg.sender}:</strong> {msg.text}
           </div>
         ))}

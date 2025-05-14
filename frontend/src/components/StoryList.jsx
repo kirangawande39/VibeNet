@@ -83,7 +83,7 @@ const StoryList = ({ stories }) => {
                 src={currentStory.mediaUrl}
                 className="story-modal-video"
                 autoPlay
-                muted
+                
               />
 
               {index > 0 && (

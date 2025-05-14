@@ -4,12 +4,12 @@ const User = require("../models/User");
 const getUserProfile = async (req, res) => {
 
     console.log("user profile is here")
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id).populate("followers").populate("following");
 
     console.log("getUser:" + user)
     if (user) {
         console.log("data send to frontend ")
-        res.json(user);
+        res.json({user});
     } else {
         res.status(404).json({ message: "User not found" });
     }

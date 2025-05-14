@@ -8,6 +8,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import { BsRewind } from "react-icons/bs";
+import Spinner from "../components/Spinner";
 const Home = () => {
 
   const { user } = useContext(AuthContext);
@@ -66,7 +67,7 @@ const Home = () => {
             </div>
           ))
         ) : (
-          <p className="text-center">No posts available</p>
+          <Spinner/>
         )}
       </div>
     </div>

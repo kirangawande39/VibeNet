@@ -20,7 +20,9 @@ const Login = () => {
 
       // ✅ Save token and user info
       localStorage.setItem("token", res.data.token);
-      login(res.data.user); // sets context
+      login(res.data.user);// sets context
+
+     console.log("User:",res.data.user)
 
       toast.success(res.data.message || "Login successful");
 

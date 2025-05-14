@@ -20,6 +20,14 @@ const Profile = () => {
   const [uploadStory, setUploadedStory] = useState(null);
   const [storyFile, setStoryFile] = useState(null);
   const [showStoryModal, setShowStoryModal] = useState(false); // for modal
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
+
+  const [searchFollower, setSearchFollower] = useState("");
+  const [searchFollowing, setSearchFollowing] = useState("");
+
+  const [posts,setPosts]=useState([])
+
 
   const { user } = useContext(AuthContext);
   const token = user?.token || localStorage.getItem("token");
@@ -37,7 +45,9 @@ const Profile = () => {
       if (!user) return;
       try {
         const response = await axios.get(`http://localhost:5000/api/users/${id}`);
-        setProfileData(response.data);
+
+        console.log("user", response.data.user)
+        setProfileData(response.data.user);
       } catch (err) {
         console.error("Failed to fetch profile data:", err);
       }
@@ -51,10 +61,8 @@ const Profile = () => {
       if (!user) return;
       try {
         const res = await axios.get(`http://localhost:5000/api/posts/${id}`);
-        setProfileData(prev => ({
-          ...prev,
-          posts: res.data.posts
-        }));
+        console.log("Posts:",res.data.posts)
+        setPosts(res.data.posts);
       } catch (err) {
         console.error("Failed to fetch profile data:", err);
       }
@@ -207,11 +215,133 @@ const Profile = () => {
         <div className="text-end">
           <div className="profile-stats">
             <span><strong>{profileData.posts?.length || 0}</strong> Posts</span>
-            <span><strong>{profileData.followers.length || 0}</strong> Followers</span>
-            <span><strong>{profileData.following.length || 0}</strong> Following</span>
+            <span
+              style={{ cursor: "pointer" }}
+              onClick={() => setShowFollowers(true)}
+            >
+              <strong>{profileData.followers?.length || 0}</strong> Followers
+            </span>
+            <span
+              style={{ cursor: "pointer" }}
+              onClick={() => setShowFollowing(true)}
+            >
+              <strong>{profileData.following?.length || 0}</strong> Following
+            </span>
           </div>
+
         </div>
       </div>
+      {/* Followers Modal */}
+
+      {showFollowers && (
+        <div className="story-modal-backdrop" onClick={() => setShowFollowers(false)}>
+          <div className="story-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h5>Followers</h5>
+
+            {/* Search Input */}
+            <div className="input-group mb-2">
+              <span className="input-group-text">
+                <i className="bi bi-search"></i>
+              </span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search followers..."
+                value={searchFollower}
+                onChange={(e) => setSearchFollower(e.target.value)}
+              />
+            </div>
+
+            <ul className="list-group">
+              {profileData.followers.length > 0 ? (
+                profileData.followers
+                  .filter(f =>
+                    f.username.toLowerCase().includes(searchFollower.toLowerCase()) ||
+                    (f.name && f.name.toLowerCase().includes(searchFollower.toLowerCase()))
+                  )
+                  .map((follower) => (
+                    <li key={follower._id} className="list-group-item d-flex align-items-center justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <img
+                          src={follower.profilePic || "/default-profile.png"}
+                          alt="profile"
+                          className="rounded-circle"
+                          style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "10px" }}
+                        />
+                        <div>
+                          <strong>{follower.username}</strong><br />
+                          <small>{follower.name || ""}</small>
+                        </div>
+                      </div>
+                      <button className="btn btn-sm btn-outline-primary">Following</button>
+                    </li>
+                  ))
+              ) : (
+                <li className="list-group-item">No followers yet</li>
+              )}
+            </ul>
+
+            <button className="story-close-btn" onClick={() => setShowFollowers(false)}>×</button>
+          </div>
+        </div>
+      )}
+
+
+      {showFollowing && (
+        <div className="story-modal-backdrop" onClick={() => setShowFollowing(false)}>
+          <div className="story-modal-content" onClick={(e) => e.stopPropagation()}>
+            <h5>Following</h5>
+
+            {/* Search Input */}
+            <div className="input-group mb-2">
+              <span className="input-group-text">
+                <i className="bi bi-search"></i>
+              </span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search following..."
+                value={searchFollowing}
+                onChange={(e) => setSearchFollowing(e.target.value)}
+              />
+            </div>
+
+            <ul className="list-group">
+              {profileData.following.length > 0 ? (
+                profileData.following
+                  .filter(f =>
+                    f.username.toLowerCase().includes(searchFollowing.toLowerCase()) ||
+                    (f.name && f.name.toLowerCase().includes(searchFollowing.toLowerCase()))
+                  )
+                  .map((followed) => (
+                    <li key={followed._id} className="list-group-item d-flex align-items-center justify-content-between">
+                      <div className="d-flex align-items-center">
+                        <img
+                          src={followed.profilePic || "/default-profile.png"}
+                          alt="profile"
+                          className="rounded-circle"
+                          style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "10px" }}
+                        />
+                        <div>
+                          <strong>{followed.username}</strong><br />
+                          <small>{followed.name || ""}</small>
+                        </div>
+                      </div>
+                      <button className="btn btn-sm btn-outline-primary">Following</button>
+                    </li>
+                  ))
+              ) : (
+                <li className="list-group-item">Not following anyone</li>
+              )}
+            </ul>
+
+            <button className="story-close-btn" onClick={() => setShowFollowing(false)}>×</button>
+          </div>
+        </div>
+      )}
+
+
+
 
       {/* Story upload button */}
       <div>
@@ -263,11 +393,13 @@ const Profile = () => {
         </button>
       </div>
 
+      
+
       {/* Posts Section */}
       {mpost ? (
         <div className="post-gallery row">
-          {profileData.posts && profileData.posts.length > 0 ? (
-            profileData.posts.map((post) => (
+          {posts && posts.length > 0 ? (
+             posts.map((post) => (
               <div key={post._id} className="col-md-4 mb-4">
                 <div className="post-card shadow-sm">
                   <img src={post.image} alt="Post" className="post-img" />
@@ -300,9 +432,10 @@ const Profile = () => {
       <div className="suggestion-section mt-5">
         <h4 className="mb-4">Complete your profile</h4>
         <div className="row gap-3 justify-content-center">
-          {/* 3 boxes */}
+
         </div>
       </div>
+
     </div>
   );
 };

@@ -39,7 +39,8 @@ const EditProfile = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update");
 
-      const updatedUser = { ...user, name, bio };
+      const updatedUser = { ...user, name, bio};
+      console.log('updateUser:',updateUser)
       setUser(updatedUser);
       updateUser(updatedUser);
       toast.success("Profile updated!");

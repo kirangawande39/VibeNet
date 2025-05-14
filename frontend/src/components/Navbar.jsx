@@ -56,6 +56,7 @@ const Navbar = () => {
                     alt="Avatar"
                     className="avatar"
                   />
+                  {/* <p>{user.username}</p> */}
                 </Link>
                 <Link to="/chat" className="me-2">
                   <FaCommentDots className="chat-icon" />
