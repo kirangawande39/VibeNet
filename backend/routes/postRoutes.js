@@ -1,31 +1,27 @@
 const express = require("express");
-const { createPost, getAllPosts, getPostById, getPostsByUserId , deletePost } = require("../controllers/postController");
-const  protect  = require("../middlewares/authMiddleware");
-const multer =require('multer');
+const { createPost, getAllPosts, getPostsByUserId, deletePost } = require("../controllers/postController");
+const multer = require('multer');
+const { storage } = require('../config/cloudConfig');  // yaha import karo
+const upload = multer({ storage });  // CloudinaryStorage se multer banayen
+
 const router = express.Router();
 
-// Multer setup
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // store in uploads folder
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + "-" + file.originalname);
-  }
-});
+router.post("/:id", upload.single('postImage'), createPost); // Image upload with Cloudinary
+router.get("/", getAllPosts);
+router.get("/:id", getPostsByUserId);
+router.delete("/:id", deletePost);
 
-const upload = multer({ storage });
+// router.post("/:id", upload.single('postImage'), (req, res) => {
+//   console.log("post route is here now");
+
+//   const imageUrl = req.file ? req.file.path : "jlkdfjasdlfj";
+
+// console.log("image url object: " + JSON.stringify(imageUrl));
 
 
-router.post("/:id" , upload.single('postImage'),  createPost); // Create a post
+//   // Send response to client
+//   res.status(200).json({ message: "Image received", imageUrl });
+// });
 
-router.get("/", getAllPosts); // Get all posts
-// router.get("/", getPostById);
-
-// Get a single post by ID
-
-router.get("/:id",getPostsByUserId);
-router.delete("/:id", deletePost); // Delete a post
 
 module.exports = router;

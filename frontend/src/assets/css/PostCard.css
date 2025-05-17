@@ -27,3 +27,24 @@
 .follow-btn spam:hover{
     color: rgb(41, 40, 40);
 }
+
+.flying-like {
+  position: absolute;
+  bottom: 50px; /* start a bit above the like button */
+  font-size: 24px;
+  animation: flyUp 2s ease forwards;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 0 2px #f00);
+}
+
+@keyframes flyUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-120px) scale(1.5);
+  }
+}

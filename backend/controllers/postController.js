@@ -1,31 +1,32 @@
 const Post = require("../models/Post");
-const authMiddleware = require('../middlewares/authMiddleware')
+const authMiddleware = require('../middlewares/authMiddleware');
+
 // Create a Post
 const createPost = async (req, res) => {
-    const { description } = req.body;
+  const { description } = req.body;
+  console.log("crate post route is herer")
   
-    try {
-      const imagePath = `http://localhost:5000/uploads/${req.file.filename}`;
-      const post = await Post.create({
-        user: req.params.id,
-        text: description,
-        image: imagePath,
-      });
-      
-      console.log("post"+post)
-      res.status(201).json({
-        message: "Post created successfully",
-        post: post,
-      });
-      
+  try {
+    const imageUrl = req.file.path; // Cloudinary image URL milti hai yaha
+    console.log("Uploaded image URL:", imageUrl);
 
-    } catch (error) {
-      console.error("Error Creating Post:", error);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  };
+    const post = await Post.create({
+      user: req.params.id,
+      text: description,
+      image: imageUrl,
+    });
+
+    res.status(201).json({
+      message: "Post created successfully",
+      post,
+    });
+  } catch (error) {
+    console.error("Error Creating Post:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+
+};
   
-
 // Get All Posts
 const getAllPosts = async (req, res) => {
 

@@ -1,22 +1,13 @@
 const express = require("express");
 const { createStory, getStories, deleteStory } = require("../controllers/storyController");
 const { protect } = require("../middlewares/authMiddleware");
-const multer=require('multer')
-const router = express.Router();
 
+const router = express.Router();
+const multer = require('multer');
+const { storage } = require('../config/cloudConfig');  // yaha import karo
+const upload = multer({ storage });
 
 // Multer setup
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // store in uploads folder
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + "-" + file.originalname);
-  }
-});
-
-const upload = multer({ storage });
 
 
 router.post("/", protect , upload.single('story')  , createStory); // Create a story

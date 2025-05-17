@@ -1,24 +1,20 @@
 const express = require("express");
 const { getUserProfile, updateUserProfile, followUser, unfollowUser } = require("../controllers/userController");
 const { protect } = require("../middlewares/authMiddleware");
-const multer = require('multer');
-const router = express.Router();
-const User = require('../models/User'); // adjust path as needed
 
+const router = express.Router();
+const User = require('../models/User');
+ // adjust path as needed
+
+const multer = require('multer');
+const { storage } = require('../config/cloudConfig');  // yaha import karo
+const upload = multer({ storage });
 
 
 // Multer setup
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // store in uploads folder
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + "-" + file.originalname);
-  }
-});
 
-const upload = multer({ storage });
+
+
 
 
 router.get("/:id", getUserProfile); // Get user profile by ID
@@ -34,7 +30,7 @@ router.post("/:id/unfollow",  unfollowUser); // Unfollow a user
 router.put('/:id/uploadProfilePic', upload.single('profilePic'), async (req, res) => {
   try {
     const userId = req.params.id;
-    const imagePath = `http://localhost:5000/uploads/${req.file.filename}`;
+    const imagePath = req.file.path;
 
     const updatedUser = await User.findByIdAndUpdate(userId, { profilePic: imagePath }, { new: true });
     res.json({ profilePic: updatedUser.profilePic });

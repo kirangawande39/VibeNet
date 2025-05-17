@@ -1,32 +1,37 @@
 const Story = require("../models/Story");
 
-
-
-
 const createStory = async (req, res) => {
-    console.log("Create story logic here");
-    try {
-        const file = req.file;
-        console.log("filename: "+file.filename)
-        if (!file) return res.status(400).json({ message: "No file uploaded" });
+  console.log("Create story logic here");
 
-        const mediaType = file.mimetype.startsWith("video") ? "video" : "image";
+  try {
+    const file = req.file;
 
-        const story = await Story.create({
-            user: req.user.id, // assuming user is authenticated
-            mediaUrl: `http://localhost:5000/uploads/${file.filename}`,
-            mediaType,
-            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        });
-
-        console.log("Stroy :"+story);
-        
-
-        res.status(201).json({ success: true, story });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    if (!file) {
+      return res.status(400).json({ message: "No file uploaded" });
     }
+
+    console.log("Uploaded File Info:", file); // ✅
+
+    const storyUrl = file.path;
+    const mediaType = file.mimetype.startsWith("video") ? "video" : "image";
+
+    const story = await Story.create({
+      user: req.user.id,
+      mediaUrl: storyUrl,
+      mediaType,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    });
+
+    console.log("Story Created:", story); // ✅ Don’t use + story
+
+    res.status(201).json({ success: true, story });
+  } catch (err) {
+    console.error("Error creating story:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
+
+
 
 const getStories = async (req, res) => {
     console.log("Get stories logic here");
