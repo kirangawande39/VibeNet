@@ -48,4 +48,31 @@ const getMessages = async (req, res) => {
     }
 };
 
-module.exports = { sendMessage, getMessages };
+
+const seenMessages = async (req,res)=>{
+     try {
+        const { chatId } = req.params;
+        const userId = req.user.id; 
+        
+        // Assume auth middleware sets this
+
+        console.log("chatId"+chatId)
+        console.log("userId"+userId)
+
+        // Update all messages in chat where receiver is current user and message is not sent by this user
+        const updatedMessage=await Message.updateMany(
+            { chatId, sender: { $ne: userId }, seen: false },
+            { $set: { seen: true } }
+        );
+
+        console.log("updatedMessage", updatedMessage);
+
+
+        res.status(200).json({ message: "Messages marked as seen" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Server error" });
+    }
+}
+
+module.exports = { sendMessage, getMessages ,seenMessages};

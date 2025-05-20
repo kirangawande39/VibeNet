@@ -6,13 +6,14 @@ import { ToastContainer, toast } from "react-toastify";
 import { FaEdit, FaSave, FaTimes } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 
+import "../assets/css/EditProfile.css"
 const EditProfile = () => {
   const { updateUser } = useContext(AuthContext);
   const location = useLocation();
   const profileData = location.state?.profileData;
   const posts = location.state?.posts;
 
-  const [user, setUser] = useState(profileData ||  null);
+  const [user, setUser] = useState(profileData || null);
   const [isEditingBioName, setIsEditingBioName] = useState(false);
   const [bio, setBio] = useState(profileData?.bio || "");
   const [name, setName] = useState(profileData?.name || "");
@@ -40,8 +41,8 @@ const EditProfile = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update");
 
-      const updatedUser = { ...user, name, bio};
-      console.log('updateUser:',updateUser)
+      const updatedUser = { ...user, name, bio };
+      console.log('updateUser:', updateUser)
       setUser(updatedUser);
       updateUser(updatedUser);
       toast.success("Profile updated!");
@@ -185,26 +186,28 @@ const EditProfile = () => {
           {/* User Posts */}
           <div className="mt-5 mb-5">
             <h4 className="mb-4 fw-semibold">Your Posts</h4>
-            <div className="row g-3">
-              {posts && posts.length > 0 ? (
-                posts.map((post) => (
-                  <div key={post.id} className="col-6 col-md-4">
+
+            {posts && posts.length > 0 ? (
+              <div className="masonry-grid">
+                {posts.map((post) => (
+                  <div key={post.id} className="masonry-item">
                     <div className="card border-0 shadow-sm mb-3">
                       <img
                         src={post.image}
                         alt="Post"
                         className="card-img-top"
-                        style={{ height: "250px", objectFit: "cover" }}
+                        style={{ width: "100%", height: "auto", objectFit: "cover" }}
                       />
                     </div>
-
                   </div>
-                ))
-              ) : (
-                <p className="text-muted">No posts available</p>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted">No posts available</p>
+            )}
           </div>
+
+
         </div>
       </div>
     </div>
@@ -212,3 +215,5 @@ const EditProfile = () => {
 };
 
 export default EditProfile;
+
+

@@ -11,14 +11,15 @@ import { BsRewind } from "react-icons/bs";
 import Spinner from "../components/Spinner";
 const Home = () => {
 
+  const { updateUser } = useContext(AuthContext);
   const { user } = useContext(AuthContext);
 
-  const [stories , setStories]=useState([])
+  const [stories, setStories] = useState([])
 
   const [posts, setPost] = useState([])
 
   const fetchPostData = async () => {
-    
+
     try {
       const res = await axios.get(`http://localhost:5000/api/posts`);
       // console.log('res :' + res.data.posts);
@@ -30,18 +31,18 @@ const Home = () => {
     }
   }
 
-  useEffect(()=>{
-     fetchPostData();
-  },[])
+  useEffect(() => {
+    fetchPostData();
+  }, [])
 
   const fetchStories = async () => {
-    
+
     try {
       const res = await axios.get("http://localhost:5000/api/stories");
       // console.log('res :' + res.data.posts);
       // console.log(res.data.posts);
       // setPost(res.data.posts);
-      console.log('Stories :',res.data.stories);
+      console.log('Stories :', res.data.stories);
       setStories(res.data.stories)
     } catch (err) {
       // alert(res.data.message);
@@ -49,9 +50,16 @@ const Home = () => {
     }
   }
 
-  useEffect(()=>{
-     fetchStories();
-  },[])
+  useEffect(() => {
+    fetchStories();
+  }, [])
+
+
+
+
+
+
+
 
 
 
@@ -67,7 +75,7 @@ const Home = () => {
             </div>
           ))
         ) : (
-          <Spinner/>
+          <Spinner />
         )}
       </div>
     </div>

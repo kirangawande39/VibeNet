@@ -9,6 +9,8 @@ import { BsFillPostcardHeartFill } from "react-icons/bs";
 import "../assets/css/Profile.css"
 import { FaPlus } from "react-icons/fa";
 import { MdOutlinePersonSearch } from "react-icons/md";
+import { FaUserCircle, FaInfoCircle, FaEdit } from "react-icons/fa";
+
 // Start of component
 const Profile = () => {
   const [file, setFile] = useState(null);
@@ -47,7 +49,7 @@ const Profile = () => {
     setSelectedImage(null);
   };
 
-  
+
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -221,24 +223,24 @@ const Profile = () => {
             </button>
           </div>
         </div>
-        <div className="text-end">
-          <div className="profile-stats">
-            <span><strong>{profileData.posts?.length || 0}</strong> Posts</span>
-            <span
-              style={{ cursor: "pointer" }}
-              onClick={() => setShowFollowers(true)}
-            >
-              <strong>{profileData.followers?.length || 0}</strong> Followers
-            </span>
-            <span
-              style={{ cursor: "pointer" }}
-              onClick={() => setShowFollowing(true)}
-            >
-              <strong>{profileData.following?.length || 0}</strong> Following
-            </span>
-          </div>
-
+      </div>
+      <div className="text-end mt-4 mb-5">
+        <div className="profile-stats">
+          <span><strong>{posts?.length || 0}</strong> Posts</span>
+          <span
+            style={{ cursor: "pointer" }}
+            onClick={() => setShowFollowers(true)}
+          >
+            <strong>{profileData.followers?.length || 0}</strong> Followers
+          </span>
+          <span
+            style={{ cursor: "pointer" }}
+            onClick={() => setShowFollowing(true)}
+          >
+            <strong>{profileData.following?.length || 0}</strong> Following
+          </span>
         </div>
+
       </div>
       {/* Followers Modal */}
 
@@ -250,7 +252,7 @@ const Profile = () => {
             {/* Search Input */}
             <div className="input-group mb-2">
               <span className="input-group-text">
-                <MdOutlinePersonSearch/>
+                <MdOutlinePersonSearch />
               </span>
               <input
                 type="text"
@@ -304,7 +306,7 @@ const Profile = () => {
             {/* Search Input */}
             <div className="input-group mb-2">
               <span className="input-group-text">
-                 <MdOutlinePersonSearch/>
+                <MdOutlinePersonSearch />
               </span>
               <input
                 type="text"
@@ -405,98 +407,139 @@ const Profile = () => {
 
 
       {/* Posts Section */}
-     <div className="post-container">
-      {mpost ? (
-        <div className="post-gallery">
-          {posts && posts.length > 0 ? (
-            <div className="gallery-grid">
-              {posts.map((post) => (
-                <div key={post._id} className="gallery-item">
-                  <div 
-                    className="post-card"
-                    onClick={() => handleImageClick(post.image)}
-                  >
-                    <div className="post-img-container">
-                      <img
-                        src={post.image}
-                        alt="Post"
-                        className="post-image"
-                      />
+      <div className="post-container">
+        {mpost ? (
+          <div className="post-gallery">
+            {posts && posts.length > 0 ? (
+              <div className="gallery-grid">
+                {posts.map((post) => (
+                  <div key={post._id} className="gallery-item">
+                    <div
+                      className="post-card"
+                      onClick={() => handleImageClick(post.image)}
+                    >
+                      <div className="post-img-container">
+                        <img
+                          src={post.image}
+                          alt="Post"
+                          className="post-image"
+                        />
+                      </div>
+                      <p className="post-caption">{post.text}</p>
                     </div>
-                    <p className="post-caption">{post.text}</p>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <p className="empty-message">No posts available</p>
-              <button 
-                className="create-first-btn"
-                onClick={() => setMpost(false)}
-              >
-                Create First Post
-              </button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="create-post-card">
-          <h2 className="create-post-title">Create Post</h2>
-          <p className="create-post-subtitle">Share your thoughts and optionally add an image.</p>
-          <input 
-            type="file" 
-            accept="image/*" 
-            className="post-image-input" 
-            onChange={handlePostImage} 
-          />
-          <textarea
-            className="post-textarea"
-            rows="4"
-            placeholder="Write a description..."
-            onChange={(e) => setPostText(e.target.value)}
-          ></textarea>
-          <div className="post-actions">
-            <button 
-              className="cancel-btn"
-              onClick={() => setMpost(true)}
-            >
-              Cancel
-            </button>
-            <button 
-              className="submit-btn" 
-              onClick={handleCreatePost}
-            >
-              Post
-            </button>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state">
+                <p className="empty-message">No posts available</p>
+                <button
+                  className="create-first-btn"
+                  onClick={() => setMpost(false)}
+                >
+                  Create First Post
+                </button>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="container mt-5">
+            <div className="card shadow-lg border-0 rounded-4 mx-auto" style={{ maxWidth: '500px' }}>
+              <div className="card-body p-4">
+                <h2 className="card-title text-center mb-2 fw-bold text-dark">Create Post</h2>
+                <p className="text-center text-muted mb-4">Share your thoughts and add a photo</p>
 
-      {/* Image Modal */}
-      {selectedImage && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close-btn" onClick={closeModal}>
-              &times;
-            </button>
-            <img
-              src={selectedImage}
-              alt="Selected"
-              className="modal-image"
-            />
+                <div className="mb-3 text-center">
+                  <label htmlFor="postImage" className="form-label d-block fw-semibold mb-2">Upload Image</label>
+                  <input
+                    type="file"
+                    className="form-control"
+                    id="postImage"
+                    accept="image/*"
+                    onChange={handlePostImage}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label htmlFor="postText" className="form-label fw-semibold">Caption</label>
+                  <textarea
+                    className="form-control"
+                    id="postText"
+                    rows="4"
+                    placeholder="Write something amazing..."
+                    onChange={(e) => setPostText(e.target.value)}
+                  ></textarea>
+                </div>
+
+                <div className="d-flex justify-content-between mt-4">
+                  <button
+                    className="btn btn-outline-secondary w-45 rounded-pill"
+                    onClick={() => setMpost(true)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="btn btn-primary w-45 rounded-pill"
+                    onClick={handleCreatePost}
+                  >
+                    Post
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+
+
+        )}
+
+        {/* Image Modal */}
+        {selectedImage && (
+          <div className="modal-overlay" onClick={closeModal}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close-btn" onClick={closeModal}>
+                &times;
+              </button>
+              <img
+                src={selectedImage}
+                alt="Selected"
+                className="modal-image"
+              />
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Suggestion Boxes */}
       <div className="suggestion-section mt-5">
         <h4 className="mb-4">Complete your profile</h4>
         <div className="row gap-3 justify-content-center">
 
+          {/* Upload profile picture */}
+          <div className="col-md-3 suggestion-box text-center p-3">
+            <FaUserCircle size={40} className="mb-2" />
+            <h6>Upload Profile Picture</h6>
+            <button className="btn btn-primary btn-sm mt-2" onClick={handleEdit}>Upload</button>
+          </div>
+
+          {/* Add Bio */}
+          <div className="col-md-3 suggestion-box text-center p-3">
+            <FaInfoCircle size={40} className="mb-2" />
+            <h6>Add a Bio</h6>
+            <button className="btn btn-primary btn-sm mt-2" onClick={handleEdit}>Add Bio</button>
+          </div>
+
+          {/* Edit Profile */}
+          <div className="col-md-3 suggestion-box text-center p-3 mb-5">
+            <FaEdit size={40} className="mb-2" />
+            <h6>Edit Profile</h6>
+            <button className="btn btn-primary btn-sm mt-2" onClick={handleEdit}>Edit</button>
+          </div>
+
+
+
         </div>
       </div>
+
 
     </div>
   );

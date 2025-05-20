@@ -16,6 +16,7 @@ const createPost = async (req, res) => {
       image: imageUrl,
     });
 
+    
     res.status(201).json({
       message: "Post created successfully",
       post,

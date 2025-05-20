@@ -2,23 +2,25 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import socket from "../socket";
 
-const ChatBox = ({ user, selectedUser }) => {
+import "../assets/css/ChatBox.css"
+
+const ChatBox = ({ user, selectedUser, localUser }) => {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
-  const [onlineUsers, setOnlineUsers] = useState([]); // online users list
-  const [isTyping, setIsTyping] = useState(false); // typing indicator
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const [chatId, setChatId] = useState(null);
 
   const token = user?.token || localStorage.getItem("token");
 
-  // Scroll chat to bottom on new messages
+  // Scroll to bottom when messages update
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isTyping]);
 
-  // Create or join chat when selectedUser changes
+  // Create or get chat
   useEffect(() => {
     if (!selectedUser || !user) return;
 
@@ -46,7 +48,7 @@ const ChatBox = ({ user, selectedUser }) => {
     createChat();
   }, [selectedUser, user]);
 
-  // Fetch messages when chatId changes
+  // Fetch messages
   useEffect(() => {
     if (!chatId) return;
 
@@ -70,14 +72,44 @@ const ChatBox = ({ user, selectedUser }) => {
     fetchMessages();
   }, [chatId]);
 
-  // Live users socket logic
+
+  useEffect(() => {
+    if (!chatId) return;
+
+    // Call API to mark messages as seen
+    axios.put(`http://localhost:5000/api/messages/seen/${chatId}`, {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).catch(console.error);
+  }, [chatId]);
+
+
+  useEffect(() => {
+    if (chatId && user?.id) {
+      socket.emit("mark-seen", { chatId, userId: user.id });
+    }
+  }, [chatId, user?.id]);
+
+
+  useEffect(() => {
+    socket.on("messages-seen", ({ chatId: seenChatId, seenBy }) => {
+      // Optionally update state if needed
+      if (seenChatId === chatId && seenBy !== user.id) {
+        console.log("Messages marked as seen");
+        // Optionally refetch messages or update state
+      }
+    });
+
+    return () => socket.off("messages-seen");
+  }, [chatId]);
+
+  // Online users
   useEffect(() => {
     if (!user?.id) return;
 
-    socket.emit("user-online", user.id); // tell server this user is online
+    socket.emit("user-online", user.id);
 
     socket.on("online-users", (users) => {
-      setOnlineUsers(users); // update online users list
+      setOnlineUsers(users);
     });
 
     return () => {
@@ -85,9 +117,13 @@ const ChatBox = ({ user, selectedUser }) => {
     };
   }, [user]);
 
-  // Listen for new incoming messages
+  // Handle incoming message
   useEffect(() => {
     const handleReceiveMessage = (msg) => {
+      // Attach user info manually if missing
+      if (!msg.sender || !msg.sender._id) {
+        msg.sender = { _id: msg.senderId };
+      }
       setMessages((prev) => [...prev, msg]);
     };
 
@@ -96,32 +132,32 @@ const ChatBox = ({ user, selectedUser }) => {
     return () => {
       socket.off("receive-message", handleReceiveMessage);
     };
-  }, []);
+  }, [user]);
 
-  // Listen for typing events
+  // Typing indicator
   useEffect(() => {
-    const handleTypingEvent = ({ senderId }) => {
+    const handleTyping = ({ senderId }) => {
       if (senderId === selectedUser._id) {
         setIsTyping(true);
       }
     };
 
-    const handleStopTypingEvent = ({ senderId }) => {
+    const handleStopTyping = ({ senderId }) => {
       if (senderId === selectedUser._id) {
         setIsTyping(false);
       }
     };
 
-    socket.on("typing", handleTypingEvent);
-    socket.on("stop-typing", handleStopTypingEvent);
+    socket.on("typing", handleTyping);
+    socket.on("stop-typing", handleStopTyping);
 
     return () => {
-      socket.off("typing", handleTypingEvent);
-      socket.off("stop-typing", handleStopTypingEvent);
+      socket.off("typing", handleTyping);
+      socket.off("stop-typing", handleStopTyping);
     };
   }, [selectedUser]);
 
-  // Handle typing and emit events
+  // Handle typing
   const handleTyping = (e) => {
     setNewMessage(e.target.value);
 
@@ -163,7 +199,11 @@ const ChatBox = ({ user, selectedUser }) => {
         }
       );
 
-      const sentMessage = res.data;
+      const sentMessage = {
+        ...res.data,
+        sender: { _id: user.id, profilePic: user.profilePic }, // Manually attach sender
+      };
+
       setMessages((prev) => [...prev, sentMessage]);
       setNewMessage("");
 
@@ -172,7 +212,6 @@ const ChatBox = ({ user, selectedUser }) => {
         message: sentMessage,
       });
 
-      // Stop typing immediately after sending message
       socket.emit("stop-typing", {
         chatId,
         senderId: user.id,
@@ -198,88 +237,79 @@ const ChatBox = ({ user, selectedUser }) => {
             />
             <strong>{selectedUser.username}</strong>
           </div>
-          <div>
-            <span
-              className={`badge ${isSelectedUserOnline ? "bg-success" : "bg-secondary"
-                }`}
-            >
-              {isSelectedUserOnline ? "Live" : "Offline"}
-            </span>
-          </div>
+          <span
+            className={`badge ${isSelectedUserOnline ? "bg-success" : "bg-secondary"}`}
+          >
+            {isSelectedUserOnline ? "Online" : "Offline"}
+          </span>
         </div>
       )}
 
-      <div
-        className="card-body chat-box"
-        style={{ height: "300px", overflowY: "auto" }}
-      >
+      <div className="card-body chat-box " style={{ height: "300px", overflowY: "auto" }}>
         {messages.map((msg, index) => {
           const isOwnMessage = msg.sender._id === user.id;
-          const formattedTime = new Date(msg.createdAt).toLocaleTimeString(
-            [],
-            {
-              hour: "2-digit",
-              minute: "2-digit",
-            }
-          );
+          const formattedTime = new Date(msg.createdAt).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
 
           return (
             <div
               key={index}
-              className={`d-flex flex-column mb-3 ${isOwnMessage ? "align-items-end" : "align-items-start"
-                }`}
+              className={`d-flex flex-column mb-3 ${isOwnMessage ? "align-items-end" : "align-items-start"}`}
             >
               <div className={`d-flex ${isOwnMessage ? "flex-row-reverse" : ""}`}>
                 <img
                   src={
                     isOwnMessage
-                      ? user.profilePic || "/default-profile.png"
-                      : msg.sender.profilePic || "/default-profile.png"
+                      ? user.profilePic || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                      : msg.sender?.profilePic || "/default-profile.png"
                   }
                   alt="Profile"
                   className="rounded-circle me-2 ms-2"
                   style={{ width: "30px", height: "30px", objectFit: "cover" }}
                 />
-
                 <div
-                  className={`p-2 rounded ${isOwnMessage ? "bg-primary text-white" : "bg-light"
-                    }`}
+                  className={`p-2 rounded ${isOwnMessage ? "bg-primary text-white" : "bg-light"}`}
                   style={{ maxWidth: "60%" }}
                 >
                   <div>{msg.text}</div>
-                  <div
-                    className="text-muted text-end mt-1"
-                    style={{ fontSize: "0.75rem" }}
-                  >
+                  <div className="text-muted text-end mt-1" style={{ fontSize: "0.75rem" }}>
                     {formattedTime}
                   </div>
+                  {/* Seen Status */}
+                  {isOwnMessage && msg.seen && (
+                    <div className="text-muted text-end" style={{ fontSize: "0.65rem", marginTop: "2px" }}>
+                      Seen
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           );
         })}
-        {/* Typing indicator */}
+
+
+
         {isTyping && selectedUser && (
-          <div className="d-flex align-items-center gap-2 mb-2 ms-2">
+          <div className="d-flex align-items-center gap-2 mb-4 ms-2">
             <img
               src={selectedUser.profilePic || "/default-profile.png"}
               alt="Typing..."
-              className="rounded-circle"
-              style={{ width: "28px", height: "28px", objectFit: "cover" }}
+              className="rounded-circle typing-profile-pic"
+              style={{ width: "32px", height: "32px", objectFit: "cover" }}
             />
-            <div className="bg-light rounded px-3 py-1 d-flex align-items-center shadow-sm">
-              <span className="text-muted" style={{ fontSize: "0.9rem" }}>
-                {selectedUser.username} is typing
-              </span>
-              <span className="typing-dots ms-1">
-                <span>.</span>
-                <span>.</span>
-                <span>.</span>
-              </span>
+            <div className="typing-bubble px-3 py-2 rounded shadow-sm">
+              <div className="typing-dot-bounce">
+                <span className="dot" />
+                <span className="dot" />
+                <span className="dot" />
+              </div>
             </div>
           </div>
         )}
-         <br />
+
+
         <div ref={chatEndRef} />
       </div>
 
@@ -296,9 +326,6 @@ const ChatBox = ({ user, selectedUser }) => {
             Send
           </button>
         </form>
-        <br />
-        {/* <p>User Id: {user.id}</p>
-        <p>Chat Id: {chatId ? chatId : "Creating chat..."}</p> */}
       </div>
     </div>
   );

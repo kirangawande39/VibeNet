@@ -24,9 +24,9 @@ const PostCard = ({ post }) => {
   const likeSoundRef = useRef(null);
 
   useEffect(() => {
-    const followingStatus = post.user.followers.includes(user.id);
+    const followingStatus = post.user.followers.includes(user?.id);
     setIsFollowing(followingStatus);
-  }, [post.user.followers, user.id]);
+  }, [post.user.followers]);
 
   // Remove flying hearts after animation
   useEffect(() => {
@@ -160,7 +160,7 @@ const PostCard = ({ post }) => {
         />
         <strong>{post.user.username || "Unknown"}</strong>
         <br />
-        {user.id === post.user._id ? (
+        {user?.id === post.user?._id ? (
           " "
         ) : (
           <div className="follow-btn">

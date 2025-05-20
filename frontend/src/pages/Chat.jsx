@@ -2,12 +2,15 @@ import React, { useState, useContext, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ChatBox from "../components/ChatBox";
 import { AuthContext } from "../context/AuthContext";
-
+import axios from "axios";
 const Chat = () => {
   const { user } = useContext(AuthContext);
+  const [localUser, setLocalUser] = useState();
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  const { updateUser } = useContext(AuthContext);
 
   const dummyMessages = {
     user1: [
@@ -22,14 +25,39 @@ const Chat = () => {
 
   // Resize listener for responsive handling
   useEffect(() => {
+    console.log("User :", user);
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+
+
+  const fetchUserData = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/users/${user._id ? user._id : user.id}`);
+
+
+
+      console.log("User Data:", res.data.user);
+      setLocalUser(res.data.user)
+      updateUser(res.data.user); // Only updateUser, setUser nahi chahiye
+    } catch (error) {
+      console.error(error);
+      console.error("Failed to fetch user data.");
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  
+
+
   // Don't auto-select user on mount to preserve list view on mobile
   useEffect(() => {
-    if (!isMobile && user && user.followers.length > 0) {
+    if (!isMobile && user && user.followers?.length > 0) {
       setSelectedUser(user.followers[0]);
       setMessages(dummyMessages[user.followers[0].username] || []);
     }
@@ -52,12 +80,13 @@ const Chat = () => {
 
   return (
     <div className="container mt-4">
+
       <div className="row">
         {/* Follower List - Hide on mobile when a user is selected */}
         <div className={`col-md-4 ${isMobile && selectedUser ? "d-none" : ""}`}>
           <div className="list-group">
-            {user && user.followers.length > 0 ? (
-              user.followers.map((follower, index) => (
+            {localUser && localUser.followers?.length > 0 ? (
+              user.followers?.map((follower, index) => (
                 <button
                   key={index}
                   className={`list-group-item list-group-item-action d-flex align-items-center ${selectedUser && follower._id === selectedUser._id ? "active" : ""
@@ -97,6 +126,7 @@ const Chat = () => {
                 onSendMessage={handleSendMessage}
                 user={user}
                 selectedUser={selectedUser}
+                localUser={localUser}
               />
             </>
           ) : (
@@ -104,6 +134,8 @@ const Chat = () => {
           )}
         </div>
       </div>
+
+
     </div>
   );
 };

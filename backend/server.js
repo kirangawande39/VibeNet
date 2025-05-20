@@ -80,28 +80,24 @@ app.use("/api/messages", messageRoutes);
 
 // ⚡️ Socket.io
 const onlineUsers = new Map();
+// ... baaki code jaisa hai
 
 io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
 
-  // User online hone par uska userId store karo
   socket.on("user-online", (userId) => {
     onlineUsers.set(userId, socket.id);
-    // Sab connected clients ko online users bhejo
     io.emit("online-users", Array.from(onlineUsers.keys()));
   });
 
-  // Chat room join karna
   socket.on("join-chat", (chatId) => {
     socket.join(chatId);
   });
 
-  // Message bhejna
   socket.on("send-message", ({ chatId, message }) => {
     socket.to(chatId).emit("receive-message", message);
   });
 
-  // Typing indicators
   socket.on("typing", ({ chatId, senderId }) => {
     socket.to(chatId).emit("typing", { senderId });
   });
@@ -110,20 +106,35 @@ io.on("connection", (socket) => {
     socket.to(chatId).emit("stop-typing", { senderId });
   });
 
-  // Disconnect hone par user hatao
+  // Naya event for marking messages as seen
+ // Socket.io in server.js
+socket.on("mark-seen", async ({ chatId, userId }) => {
+  try {
+    const result = await Message.updateMany(
+      { chatId, sender: { $ne: userId }, seen: false },
+      { $set: { seen: true } }
+    );
+
+    // Seen hone ke baad message bhej do client ko
+    io.to(chatId).emit("messages-seen", { chatId, seenBy: userId });
+  } catch (err) {
+    console.error("Error in mark-seen socket:", err);
+  }
+});
+
+
   socket.on("disconnect", () => {
     console.log("Socket disconnected:", socket.id);
-
     for (let [userId, socketId] of onlineUsers.entries()) {
       if (socketId === socket.id) {
         onlineUsers.delete(userId);
-        // Sabko update bhejo
         io.emit("online-users", Array.from(onlineUsers.keys()));
         break;
       }
     }
   });
 });
+
 
 // Export io if needed in other files
 module.exports = { io };
