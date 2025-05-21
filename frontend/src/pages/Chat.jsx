@@ -52,7 +52,7 @@ const Chat = () => {
     fetchUserData();
   }, []);
 
-  
+
 
 
   // Don't auto-select user on mount to preserve list view on mobile
@@ -105,7 +105,13 @@ const Chat = () => {
                 </button>
               ))
             ) : (
-              <div className="text-muted p-2">No followers to show</div>
+              <div className="text-muted p-2 d-flex justify-between items-center gap-2">
+                <button className="btn btn-sm btn-outline-secondary" onClick={() => window.history.back()}>
+                  ← Back
+                </button>
+                <span>No followers to show</span>
+              </div>
+
             )}
           </div>
         </div>

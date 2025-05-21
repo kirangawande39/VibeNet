@@ -55,17 +55,13 @@ const Home = () => {
   }, [])
 
 
-
-
-
-
-
-
-
-
   return (
     <div className="container mt-4">
-      <StoryList stories={stories} />
+      <div className="story-scroll-container mb-3">
+        <StoryList stories={stories} />
+      </div>
+
+
       {/* <button onClick={fetchPostData}>Thsi is post page</button> */}
       <div className="row justify-content-center">
         {posts.length > 0 ? (

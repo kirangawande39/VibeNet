@@ -1,15 +1,34 @@
 /* Story List Container */
 .story-list-container {
   display: flex;
-  gap: 20px;
-  padding: 15px;
   overflow-x: auto;
-  scrollbar-width: none; /* Firefox */
+  gap: 10px;
+  padding: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #999 transparent;
 }
 
+/* For Webkit browsers (Chrome, Safari) */
 .story-list-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  height: 6px;
+
 }
+
+.story-list-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.story-list-container::-webkit-scrollbar-thumb {
+  background-color: #999;
+  border-radius: 10px;
+}
+
+
+
+
+
+
+
 
 /* Story Item */
 .story-item {

@@ -6,6 +6,8 @@ const createStory = async (req, res) => {
   try {
     const file = req.file;
 
+    
+
     if (!file) {
       return res.status(400).json({ message: "No file uploaded" });
     }

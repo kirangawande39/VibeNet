@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import "../assets/css/StoryList.css";
-import { FaArrowLeft, FaArrowRight, FaTimes, FaHeart, FaShare } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaHeart, FaShare } from "react-icons/fa";
 
 const isVideo = (url) => {
   return url.match(/\.(mp4|webm|ogg)$/i);
@@ -132,7 +132,7 @@ const StoryList = ({ stories }) => {
                 </button>
               )}
               <button className="story-close-btn" onClick={(e) => { e.stopPropagation(); closeStory(); }}>
-                <FaTimes />
+                {/* <FaTimes /> */}
               </button>
 
               <div className="story-overlay">

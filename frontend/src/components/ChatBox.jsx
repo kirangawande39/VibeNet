@@ -280,7 +280,8 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
                   {/* Seen Status */}
                   {isOwnMessage && msg.seen && (
                     <div className="text-muted text-end" style={{ fontSize: "0.65rem", marginTop: "2px" }}>
-                      Seen
+                      <span style={{ color: 'blue' }}>✔✔</span>
+
                     </div>
                   )}
                 </div>
