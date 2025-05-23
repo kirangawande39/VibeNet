@@ -106,21 +106,24 @@ io.on("connection", (socket) => {
     socket.to(chatId).emit("stop-typing", { senderId });
   });
 
-  // Naya event for marking messages as seen
- // Socket.io in server.js
-socket.on("mark-seen", async ({ chatId, userId }) => {
-  try {
-    const result = await Message.updateMany(
-      { chatId, sender: { $ne: userId }, seen: false },
-      { $set: { seen: true } }
-    );
+  socket.on("delete-message", ({ chatId, msgId }) => {
+    // Notify everyone in that chat room
+    socket.to(chatId).emit("delete-message", { msgId });
+  });
 
-    // Seen hone ke baad message bhej do client ko
-    io.to(chatId).emit("messages-seen", { chatId, seenBy: userId });
-  } catch (err) {
-    console.error("Error in mark-seen socket:", err);
-  }
+  socket.on("message-seen", ({ chatId, userId }) => {
+    // Send to all users in that chat except the one who sent it
+    socket.to(chatId).emit("message-seen", { chatId, userId });
+  });
+
+  // Naya event for marking messages as seen
+  // Socket.io in server.js
+ socket.on("mark-seen", async ({ chatId, userId }) => {
+  // Update seen status in DB (already handled in API)
+  // Notify sender
+  socket.to(chatId).emit("message-seen", { chatId, seenBy: userId });
 });
+
 
 
   socket.on("disconnect", () => {

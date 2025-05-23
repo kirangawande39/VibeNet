@@ -111,7 +111,7 @@ const StoryList = ({ stories }) => {
                   src={currentStory.mediaUrl}
                   className="story-modal-video"
                   autoPlay
-                  muted
+                  
                 />
               ) : (
                 <img

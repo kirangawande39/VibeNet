@@ -56,8 +56,8 @@ const seenMessages = async (req,res)=>{
         
         // Assume auth middleware sets this
 
-        console.log("chatId"+chatId)
-        console.log("userId"+userId)
+        // console.log("chatId"+chatId)
+        // console.log("userId"+userId)
 
         // Update all messages in chat where receiver is current user and message is not sent by this user
         const updatedMessage=await Message.updateMany(
@@ -65,7 +65,7 @@ const seenMessages = async (req,res)=>{
             { $set: { seen: true } }
         );
 
-        console.log("updatedMessage", updatedMessage);
+        // console.log("updatedMessage", updatedMessage);
 
 
         res.status(200).json({ message: "Messages marked as seen" });
@@ -75,4 +75,27 @@ const seenMessages = async (req,res)=>{
     }
 }
 
-module.exports = { sendMessage, getMessages ,seenMessages};
+
+const deleteMessage = async (req, res) => {
+  try {
+    const messageId = req.params.msgId;
+    // console.log("Delete Message is here");
+    // console.log("Message ID:", messageId);
+
+    // Check if message exists
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).json({ success: false, message: "Message not found" });
+    }
+
+    // Delete message
+    await Message.findByIdAndDelete(messageId);
+
+    return res.status(200).json({ success: true, message: "Message deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting message:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+module.exports = { sendMessage, getMessages ,seenMessages,deleteMessage};

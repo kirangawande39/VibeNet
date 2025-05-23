@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import socket from "../socket";
-
+import { RiDeleteBin2Line } from "react-icons/ri";
 import "../assets/css/ChatBox.css"
 
 const ChatBox = ({ user, selectedUser, localUser }) => {
+  if (!user || !selectedUser) {
+    return <div>Please select a user to start chat</div>;
+  }
+
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
@@ -13,42 +17,35 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
   const typingTimeoutRef = useRef(null);
   const [chatId, setChatId] = useState(null);
 
+  // Long press state
+  const [longPressMessageId, setLongPressMessageId] = useState(null);
+  const longPressTimer = useRef(null);
+
   const token = user?.token || localStorage.getItem("token");
 
-  // Scroll to bottom when messages update
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  // Create or get chat
   useEffect(() => {
     if (!selectedUser || !user) return;
 
-    const createChat = async () => {
+    const createOrFetchChat = async () => {
       try {
         const res = await axios.post(
           "http://localhost:5000/api/chats",
-          {
-            senderId: user.id,
-            receiverId: selectedUser._id,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { senderId: user.id, receiverId: selectedUser._id },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         setChatId(res.data._id);
-        socket.emit("join-chat", res.data._id);
       } catch (error) {
         console.error("Error creating chat:", error);
       }
     };
 
-    createChat();
-  }, [selectedUser, user]);
+    createOrFetchChat();
+  }, [selectedUser, user, token]);
 
-  // Fetch messages
   useEffect(() => {
     if (!chatId) return;
 
@@ -56,11 +53,7 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
       try {
         const res = await axios.get(
           `http://localhost:5000/api/messages/${chatId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         setMessages(res.data);
         socket.emit("join-chat", chatId);
@@ -70,97 +63,62 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
     };
 
     fetchMessages();
-  }, [chatId]);
-
-
-  useEffect(() => {
-    if (!chatId) return;
-
-    // Call API to mark messages as seen
-    axios.put(`http://localhost:5000/api/messages/seen/${chatId}`, {}, {
-      headers: { Authorization: `Bearer ${token}` }
-    }).catch(console.error);
-  }, [chatId]);
-
+  }, [chatId, token]);
 
   useEffect(() => {
-    if (chatId && user?.id) {
+    if (!chatId || !user?.id) return;
+
+    const unseen = messages.some(
+      (msg) => msg.sender._id !== user.id && !msg.seen
+    );
+    if (unseen) {
+      axios
+        .put(`http://localhost:5000/api/messages/seen/${chatId}`, {}, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .catch(console.error);
+
       socket.emit("mark-seen", { chatId, userId: user.id });
     }
-  }, [chatId, user?.id]);
+  }, [chatId, messages, user, token]);
 
-
-  useEffect(() => {
-    socket.on("messages-seen", ({ chatId: seenChatId, seenBy }) => {
-      // Optionally update state if needed
-      if (seenChatId === chatId && seenBy !== user.id) {
-        console.log("Messages marked as seen");
-        // Optionally refetch messages or update state
-      }
-    });
-
-    return () => socket.off("messages-seen");
-  }, [chatId]);
-
-  // Online users
   useEffect(() => {
     if (!user?.id) return;
-
     socket.emit("user-online", user.id);
 
-    socket.on("online-users", (users) => {
-      setOnlineUsers(users);
-    });
-
-    return () => {
-      socket.off("online-users");
-    };
+    const handleOnline = (users) => setOnlineUsers(users);
+    socket.on("online-users", handleOnline);
+    return () => socket.off("online-users", handleOnline);
   }, [user]);
 
-  // Handle incoming message
   useEffect(() => {
-    const handleReceiveMessage = (msg) => {
-      // Attach user info manually if missing
+    const handleReceive = (msg) => {
       if (!msg.sender || !msg.sender._id) {
         msg.sender = { _id: msg.senderId };
       }
       setMessages((prev) => [...prev, msg]);
     };
 
-    socket.on("receive-message", handleReceiveMessage);
+    socket.on("receive-message", handleReceive);
+    return () => socket.off("receive-message", handleReceive);
+  }, []);
 
-    return () => {
-      socket.off("receive-message", handleReceiveMessage);
-    };
-  }, [user]);
-
-  // Typing indicator
   useEffect(() => {
-    const handleTyping = ({ senderId }) => {
-      if (senderId === selectedUser._id) {
-        setIsTyping(true);
-      }
-    };
+    const showTyping = ({ senderId }) =>
+      senderId === selectedUser._id && setIsTyping(true);
+    const stopTyping = ({ senderId }) =>
+      senderId === selectedUser._id && setIsTyping(false);
 
-    const handleStopTyping = ({ senderId }) => {
-      if (senderId === selectedUser._id) {
-        setIsTyping(false);
-      }
-    };
-
-    socket.on("typing", handleTyping);
-    socket.on("stop-typing", handleStopTyping);
-
+    socket.on("typing", showTyping);
+    socket.on("stop-typing", stopTyping);
     return () => {
-      socket.off("typing", handleTyping);
-      socket.off("stop-typing", handleStopTyping);
+      socket.off("typing", showTyping);
+      socket.off("stop-typing", stopTyping);
     };
   }, [selectedUser]);
 
-  // Handle typing
   const handleTyping = (e) => {
     setNewMessage(e.target.value);
-
     if (!chatId) return;
 
     socket.emit("typing", {
@@ -180,7 +138,6 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
     }, 2000);
   };
 
-  // Send message
   const handleSend = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !chatId) return;
@@ -188,20 +145,13 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
     try {
       const res = await axios.post(
         "http://localhost:5000/api/messages",
-        {
-          chatId,
-          text: newMessage,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { chatId, text: newMessage },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const sentMessage = {
         ...res.data,
-        sender: { _id: user.id, profilePic: user.profilePic }, // Manually attach sender
+        sender: { _id: user.id, profilePic: user.profilePic },
       };
 
       setMessages((prev) => [...prev, sentMessage]);
@@ -217,52 +167,125 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
         senderId: user.id,
         receiverId: selectedUser._id,
       });
-    } catch (error) {
-      console.error("Error sending message:", error);
+    } catch (err) {
+      console.error("Error sending message:", err);
     }
   };
 
-  const isSelectedUserOnline = onlineUsers.includes(selectedUser?._id);
+  const isSelectedUserOnline = onlineUsers.includes(selectedUser._id);
+
+  // Long press handlers
+  const onMessageMouseDown = (msgId) => {
+    longPressTimer.current = setTimeout(() => {
+      setLongPressMessageId(msgId);
+    }, 800); // 800ms long press duration
+  };
+
+  const onMessageMouseUpOrLeave = () => {
+    clearTimeout(longPressTimer.current);
+  };
+  const handleDeleteMessage = async (msgId) => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:5000/api/messages/${msgId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // alert(res.data.message);
+      setMessages((prev) => prev.filter((msg) => msg._id !== msgId));
+      setLongPressMessageId(null);
+
+      // Notify other user
+      socket.emit("delete-message", { chatId, msgId });
+    } catch (err) {
+      console.error("Error deleting message:", err);
+    }
+  };
+
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("delete-message", ({ msgId }) => {
+      setMessages((prevMessages) =>
+        prevMessages.filter((msg) => msg._id !== msgId)
+      );
+    });
+
+    return () => {
+      socket.off("delete-message");
+    };
+  }, [socket]);
+
+
+
+
+  useEffect(() => {
+    socket.on("message-seen", ({ chatId: seenChatId, seenBy }) => {
+      if (seenChatId === chatId && seenBy !== user.id) {
+        // Update message list or show "seen" tick mark
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.sender._id === user.id ? { ...msg, seen: true } : msg
+          )
+        );
+      }
+    });
+
+    return () => {
+      socket.off("message-seen");
+    };
+  }, [chatId, user.id]);
+
 
   return (
     <div className="card">
-      {selectedUser && (
-        <div className="card-header d-flex align-items-center bg-light justify-content-between">
-          <div className="d-flex align-items-center">
-            <img
-              src={selectedUser.profilePic || "/default-profile.png"}
-              alt="Profile"
-              className="rounded-circle me-2"
-              style={{ width: "40px", height: "40px", objectFit: "cover" }}
-            />
-            <strong>{selectedUser.username}</strong>
-          </div>
-          <span
-            className={`badge ${isSelectedUserOnline ? "bg-success" : "bg-secondary"}`}
-          >
-            {isSelectedUserOnline ? "Online" : "Offline"}
-          </span>
+      <div className="card-header d-flex align-items-center bg-light justify-content-between">
+        <div className="d-flex align-items-center">
+          <img
+            src={selectedUser.profilePic || "/default-profile.png"}
+            alt="Profile"
+            className="rounded-circle me-2"
+            style={{ width: "40px", height: "40px", objectFit: "cover" }}
+          />
+          <strong>{selectedUser.username}</strong>
         </div>
-      )}
+        <span className={`badge ${isSelectedUserOnline ? "bg-success" : "bg-secondary"}`}>
+          {isSelectedUserOnline ? "Online" : "Offline"}
+        </span>
+      </div>
 
-      <div className="card-body chat-box " style={{ height: "300px", overflowY: "auto" }}>
+      <div
+        className="card-body chat-box"
+        style={{ height: "300px", overflowY: "auto" }}
+      >
         {messages.map((msg, index) => {
-          const isOwnMessage = msg.sender._id === user.id;
-          const formattedTime = new Date(msg.createdAt).toLocaleTimeString([], {
+          const isOwn = msg.sender._id === user.id;
+          const time = new Date(msg.createdAt).toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
           });
 
           return (
             <div
-              key={index}
-              className={`d-flex flex-column mb-3 ${isOwnMessage ? "align-items-end" : "align-items-start"}`}
+              key={msg._id || index}
+              className={`d-flex flex-column mb-3 ${isOwn ? "align-items-end" : "align-items-start"
+                }`}
+              onMouseDown={() => onMessageMouseDown(msg._id)}
+              onMouseUp={onMessageMouseUpOrLeave}
+              onMouseLeave={onMessageMouseUpOrLeave}
+              // For mobile support, you can add touch events too:
+              onTouchStart={() => onMessageMouseDown(msg._id)}
+              onTouchEnd={onMessageMouseUpOrLeave}
+              style={{ position: "relative" }}
             >
-              <div className={`d-flex ${isOwnMessage ? "flex-row-reverse" : ""}`}>
+              <div className={`d-flex ${isOwn ? "flex-row-reverse" : ""}`}>
                 <img
                   src={
-                    isOwnMessage
-                      ? user.profilePic || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                    isOwn
+                      ? user.profilePic || "/default-profile.png"
                       : msg.sender?.profilePic || "/default-profile.png"
                   }
                   alt="Profile"
@@ -270,34 +293,50 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
                   style={{ width: "30px", height: "30px", objectFit: "cover" }}
                 />
                 <div
-                  className={`p-2 rounded ${isOwnMessage ? "bg-primary text-white" : "bg-light"}`}
+                  className={`p-2 rounded bg-light
+                    }`}
                   style={{ maxWidth: "60%" }}
                 >
                   <div>{msg.text}</div>
-                  <div className="text-muted text-end mt-1" style={{ fontSize: "0.75rem" }}>
-                    {formattedTime}
-                  </div>
-                  {/* Seen Status */}
-                  {isOwnMessage && msg.seen && (
-                    <div className="text-muted text-end" style={{ fontSize: "0.65rem", marginTop: "2px" }}>
-                      <span style={{ color: 'blue' }}>✔✔</span>
+                  <div
+                    className="text-muted text-end mt-1"
+                    style={{ fontSize: "0.75rem" }}
+                  >
+                    {time}
 
+                  </div>
+
+                  {isOwn && (
+                    <div
+                      className="text-muted text-end"
+                      style={{ fontSize: "0.65rem", marginTop: "2px" }}
+                    >
+                      <span style={{ color: msg.seen ? "##34B7F1" : "gray" }}>✔✔</span>
                     </div>
                   )}
                 </div>
               </div>
+
+              {/* Delete button appears on long press for own messages */}
+              {longPressMessageId === msg._id && isOwn && (
+                <button className="msg-delete-btn"
+                  onClick={() => handleDeleteMessage(msg._id)}
+
+                  onMouseDown={(e) => e.stopPropagation()} // Prevent button press triggering long press
+                >
+                  <RiDeleteBin2Line />
+                </button>
+              )}
             </div>
           );
         })}
 
-
-
-        {isTyping && selectedUser && (
+        {isTyping && (
           <div className="d-flex align-items-center gap-2 mb-4 ms-2">
             <img
               src={selectedUser.profilePic || "/default-profile.png"}
               alt="Typing..."
-              className="rounded-circle typing-profile-pic"
+              className="rounded-circle"
               style={{ width: "32px", height: "32px", objectFit: "cover" }}
             />
             <div className="typing-bubble px-3 py-2 rounded shadow-sm">
@@ -309,8 +348,6 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
             </div>
           </div>
         )}
-
-
         <div ref={chatEndRef} />
       </div>
 
