@@ -79,8 +79,11 @@ app.use("/api/chats", chatRoutes);
 app.use("/api/messages", messageRoutes);
 
 // ⚡️ Socket.io
+// Top pe Add karo
+const lastSeen = new Map(); // ✅ Added: userId -> timestamp
+
+// ⚡️ Socket.io
 const onlineUsers = new Map();
-// ... baaki code jaisa hai
 
 io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
@@ -107,36 +110,41 @@ io.on("connection", (socket) => {
   });
 
   socket.on("delete-message", ({ chatId, msgId }) => {
-    // Notify everyone in that chat room
     socket.to(chatId).emit("delete-message", { msgId });
   });
 
   socket.on("message-seen", ({ chatId, userId }) => {
-    // Send to all users in that chat except the one who sent it
     socket.to(chatId).emit("message-seen", { chatId, userId });
   });
 
-  // Naya event for marking messages as seen
-  // Socket.io in server.js
- socket.on("mark-seen", async ({ chatId, userId }) => {
-  // Update seen status in DB (already handled in API)
-  // Notify sender
-  socket.to(chatId).emit("message-seen", { chatId, seenBy: userId });
-});
-
-
+  socket.on("mark-seen", async ({ chatId, userId }) => {
+    socket.to(chatId).emit("message-seen", { chatId, seenBy: userId });
+  });
 
   socket.on("disconnect", () => {
     console.log("Socket disconnected:", socket.id);
     for (let [userId, socketId] of onlineUsers.entries()) {
       if (socketId === socket.id) {
         onlineUsers.delete(userId);
+
+        // ✅ Added: store last seen timestamp
+        lastSeen.set(userId, new Date().toISOString());
+
         io.emit("online-users", Array.from(onlineUsers.keys()));
         break;
       }
     }
   });
 });
+
+// ✅ Added: REST route to expose online + lastSeen info
+app.get("/api/online-status", (req, res) => {
+  res.json({
+    onlineUsers: Array.from(onlineUsers.keys()),       // [userId]
+    lastSeen: Object.fromEntries(lastSeen),            // { userId: timestamp }
+  });
+});
+
 
 
 // Export io if needed in other files

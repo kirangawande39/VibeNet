@@ -1,92 +1,150 @@
 .chatbox-container {
-    width: 100%;
-    max-width: 400px;
-    margin: auto;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #fff;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .chatbox-header {
-    padding: 10px;
-    background: #173cb6;
-    color: white;
-    text-align: center;
-    font-weight: bold;
-  }
-  
-  .chatbox-messages {
-    padding: 10px;
-    height: 300px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  
-  .chat-message {
-    padding: 8px 12px;
-    border-radius: 20px;
-    max-width: 70%;
-  }
-  
-  .chat-message.me {
-    align-self: flex-end;
-    background: #007bff;
-    color: white;
-  }
-  
-  .chat-message.other {
-    align-self: flex-start;
-    background: #e9ecef;
-  }
-  
-  .chatbox-input {
-    display: flex;
-    border-top: 1px solid #ddd;
-  }
-  
-  .chatbox-input input {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    outline: none;
-  }
-  
-  .chatbox-input button {
-    background: #6fff00;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-  }
-  
-
-.chat-box {
-  background: #f9f9f9;
-  padding: 10px;
-  border-radius: 5px;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  scrollbar-width: thin;
-  scrollbar-color: #ccc transparent;
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Scrollbar for WebKit browsers */
+
+
+.sender-message {
+  background-color: #dcf8c6; /* Light green */
+  color: #000;
+  padding: 10px 12px;
+  border-radius: 12px 0px 12px 12px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  position: relative;
+  word-wrap: break-word;
+}
+
+.receiver-message {
+  background-color: #ffffff; /* White */
+  color: #000;
+  padding: 10px 12px;
+  border-radius: 0px 12px 12px 12px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  position: relative;
+  word-wrap: break-word;
+}
+
+/* Optional arrow bubble style like WhatsApp */
+.sender-message::after {
+  content: "";
+  position: absolute;
+  right: -7px;
+  top: 10px;
+  width: 0;
+  height: 0;
+  border-left: 7px solid #dcf8c6;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+}
+
+.receiver-message::after {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: 10px;
+  width: 0;
+  height: 0;
+  border-right: 7px solid #ffffff;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+}
+
+
+
+.chatbox-header {
+  padding: 10px;
+  background: #173cb6;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+}
+
+.chatbox-messages {
+  padding: 10px;
+  height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.chat-message {
+  padding: 8px 12px;
+  border-radius: 20px;
+  max-width: 70%;
+}
+
+.chat-message.me {
+  align-self: flex-end;
+  background: #007bff;
+  color: white;
+}
+
+.chat-message.other {
+  align-self: flex-start;
+  background: #e9ecef;
+}
+
+.chatbox-input {
+  display: flex;
+  border-top: 1px solid #ddd;
+}
+
+.chatbox-input input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+}
+
+.chatbox-input button {
+  background: #6fff00;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+
+.chat-box {
+  background-image: url("https://wallpapercave.com/wp/wp4410721.jpg");
+  background-repeat: no-repeat;         /* Prevent image repetition */
+  background-size: cover;               /* Cover full area */
+  background-position: center;          /* Center the image */
+  backdrop-filter: blur(2px);           /* Optional: soft blur */
+  padding: 12px;
+  border-radius: 8px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+
+  /* Smooth scroll */
+  scroll-behavior: smooth;
+
+  /* Optional glassy effect */
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* For Webkit browsers (Chrome, Safari) */
 .chat-box::-webkit-scrollbar {
   width: 6px;
 }
 
-.chat-box::-webkit-scrollbar-track {
-  background: transparent;
-}
-
 .chat-box::-webkit-scrollbar-thumb {
   background-color: #ccc;
-  border-radius: 3px;
+  border-radius: 10px;
 }
+
 
 /* Typing indicator bubble */
 .typing-bubble {
@@ -124,19 +182,23 @@
 }
 
 @keyframes bounce {
+
   0%,
   80%,
   100% {
     transform: scale(0);
   }
+
   40% {
     transform: scale(1);
   }
 }
-.msg-delete-btn{
+
+.msg-delete-btn {
   position: absolute;
   top: 6px;
-  right: 6px; /* changed from 100% to 6px */
+  right: 6px;
+  /* changed from 100% to 6px */
   background-color: #ff4d4f;
   color: white;
   border: none;
@@ -162,4 +224,3 @@
 .delete-msg:active {
   transform: scale(0.9);
 }
-

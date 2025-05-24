@@ -26,7 +26,7 @@ const PostCard = ({ post }) => {
   useEffect(() => {
     const followingStatus = post.user.followers.includes(user?.id);
     setIsFollowing(followingStatus);
-  }, [post.user.followers]);
+  }, [post.user?.followers]);
 
   // Remove flying hearts after animation
   useEffect(() => {
@@ -152,13 +152,13 @@ const PostCard = ({ post }) => {
       {/* Post Header */}
       <div className="card-header d-flex align-items-center bg-white">
         <img
-          src={post.user.profilePic}
+          src={post.user?.profilePic}
           alt="profile"
           className="rounded-circle me-2"
           width="40"
           height="40"
         />
-        <strong>{post.user.username || "Unknown"}</strong>
+        <strong>{post.user?.username || "Unknown"}</strong>
         <br />
         {user?.id === post.user?._id ? (
           " "
@@ -205,7 +205,7 @@ const PostCard = ({ post }) => {
           <span>💬 {post.comments?.length || 0} Comments</span>
         </div>
         <p className="mb-1">
-          <strong>{post.user.username || "Unknown"}</strong>{" "}
+          <strong>{post.user?.username || "Unknown"}</strong>{" "}
           {post.text || "Default caption for testing."}
         </p>
         <span>{dayjs(post.createdAt).fromNow()}</span>

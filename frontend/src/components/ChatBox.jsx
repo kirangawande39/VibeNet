@@ -3,8 +3,8 @@ import axios from "axios";
 import socket from "../socket";
 import { RiDeleteBin2Line } from "react-icons/ri";
 import "../assets/css/ChatBox.css"
-
-const ChatBox = ({ user, selectedUser, localUser }) => {
+import { IoIosSend } from "react-icons/io";
+const ChatBox = ({ user, selectedUser, localUser ,onLastMessageUpdate }) => {
   if (!user || !selectedUser) {
     return <div>Please select a user to start chat</div>;
   }
@@ -16,6 +16,7 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
   const chatEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const [chatId, setChatId] = useState(null);
+  const [lastMessage,setlastMessage]=useState(null)
 
   // Long press state
   const [longPressMessageId, setLongPressMessageId] = useState(null);
@@ -25,6 +26,7 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+   
   }, [messages, isTyping]);
 
   useEffect(() => {
@@ -37,7 +39,10 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
           { senderId: user.id, receiverId: selectedUser._id },
           { headers: { Authorization: `Bearer ${token}` } }
         );
+        // console.log("ChatId :",res.data)
         setChatId(res.data._id);
+          onLastMessageUpdate(lastMessage);
+        setlastMessage(res.data.lastMessage);
       } catch (error) {
         console.error("Error creating chat:", error);
       }
@@ -77,7 +82,7 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
           headers: { Authorization: `Bearer ${token}` },
         })
         .catch(console.error);
-
+     
       socket.emit("mark-seen", { chatId, userId: user.id });
     }
   }, [chatId, messages, user, token]);
@@ -154,8 +159,11 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
         sender: { _id: user.id, profilePic: user.profilePic },
       };
 
+      onLastMessageUpdate(newMessage);
       setMessages((prev) => [...prev, sentMessage]);
       setNewMessage("");
+
+     
 
       socket.emit("send-message", {
         chatId,
@@ -271,16 +279,16 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
           return (
             <div
               key={msg._id || index}
-              className={`d-flex flex-column mb-3 ${isOwn ? "align-items-end" : "align-items-start"
-                }`}
+              className={`d-flex flex-column mb-3 ${isOwn ? "align-items-end" : "align-items-start"}`}
               onMouseDown={() => onMessageMouseDown(msg._id)}
               onMouseUp={onMessageMouseUpOrLeave}
               onMouseLeave={onMessageMouseUpOrLeave}
-              // For mobile support, you can add touch events too:
               onTouchStart={() => onMessageMouseDown(msg._id)}
               onTouchEnd={onMessageMouseUpOrLeave}
               style={{ position: "relative" }}
             >
+              {/* <p>chatId:{msg.chatId}</p>
+              <p>LastMsg:{lastMessage}</p> */}
               <div className={`d-flex ${isOwn ? "flex-row-reverse" : ""}`}>
                 <img
                   src={
@@ -293,8 +301,7 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
                   style={{ width: "30px", height: "30px", objectFit: "cover" }}
                 />
                 <div
-                  className={`p-2 rounded bg-light
-                    }`}
+                  className={`p-2 rounded ${isOwn ? "sender-message" : "receiver-message"}`}
                   style={{ maxWidth: "60%" }}
                 >
                   <div>{msg.text}</div>
@@ -303,7 +310,6 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
                     style={{ fontSize: "0.75rem" }}
                   >
                     {time}
-
                   </div>
 
                   {isOwn && (
@@ -311,18 +317,17 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
                       className="text-muted text-end"
                       style={{ fontSize: "0.65rem", marginTop: "2px" }}
                     >
-                      <span style={{ color: msg.seen ? "##34B7F1" : "gray" }}>✔✔</span>
+                      <span style={{ color: msg.seen ? "#34B7F1" : "gray" }}>✔✔</span>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Delete button appears on long press for own messages */}
               {longPressMessageId === msg._id && isOwn && (
-                <button className="msg-delete-btn"
+                <button
+                  className="msg-delete-btn"
                   onClick={() => handleDeleteMessage(msg._id)}
-
-                  onMouseDown={(e) => e.stopPropagation()} // Prevent button press triggering long press
+                  onMouseDown={(e) => e.stopPropagation()}
                 >
                   <RiDeleteBin2Line />
                 </button>
@@ -330,6 +335,7 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
             </div>
           );
         })}
+
 
         {isTyping && (
           <div className="d-flex align-items-center gap-2 mb-4 ms-2">
@@ -361,7 +367,7 @@ const ChatBox = ({ user, selectedUser, localUser }) => {
             onChange={handleTyping}
           />
           <button type="submit" className="btn btn-primary">
-            Send
+            <IoIosSend />
           </button>
         </form>
       </div>
