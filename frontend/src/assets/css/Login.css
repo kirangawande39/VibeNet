@@ -1,28 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+
 .login-container {
-    background: #f8f9fa;
-  }
-  
-  .login-box {
-    width: 100%;
-    max-width: 400px;
-  }
-  
-  .form-control {
-    border: 2px solid #ddd;
-    padding: 10px;
-  }
-  
-  .form-control:focus {
-    border-color: #007bff;
-    box-shadow: none;
-  }
-  
-  .btn-primary {
-    background-color: #007bff;
-    border: none;
-  }
-  
-  .btn-primary:hover {
-    background-color: #0056b3;
-  }
-  
+  background: #f8f9fa;
+}
+
+.logo {
+  font-family: "Lobster", cursive;
+  font-size: 1.5rem;
+  text-decoration: none;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 400px;
+}
+
+.form-control {
+  border: 2px solid #ddd;
+  padding: 10px;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: none;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}

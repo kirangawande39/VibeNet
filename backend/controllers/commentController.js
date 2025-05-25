@@ -6,18 +6,22 @@ const addComment = async (req, res) => {
   try {
     console.log("Comment route is here");
 
-    const comment = await Comment.create({
+    // Step 1: Create the comment
+    let comment = await Comment.create({
       user: req.user.id,
       post: req.params.postId,
       text: req.body.newComment,
     });
 
-    // Add comment ID to the post's comments array
+    // Step 2: Add comment ID to the Post's comments array
     await Post.findByIdAndUpdate(req.params.postId, {
       $push: { comments: comment._id },
     });
 
-    // Respond with the created comment
+    // ✅ Step 3: Populate the user field so client gets full user info
+    comment = await comment.populate("user", "username profilePic");
+
+    // Step 4: Respond with populated comment
     res.status(201).json(comment);
 
   } catch (error) {
@@ -25,6 +29,7 @@ const addComment = async (req, res) => {
     res.status(500).json({ error: "Failed to add comment" });
   }
 };
+
 
 // Get Comments
 const getComments = async (req, res) => {

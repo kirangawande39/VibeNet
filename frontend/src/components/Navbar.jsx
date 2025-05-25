@@ -1,5 +1,5 @@
-import { Link, useNavigate,useParams } from "react-router-dom";
-import { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useContext, useState, useRef, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import {
   FaHome,
@@ -9,18 +9,33 @@ import {
   FaSignOutAlt,
   FaSignInAlt,
   FaUserPlus,
+  FaEllipsisV,
 } from "react-icons/fa";
 import "../assets/css/Navbar.css";
 
 const Navbar = () => {
-  const { user,updateUser, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef();
 
   const handleLogout = () => {
     logout();
     navigate("/");
   };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
@@ -43,28 +58,44 @@ const Navbar = () => {
           </div>
 
           {/* Right Side */}
-          <div className="d-flex align-items-center">
+          <div
+            className="d-flex align-items-center position-relative"
+            ref={menuRef}
+          >
             {user ? (
               <>
-                <Link to={`/users/${user.id}`} className="me-2">
-                  <img
-                    src={
-                      user.profilePic ||
-                      updateUser.profilePic
-                    || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                    }
-                    alt="Avatar"
-                    className="avatar"
-                  />
-                  {/* <p>{user.username}</p> */}
-                </Link>
-                <Link to="/chat" className="me-2">
-                  <FaCommentDots className="chat-icon" />
-                </Link>
-                <button onClick={handleLogout} className="btn btn-sm btn-outline-danger">
-                  <FaSignOutAlt className="me-1" />
-                  <span className="d-none d-md-inline">Logout</span>
-                </button>
+                <FaEllipsisV
+                  className="fs-4"
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  style={{ cursor: "pointer" }}
+                />
+                {menuOpen && (
+                  <div className="dropdown-menu-custom">
+                    <Link
+                      to={`/users/${user.id}`}
+                      className="dropdown-item d-flex align-items-center"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <FaUser className="me-2" /> Profile
+                    </Link>
+                    <Link
+                      to="/chat"
+                      className="dropdown-item d-flex align-items-center"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <FaCommentDots className="me-2" /> Chat
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setMenuOpen(false);
+                      }}
+                      className="dropdown-item d-flex align-items-center text-danger"
+                    >
+                      <FaSignOutAlt className="me-2" /> Logout
+                    </button>
+                  </div>
+                )}
               </>
             ) : (
               <>

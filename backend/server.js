@@ -101,6 +101,27 @@ io.on("connection", (socket) => {
     socket.to(chatId).emit("receive-message", message);
   });
 
+  socket.on("join-post", (postId) => {
+    socket.join(postId);
+    console.log(`Socket ${socket.id} joined room ${postId}`);
+  });
+
+  socket.on("new-comment", (comment) => {
+    const { postId } = comment;
+    if (postId) {
+      socket.to(postId).emit("new-comment", comment);
+    }
+  });
+
+  socket.on("delete-comment", ({ commentId, postId }) => {
+    if (postId) {
+      socket.to(postId).emit("delete-comment", { commentId });
+      console.log("commentId"+commentId);
+      console.log("postId"+postId);
+    }
+  });
+
+
   socket.on("typing", ({ chatId, senderId }) => {
     socket.to(chatId).emit("typing", { senderId });
   });
@@ -120,6 +141,9 @@ io.on("connection", (socket) => {
   socket.on("mark-seen", async ({ chatId, userId }) => {
     socket.to(chatId).emit("message-seen", { chatId, seenBy: userId });
   });
+
+
+
 
   socket.on("disconnect", () => {
     console.log("Socket disconnected:", socket.id);

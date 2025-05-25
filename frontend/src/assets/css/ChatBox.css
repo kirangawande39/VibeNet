@@ -115,7 +115,7 @@
 
 
 .chat-box {
-  background-image: url("https://wallpapercave.com/wp/wp4410721.jpg");
+  background-image: url("../img/chat_bg.jpg");
   background-repeat: no-repeat;         /* Prevent image repetition */
   background-size: cover;               /* Cover full area */
   background-position: center;          /* Center the image */
