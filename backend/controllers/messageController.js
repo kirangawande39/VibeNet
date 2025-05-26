@@ -8,9 +8,9 @@ const sendMessage = async (req, res) => {
     const { chatId, text } = req.body;
     const sender = req.user.id; // From protect middleware
     console.log("send message is here")
-    console.log('ChatId :'+chatId);
-    console.log('Text :'+text);
-    console.log('Sender :'+sender);
+    console.log('ChatId :' + chatId);
+    console.log('Text :' + text);
+    console.log('Sender :' + sender);
     try {
         const message = new Message({
             chatId,
@@ -25,7 +25,7 @@ const sendMessage = async (req, res) => {
             lastMessage: text,
         });
 
-        console.log("SaveMessage :"+savedMessage)
+        console.log("SaveMessage :" + savedMessage)
 
         res.status(201).json(savedMessage);
     } catch (err) {
@@ -49,18 +49,18 @@ const getMessages = async (req, res) => {
 };
 
 
-const seenMessages = async (req,res)=>{
-     try {
+const seenMessages = async (req, res) => {
+    try {
         const { chatId } = req.params;
-        const userId = req.user.id; 
-        
+        const userId = req.user.id;
+
         // Assume auth middleware sets this
 
         // console.log("chatId"+chatId)
         // console.log("userId"+userId)
 
         // Update all messages in chat where receiver is current user and message is not sent by this user
-        const updatedMessage=await Message.updateMany(
+        const updatedMessage = await Message.updateMany(
             { chatId, sender: { $ne: userId }, seen: false },
             { $set: { seen: true } }
         );
@@ -77,25 +77,44 @@ const seenMessages = async (req,res)=>{
 
 
 const deleteMessage = async (req, res) => {
-  try {
-    const messageId = req.params.msgId;
-    // console.log("Delete Message is here");
-    // console.log("Message ID:", messageId);
+    try {
+        const messageId = req.params.msgId;
+        // console.log("Delete Message is here");
+        // console.log("Message ID:", messageId);
 
-    // Check if message exists
-    const message = await Message.findById(messageId);
-    if (!message) {
-      return res.status(404).json({ success: false, message: "Message not found" });
+        // Check if message exists
+        const message = await Message.findById(messageId);
+        if (!message) {
+            return res.status(404).json({ success: false, message: "Message not found" });
+        }
+
+        // Delete message
+        await Message.findByIdAndDelete(messageId);
+
+        return res.status(200).json({ success: true, message: "Message deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting message:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
     }
-
-    // Delete message
-    await Message.findByIdAndDelete(messageId);
-
-    return res.status(200).json({ success: true, message: "Message deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting message:", error);
-    return res.status(500).json({ success: false, message: "Internal server error" });
-  }
 };
 
-module.exports = { sendMessage, getMessages ,seenMessages,deleteMessage};
+const sendImage = async (req, res) => {
+    console.log("send Image route is here");
+
+    try {
+        if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+
+        // ✅ Replace backslashes with forward slashes
+        const filePath = `/uploads/${req.file.filename}`.replace(/\\/g, "/");
+
+        // ✅ Full URL (optional)
+        const fullUrl = `http://localhost:5000${filePath}`;
+
+        res.json({ success: true, url: fullUrl });
+    } catch (error) {
+        console.error("Error sendImage :", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+}
+
+module.exports = { sendMessage, getMessages, seenMessages, deleteMessage, sendImage };

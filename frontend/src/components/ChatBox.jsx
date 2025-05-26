@@ -4,7 +4,8 @@ import socket from "../socket";
 import { RiDeleteBin2Line } from "react-icons/ri";
 import "../assets/css/ChatBox.css"
 import { IoIosSend } from "react-icons/io";
-const ChatBox = ({ user, selectedUser, localUser ,onLastMessageUpdate }) => {
+import { MdInsertPhoto } from "react-icons/md";
+const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
   if (!user || !selectedUser) {
     return <div>Please select a user to start chat</div>;
   }
@@ -16,7 +17,38 @@ const ChatBox = ({ user, selectedUser, localUser ,onLastMessageUpdate }) => {
   const chatEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const [chatId, setChatId] = useState(null);
-  const [lastMessage,setlastMessage]=useState(null)
+  const [lastMessage, setlastMessage] = useState(null)
+
+  const fileInputRef = useRef();
+
+  const handleImageButtonClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      // Axios POST to backend
+      const res = await axios.post("http://localhost:5000/api/messages/image", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      
+       alert("Image uploaded successfully");
+      // console.log("Image uploaded successfully:", res.data);
+
+      // TODO: Show image in chat message UI
+    } catch (error) {
+      console.error("Image upload failed:", error);
+    }
+  };
+
 
   // Long press state
   const [longPressMessageId, setLongPressMessageId] = useState(null);
@@ -26,7 +58,7 @@ const ChatBox = ({ user, selectedUser, localUser ,onLastMessageUpdate }) => {
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-   
+
   }, [messages, isTyping]);
 
   useEffect(() => {
@@ -41,7 +73,7 @@ const ChatBox = ({ user, selectedUser, localUser ,onLastMessageUpdate }) => {
         );
         // console.log("ChatId :",res.data)
         setChatId(res.data._id);
-          onLastMessageUpdate(lastMessage);
+        onLastMessageUpdate(lastMessage);
         setlastMessage(res.data.lastMessage);
       } catch (error) {
         console.error("Error creating chat:", error);
@@ -82,7 +114,7 @@ const ChatBox = ({ user, selectedUser, localUser ,onLastMessageUpdate }) => {
           headers: { Authorization: `Bearer ${token}` },
         })
         .catch(console.error);
-     
+
       socket.emit("mark-seen", { chatId, userId: user.id });
     }
   }, [chatId, messages, user, token]);
@@ -163,7 +195,7 @@ const ChatBox = ({ user, selectedUser, localUser ,onLastMessageUpdate }) => {
       setMessages((prev) => [...prev, sentMessage]);
       setNewMessage("");
 
-     
+
 
       socket.emit("send-message", {
         chatId,
@@ -362,13 +394,27 @@ const ChatBox = ({ user, selectedUser, localUser ,onLastMessageUpdate }) => {
           <input
             type="text"
             className="form-control me-2"
-            placeholder="Type a message..."
+            placeholder="Message..."
             value={newMessage}
             onChange={handleTyping}
           />
           <button type="submit" className="btn btn-primary">
             <IoIosSend />
           </button>
+
+          <input
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            ref={fileInputRef}
+            onChange={handleFileChange}
+          />
+
+          {/* Visible button to trigger file picker */}
+          <button onClick={handleImageButtonClick} className="btn btn-primary">
+            <MdInsertPhoto />
+          </button>
+
         </form>
       </div>
     </div>
