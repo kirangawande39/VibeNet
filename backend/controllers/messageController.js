@@ -1,3 +1,4 @@
+const { cloudinary } = require('../config/cloudConfig');
 const Message = require("../models/Message");
 const Chat = require("../models/Chat");
 
@@ -76,45 +77,74 @@ const seenMessages = async (req, res) => {
 }
 
 
+
+
+
 const deleteMessage = async (req, res) => {
     try {
         const messageId = req.params.msgId;
-        // console.log("Delete Message is here");
-        // console.log("Message ID:", messageId);
 
-        // Check if message exists
+        // Find message
         const message = await Message.findById(messageId);
         if (!message) {
             return res.status(404).json({ success: false, message: "Message not found" });
         }
 
-        // Delete message
+        // Delete from Cloudinary if image and public_id exist
+        if (message.image && message.image.public_id) {
+            await cloudinary.uploader.destroy(message.image.public_id); // already includes 'VibeNet/'
+            console.log("✅ Deleted image from Cloudinary:", message.image.public_id);
+        }
+
+        // Delete from DB
         await Message.findByIdAndDelete(messageId);
 
-        return res.status(200).json({ success: true, message: "Message deleted successfully" });
+        return res.status(200).json({ success: true, message: "Message and image deleted successfully" });
     } catch (error) {
-        console.error("Error deleting message:", error);
+        console.error("❌ Error deleting message:", error);
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
 const sendImage = async (req, res) => {
     console.log("send Image route is here");
+    console.log("Body:", req.body);
 
     try {
-        if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+        const { chatId } = req.body;
+        const sender = req.user.id;
 
-        // ✅ Replace backslashes with forward slashes
-        const filePath = `/uploads/${req.file.filename}`.replace(/\\/g, "/");
+        if (!req.file || !chatId) {
+            return res.status(400).json({ error: "Missing image or chatId" });
+        }
 
-        // ✅ Full URL (optional)
-        const fullUrl = `http://localhost:5000${filePath}`;
+        // Upload image to Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: "chatapp/images",
+        });
 
-        res.json({ success: true, url: fullUrl });
-    } catch (error) {
-        console.error("Error sendImage :", error);
-        return res.status(500).json({ success: false, message: "Internal server error" });
+        const imageUrl = result.secure_url;
+        const publicId = result.public_id;
+
+        // Save image message to MongoDB
+        const savedMessage = new Message({
+            chatId,
+            sender,
+            image: {
+                url: imageUrl,
+                public_id: publicId,
+            },
+        });
+
+        await savedMessage.save();
+
+        console.log("newMessage : ", savedMessage);
+
+        res.status(201).json(savedMessage);
+    } catch (err) {
+        console.error("Error uploading image message:", err);
+        res.status(500).json({ error: "Server error" });
     }
-}
+};
 
 module.exports = { sendMessage, getMessages, seenMessages, deleteMessage, sendImage };

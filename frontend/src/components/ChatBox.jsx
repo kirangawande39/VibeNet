@@ -19,35 +19,56 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
   const [chatId, setChatId] = useState(null);
   const [lastMessage, setlastMessage] = useState(null)
 
+  const [previewImage, setPreviewImage] = useState(null);
+
   const fileInputRef = useRef();
 
   const handleImageButtonClick = () => {
     fileInputRef.current.click();
   };
-
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file || !chatId) return;
 
     try {
       const formData = new FormData();
       formData.append("image", file);
+      formData.append("chatId", chatId);
 
-      // Axios POST to backend
       const res = await axios.post("http://localhost:5000/api/messages/image", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
       });
-      
-       alert("Image uploaded successfully");
-      // console.log("Image uploaded successfully:", res.data);
 
-      // TODO: Show image in chat message UI
+
+      console.log("image res :", res.data)
+
+      const sentImageMessage = {
+        ...res.data,
+        sender: { _id: user.id, profilePic: user.profilePic },
+      };
+
+      setMessages((prev) => [...prev, sentImageMessage]);
+
+      socket.emit("send-message", {
+        chatId,
+        message: sentImageMessage,
+      });
+
+      socket.emit("stop-typing", {
+        chatId,
+        senderId: user.id,
+        receiverId: selectedUser._id,
+      });
+
+      alert("Image uploaded successfully");
     } catch (error) {
       console.error("Image upload failed:", error);
     }
   };
+
 
 
   // Long press state
@@ -185,6 +206,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
         { chatId, text: newMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+
+      console.log("msg res :", res.data)
 
       const sentMessage = {
         ...res.data,
@@ -332,27 +355,54 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
                   className="rounded-circle me-2 ms-2"
                   style={{ width: "30px", height: "30px", objectFit: "cover" }}
                 />
+                {/* <img
+                  src={chatImage?.url}
+                  alt="Profile"
+                  className="me-2 ms-2"
+                  style={{ width: "200px", height: "300px", objectFit: "cover" }}
+                /> */}
                 <div
                   className={`p-2 rounded ${isOwn ? "sender-message" : "receiver-message"}`}
                   style={{ maxWidth: "60%" }}
                 >
-                  <div>{msg.text}</div>
-                  <div
-                    className="text-muted text-end mt-1"
-                    style={{ fontSize: "0.75rem" }}
-                  >
+                  {/* 📝 Show Text if present */}
+                  {msg.text && <div>{msg.text}</div>}
+
+                  {/* 🖼️ Show Image if present */}
+                  {msg.image.url && (
+                    <div className="mt-2">
+                      <img
+                        src={msg.image.url} // ✅ Cloudinary URL directly
+                        alt="sent"
+                        style={{
+                          width: "250px",
+                          maxWidth: "100%",
+                          height: "auto",
+                          objectFit: "cover",
+                          borderRadius: "12px",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                          transition: "transform 0.3s ease",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => window.open(msg.image.url, "_blank")} // Optional full-size view
+                      />
+                    </div>
+                  )}
+
+
+                  {/* 🕒 Time */}
+                  <div className="text-muted text-end mt-1" style={{ fontSize: "0.75rem" }}>
                     {time}
                   </div>
 
+                  {/* ✅ Seen Status (if own message) */}
                   {isOwn && (
-                    <div
-                      className="text-muted text-end"
-                      style={{ fontSize: "0.65rem", marginTop: "2px" }}
-                    >
+                    <div className="text-muted text-end" style={{ fontSize: "0.65rem", marginTop: "2px" }}>
                       <span style={{ color: msg.seen ? "#34B7F1" : "gray" }}>✔✔</span>
                     </div>
                   )}
                 </div>
+
               </div>
 
               {longPressMessageId === msg._id && isOwn && (

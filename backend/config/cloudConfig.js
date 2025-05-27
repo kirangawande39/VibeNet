@@ -17,7 +17,6 @@ const storage = new CloudinaryStorage({
     resource_type: 'auto',
     allowed_formats: ['jpg', 'jpeg', 'png', 'mp4', 'mov', 'webm'],
   },
-
 });
 
-module.exports = { storage };
+module.exports = { storage, cloudinary };  // Export cloudinary instance too
