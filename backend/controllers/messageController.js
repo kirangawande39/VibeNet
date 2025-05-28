@@ -107,44 +107,33 @@ const deleteMessage = async (req, res) => {
 };
 
 const sendImage = async (req, res) => {
-    console.log("send Image route is here");
-    console.log("Body:", req.body);
+  try {
+    const { chatId } = req.body;
+    const sender = req.user.id;
 
-    try {
-        const { chatId } = req.body;
-        const sender = req.user.id;
-
-        if (!req.file || !chatId) {
-            return res.status(400).json({ error: "Missing image or chatId" });
-        }
-
-        // Upload image to Cloudinary
-        const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: "chatapp/images",
-        });
-
-        const imageUrl = result.secure_url;
-        const publicId = result.public_id;
-
-        // Save image message to MongoDB
-        const savedMessage = new Message({
-            chatId,
-            sender,
-            image: {
-                url: imageUrl,
-                public_id: publicId,
-            },
-        });
-
-        await savedMessage.save();
-
-        console.log("newMessage : ", savedMessage);
-
-        res.status(201).json(savedMessage);
-    } catch (err) {
-        console.error("Error uploading image message:", err);
-        res.status(500).json({ error: "Server error" });
+    if (!req.file || !chatId) {
+      return res.status(400).json({ error: "Missing image or chatId" });
     }
+
+    // multer-storage-cloudinary already uploaded the image to cloudinary
+    const imageUrl = req.file.path;         // secure_url of the image
+    const publicId = req.file.filename;     // includes folder name e.g., "VibeNet/abc123"
+
+    const savedMessage = new Message({
+      chatId,
+      sender,
+      image: {
+        url: imageUrl,
+        public_id: publicId,
+      },
+    });
+
+    await savedMessage.save();
+    res.status(201).json(savedMessage);
+  } catch (err) {
+    console.error("Error uploading image message:", err);
+    res.status(500).json({ error: "Server error" });
+  }
 };
 
 module.exports = { sendMessage, getMessages, seenMessages, deleteMessage, sendImage };

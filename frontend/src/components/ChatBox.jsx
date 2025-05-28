@@ -461,7 +461,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
           />
 
           {/* Visible button to trigger file picker */}
-          <button onClick={handleImageButtonClick} className="btn btn-primary">
+          <button onClick={handleImageButtonClick} className="btn btn-primary " style={{marginLeft:"5px"}}>
             <MdInsertPhoto />
           </button>
 
