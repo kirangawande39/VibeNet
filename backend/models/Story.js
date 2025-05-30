@@ -15,6 +15,6 @@ const StorySchema = new mongoose.Schema(
 );
 
 // TTL index for automatic deletion
-StorySchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+// StorySchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model("Story", StorySchema);

@@ -3,8 +3,8 @@ const { sendMessage, getMessages, seenMessages,deleteMessage,sendImage } = requi
 const { protect } = require("../middlewares/authMiddleware");
 
 const multer = require('multer');
-const { storage } = require('../config/cloudConfig');  // yaha import karo
-const upload = multer({ storage });  // CloudinaryStorage se multer banayen
+const { chatImageStorage } = require('../config/cloudConfig');  // yaha import karo
+const upload = multer({ storage:chatImageStorage });  // CloudinaryStorage se multer banayen
 
 
 const router = express.Router();

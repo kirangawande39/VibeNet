@@ -308,7 +308,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
       <div className="card-header d-flex align-items-center bg-light justify-content-between">
         <div className="d-flex align-items-center">
           <img
-            src={selectedUser.profilePic || "/default-profile.png"}
+            src={selectedUser.profilePic.url || selectedUser.profilePic || "/default-profile.png"}
             alt="Profile"
             className="rounded-circle me-2"
             style={{ width: "40px", height: "40px", objectFit: "cover" }}
@@ -348,8 +348,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
                 <img
                   src={
                     isOwn
-                      ? user.profilePic || "/default-profile.png"
-                      : msg.sender?.profilePic || "/default-profile.png"
+                      ? user.profilePic.url || user.profilePic || "/default-profile.png"
+                      : msg.sender?.profilePic.url || msg.sender?.profilePic || "/default-profile.png"
                   }
                   alt="Profile"
                   className="rounded-circle me-2 ms-2"
@@ -422,7 +422,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
         {isTyping && (
           <div className="d-flex align-items-center gap-2 mb-4 ms-2">
             <img
-              src={selectedUser.profilePic || "/default-profile.png"}
+              src={selectedUser.profilePic.url || selectedUser.profilePic || "/default-profile.png"}
               alt="Typing..."
               className="rounded-circle"
               style={{ width: "32px", height: "32px", objectFit: "cover" }}

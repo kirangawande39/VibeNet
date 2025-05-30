@@ -10,6 +10,8 @@ import "../assets/css/Profile.css"
 import { FaPlus } from "react-icons/fa";
 import { MdOutlinePersonSearch } from "react-icons/md";
 import { FaUserCircle, FaInfoCircle, FaEdit } from "react-icons/fa";
+import { RiDeleteBin2Line } from "react-icons/ri";
+import { FiMoreVertical } from 'react-icons/fi';
 
 // Start of component
 const Profile = () => {
@@ -27,6 +29,7 @@ const Profile = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [searchFollower, setSearchFollower] = useState("");
   const [searchFollowing, setSearchFollowing] = useState("");
+  const [openMenuId, setOpenMenuId] = useState(null);
 
   const [posts, setPosts] = useState([])
 
@@ -48,6 +51,43 @@ const Profile = () => {
   const closeModal = () => {
     setSelectedImage(null);
   };
+
+
+
+  const toggleMenu = (postId) => {
+    if (openMenuId === postId) {
+      setOpenMenuId(null);  // close if already open
+    } else {
+      setOpenMenuId(postId); // open new one
+    }
+  };
+
+
+  const handlePostDelete = async (postId) => {
+    alert(`Post was deleted ${postId} is here`)
+
+    try {
+      // backend route: DELETE /posts/:id
+      const res = await axios.delete(
+        `http://localhost:5000/api/posts/${postId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Remove deleted post from local state
+      setPosts(posts.filter(post => post._id !== postId));
+      alert(res.data.message);
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      alert("Failed to delete post");
+    }
+  }
+
+
+
 
 
 
@@ -211,7 +251,11 @@ const Profile = () => {
       <div className="profile-header d-flex justify-content-between align-items-center">
         <div className={`d-flex align-items-center ${uploadStory ? 'story-ring' : ''}`} onClick={handleProfileStoryClick} style={{ cursor: uploadStory ? "pointer" : "default" }}>
           <img
-            src={profileData.profilePic || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
+            src={
+              user.profilePic?.url ||
+              user.profilePic ||
+              "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+            }
             alt="Profile"
             className="profile-img"
           />
@@ -274,7 +318,7 @@ const Profile = () => {
                     <li key={follower._id} className="list-group-item d-flex align-items-center justify-content-between">
                       <div className="d-flex align-items-center">
                         <img
-                          src={follower.profilePic || "/default-profile.png"}
+                          src={follower.profilePic || follower.profilePic?.url || "/default-profile.png"}
                           alt="profile"
                           className="rounded-circle"
                           style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "10px" }}
@@ -328,7 +372,7 @@ const Profile = () => {
                     <li key={followed._id} className="list-group-item d-flex align-items-center justify-content-between">
                       <div className="d-flex align-items-center">
                         <img
-                          src={followed.profilePic || "/default-profile.png"}
+                          src={followed.profilePic?.url || followed.profilePic || "/default-profile.png"}
                           alt="profile"
                           className="rounded-circle"
                           style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "10px" }}
@@ -373,11 +417,13 @@ const Profile = () => {
       {showStoryModal && uploadStory && (
         <div className="story-modal-backdrop" onClick={() => setShowStoryModal(false)}>
           <div className="story-modal-content" onClick={(e) => e.stopPropagation()}>
-            {uploadStory?.mediaUrl?.endsWith(".mp4") ? (
+            {['.mp4', '.mov', '.webm'].some(ext => uploadStory?.mediaUrl?.toLowerCase().endsWith(ext)) ? (
               <video
                 src={uploadStory.mediaUrl}
                 controls
                 autoPlay
+                muted
+                loop
                 className="story-media"
               />
             ) : (
@@ -387,6 +433,7 @@ const Profile = () => {
                 className="story-media"
               />
             )}
+
             <button className="story-close-btn" onClick={() => setShowStoryModal(false)}>×</button>
           </div>
         </div>
@@ -413,22 +460,62 @@ const Profile = () => {
             {posts && posts.length > 0 ? (
               <div className="gallery-grid">
                 {posts.map((post) => (
-                  <div key={post._id} className="gallery-item">
-                    <div
-                      className="post-card"
-                      onClick={() => handleImageClick(post.image)}
-                    >
+                  <div key={post._id} className="gallery-item" style={{ marginBottom: '20px' }}>
+                    <div className="post-card" style={{ position: 'relative', border: '1px solid #ddd', padding: '10px' }}>
                       <div className="post-img-container">
-                        <img
-                          src={post.image}
-                          alt="Post"
-                          className="post-image"
-                        />
+                        <img src={post.image} alt="Post" style={{ width: '200px', height: 'auto' }} />
                       </div>
                       <p className="post-caption">{post.text}</p>
+
+                      {post.user === id && (
+                        <div className="menu-container" style={{ position: 'absolute', top: '10px', right: '10px' }}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleMenu(post._id);
+                            }}
+                            aria-label="Toggle menu"
+                            style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
+                          >
+                            <FiMoreVertical size={24} />
+                          </button>
+
+                          {openMenuId === post._id && (
+                            <div
+                              className="menu-dropdown"
+                              style={{
+                                position: 'absolute',
+                                top: '30px',
+                                right: '0',
+                                background: '#fff',
+                                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                                borderRadius: '6px',
+                                zIndex: 1000,
+                                minWidth: '12px',
+                                padding: '5px 0',
+                              }}
+                            >
+                              <button
+                                onClick={() => handlePostDelete(post._id)}
+                                style={{
+
+                                  border: 'none',
+
+                                  cursor: 'pointer',
+                                  color: '#e74c3c',
+
+                                }}
+                              >
+                                <RiDeleteBin2Line />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
+
               </div>
             ) : (
               <div className="empty-state">

@@ -9,6 +9,9 @@ const MongoStore = require("connect-mongo");
 const http = require("http");
 const { Server } = require("socket.io");
 
+require("./cron/storyCleanup.js");
+
+
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");

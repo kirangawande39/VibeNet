@@ -1,15 +1,16 @@
 const express = require("express");
 const { createPost, getAllPosts, getPostsByUserId, deletePost } = require("../controllers/postController");
 const multer = require('multer');
-const { storage } = require('../config/cloudConfig');  // yaha import karo
-const upload = multer({ storage });  // CloudinaryStorage se multer banayen
+const { PostImageStorage } = require('../config/cloudConfig');  // yaha import karo
+const { protect } = require("../middlewares/authMiddleware");
+const upload = multer({ storage:PostImageStorage });  // CloudinaryStorage se multer banayen
 
 const router = express.Router();
 
 router.post("/:id", upload.single('postImage'), createPost); // Image upload with Cloudinary
 router.get("/", getAllPosts);
 router.get("/:id", getPostsByUserId);
-router.delete("/:id", deletePost);
+router.delete("/:id", protect, deletePost);
 
 // router.post("/:id", upload.single('postImage'), (req, res) => {
 //   console.log("post route is here now");

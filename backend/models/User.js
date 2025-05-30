@@ -5,7 +5,10 @@ const UserSchema = new mongoose.Schema(
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
     name: { type: String, required: true },
-    profilePic: { type: String, default: "" },
+    profilePic: {
+      url: { type: String, default: "" },         // Cloudinary secure_url
+      public_id: { type: String, default: "" }     // Cloudinary public_id
+    },
     coverPhoto: { type: String, default: "" },
     bio: { type: String, default: "" },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],

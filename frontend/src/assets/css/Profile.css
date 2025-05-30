@@ -456,3 +456,45 @@
 .suggestion-box img {
   border-radius: 50%;
 }
+
+.menu-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.menu-button:hover {
+  background-color: #eee;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 30px; /* below the button */
+  right: 0;
+  background: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  z-index: 1000;
+  min-width: 120px;
+  padding: 5px 0;
+}
+
+.menu-dropdown .delete-btn {
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: #e74c3c;
+  font-weight: 600;
+  transition: background-color 0.15s ease;
+}
+
+.menu-dropdown .delete-btn:hover {
+  background-color: #fceae9;
+}

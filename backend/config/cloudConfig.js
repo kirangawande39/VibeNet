@@ -10,13 +10,43 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
+const StoryStorage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: 'VibeNet',
+    folder: 'VibeNet/Storys',
     resource_type: 'auto',
     allowed_formats: ['jpg', 'jpeg', 'png', 'mp4', 'mov', 'webm'],
   },
 });
 
-module.exports = { storage, cloudinary };  // Export cloudinary instance too
+
+// Profile Pic Storage (different folder)
+const profilePicStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'VibeNet/profilePics',
+    resource_type: 'image',      // profile pic will always be image
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+    public_id: (req, file) => `user_${req.params.id}_${Date.now()}`,  // unique
+  },
+});
+
+// Profile Pic Storage (different folder)
+const chatImageStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'VibeNet/chatImages',
+    resource_type: 'auto',      // profile pic will always be image
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+  },
+});
+
+const PostImageStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'VibeNet/PostImage',
+    resource_type: 'auto',      // profile pic will always be image
+    allowed_formats: ['jpg', 'jpeg', 'png'],
+  },
+});
+module.exports = { StoryStorage, cloudinary , profilePicStorage ,chatImageStorage,PostImageStorage};  // Export cloudinary instance too

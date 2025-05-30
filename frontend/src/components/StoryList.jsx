@@ -162,7 +162,7 @@ const StoryList = ({ stories }) => {
                 <img
                   className="story-preview"
                   src={
-                    currentUser?.profilePic ||
+                    currentUser?.profilePic?.url || currentUser?.profilePic ||
                     "https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg"
                   }
                   alt="Your Story"
@@ -223,7 +223,7 @@ const StoryList = ({ stories }) => {
         {/* User profile at top left */}
         <div className="userProfile">
           <img 
-            src={currentStory.user.profilePic || "https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg"} 
+            src={currentStory.user.profilePic?.url || currentStory.user.profilePic || "https://img.freepik.com/premium-vector/avatar-profile-icon-flat-style-male-user-profile-vector-illustration-isolated-background-man-profile-sign-business-concept_157943-38764.jpg"} 
             alt={currentStory.user.username} 
           />
           <p>{currentStory.user.username}</p>
@@ -241,7 +241,7 @@ const StoryList = ({ stories }) => {
             src={currentStory.mediaUrl}
             className="story-modal-video"
             autoPlay
-            muted
+           
           />
         ) : (
           <img

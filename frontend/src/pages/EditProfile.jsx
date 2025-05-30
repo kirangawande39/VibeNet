@@ -93,8 +93,10 @@ const EditProfile = () => {
         {/* Profile Card */}
         <div className="col-md-4">
           <div className="card p-4 shadow rounded-4 text-center">
+           
             <img
               src={
+                user.profilePic.url ||
                 user.profilePic ||
                 "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
               }

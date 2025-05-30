@@ -152,7 +152,7 @@ const PostCard = ({ post }) => {
       {/* Post Header */}
       <div className="card-header d-flex align-items-center bg-white">
         <img
-          src={post.user?.profilePic}
+          src={post.user?.profilePic.url || post.user?.profilePic}
           alt="profile"
           className="rounded-circle me-2"
           width="40"

@@ -140,14 +140,17 @@ const Chat = () => {
                 return (
                   <button
                     key={index}
-                    className={`list-group-item list-group-item-action d-flex align-items-center justify-content-between ${
-                      selectedUser && follower._id === selectedUser._id ? "active" : ""
-                    }`}
+                    className={`list-group-item list-group-item-action d-flex align-items-center justify-content-between ${selectedUser && follower._id === selectedUser._id ? "active" : ""
+                      }`}
                     onClick={() => handleUserSelect(follower)}
                   >
                     <div className="d-flex align-items-center">
                       <img
-                        src={follower.profilePic || "/default-profile.png"}
+                        src={
+                          follower.profilePic.url ||
+                          follower.profilePic ||
+                          "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                        }
                         alt={follower.username}
                         className="rounded-circle me-2"
                         width="40"

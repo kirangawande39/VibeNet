@@ -4,8 +4,8 @@ const { protect } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 const multer = require('multer');
-const { storage } = require('../config/cloudConfig');  // yaha import karo
-const upload = multer({ storage });
+const { StoryStorage } = require('../config/cloudConfig');  // yaha import karo
+const upload = multer({ storage:StoryStorage });
 
 // Multer setup
 
