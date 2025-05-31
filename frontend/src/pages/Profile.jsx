@@ -12,6 +12,7 @@ import { MdOutlinePersonSearch } from "react-icons/md";
 import { FaUserCircle, FaInfoCircle, FaEdit } from "react-icons/fa";
 import { RiDeleteBin2Line } from "react-icons/ri";
 import { FiMoreVertical } from 'react-icons/fi';
+import Spinner from "../components/Spinner";
 
 // Start of component
 const Profile = () => {
@@ -133,7 +134,7 @@ const Profile = () => {
   if (!profileData) {
     return (
       <div className="container mt-4">
-        <h4>Loading profile...</h4>
+        <Spinner/>
       </div>
     );
   }
