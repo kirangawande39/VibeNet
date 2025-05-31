@@ -22,7 +22,7 @@ const PostCard = ({ post }) => {
   // Flying hearts state
   const [flyingLikes, setFlyingLikes] = useState([]);
   const likeSoundRef = useRef(null);
-
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const followingStatus = post.user.followers.includes(user?.id);
     setIsFollowing(followingStatus);
@@ -66,7 +66,7 @@ const PostCard = ({ post }) => {
   const handleLike = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/likes/${post._id}/like`,
+        `${backendUrl}/api/likes/${post._id}/like`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -81,7 +81,7 @@ const PostCard = ({ post }) => {
   const handleUnlike = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/likes/${post._id}/unlike`,
+        `${backendUrl}/api/likes/${post._id}/unlike`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -100,7 +100,7 @@ const PostCard = ({ post }) => {
   const handleFollow = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/follow/${post.user._id}/follow`,
+        `${backendUrl}/api/follow/${post.user._id}/follow`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -116,7 +116,7 @@ const PostCard = ({ post }) => {
   const handleUnfollow = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/follow/${post.user._id}/unfollow`,
+        `${backendUrl}/api/follow/${post.user._id}/unfollow`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

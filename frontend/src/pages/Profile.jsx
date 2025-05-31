@@ -33,7 +33,7 @@ const Profile = () => {
 
   const [posts, setPosts] = useState([])
 
-
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const { user } = useContext(AuthContext);
   const token = user?.token || localStorage.getItem("token");
   const { id } = useParams();
@@ -69,7 +69,7 @@ const Profile = () => {
     try {
       // backend route: DELETE /posts/:id
       const res = await axios.delete(
-        `http://localhost:5000/api/posts/${postId}`,
+        `${backendUrl}/api/posts/${postId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -95,7 +95,7 @@ const Profile = () => {
     const fetchProfileData = async () => {
       if (!user) return;
       try {
-        const response = await axios.get(`http://localhost:5000/api/users/${id}`);
+        const response = await axios.get(`${backendUrl}/api/users/${id}`);
 
         console.log("user", response.data.user)
         setProfileData(response.data.user);
@@ -111,7 +111,7 @@ const Profile = () => {
     const fetchPostData = async () => {
       if (!user) return;
       try {
-        const res = await axios.get(`http://localhost:5000/api/posts/${id}`);
+        const res = await axios.get(`${backendUrl}/api/posts/${id}`);
         console.log("Posts:", res.data.posts)
         setPosts(res.data.posts);
       } catch (err) {
@@ -158,7 +158,7 @@ const Profile = () => {
     formData.append("postImage", postImage);
 
     try {
-      const res = await axios.post(`http://localhost:5000/api/posts/${user.id}`, formData, {
+      const res = await axios.post(`${backendUrl}/api/posts/${user.id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -219,7 +219,7 @@ const Profile = () => {
     formData.append("story", selectedFile);
 
     try {
-      const res = await axios.post("http://localhost:5000/api/stories", formData, {
+      const res = await axios.post(`${backendUrl}/api/stories`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -318,7 +318,7 @@ const Profile = () => {
                     <li key={follower._id} className="list-group-item d-flex align-items-center justify-content-between">
                       <div className="d-flex align-items-center">
                         <img
-                          src={follower.profilePic || follower.profilePic?.url || "/default-profile.png"}
+                          src={follower.profilePic?.url || follower.profilePic  || "/default-profile.png"}
                           alt="profile"
                           className="rounded-circle"
                           style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "10px" }}

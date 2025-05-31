@@ -14,7 +14,7 @@ const Chat = () => {
   const [chats, setChats] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);  // To store online userIds
   const [lastSeen, setLastSeen] = useState({});        // To store last seen timestamps
-
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const { updateUser } = useContext(AuthContext);
 
   const dummyMessages = {
@@ -54,7 +54,7 @@ const Chat = () => {
   const fetchUserData = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/users/${user._id ? user._id : user.id}`
+        `${backendUrl}/api/users/${user._id ? user._id : user.id}`
       );
       console.log("User Data:", res.data.user);
       setLocalUser(res.data.user);
@@ -74,7 +74,7 @@ const Chat = () => {
   useEffect(() => {
     const fetchOnlineStatus = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/online-status");
+        const res = await axios.get(`${backendUrl}/api/online-status`);
         setOnlineUsers(res.data.onlineUsers || []);
         setLastSeen(res.data.lastSeen || {});
       } catch (err) {

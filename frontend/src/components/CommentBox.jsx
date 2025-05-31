@@ -16,12 +16,12 @@ const CommentBox = ({ postId }) => {
 
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
-
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   // ⏬ Fetch comments on mount
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/comments/${postId}`);
+        const res = await axios.get(`${backendUrl}/api/comments/${postId}`);
         setComments(res.data.comments);
       } catch (error) {
         console.error("Error fetching comments:", error);
@@ -73,7 +73,7 @@ const CommentBox = ({ postId }) => {
 
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/comments/${postId}`,
+        `${backendUrl}/api/comments/${postId}`,
         { newComment },
         {
           headers: {
@@ -100,7 +100,7 @@ const CommentBox = ({ postId }) => {
   // ❌ Delete comment
   const handleCommentDelete = async (commentId) => {
     try {
-      const res = await axios.delete(`http://localhost:5000/api/comments/${commentId}`);
+      const res = await axios.delete(`${backendUrl}/api/comments/${commentId}`);
       alert(res.data.message);
 
       // Locally update UI

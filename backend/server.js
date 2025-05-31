@@ -12,6 +12,9 @@ const { Server } = require("socket.io");
 require("./cron/storyCleanup.js");
 
 
+
+
+
 // Import Routes
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -26,11 +29,15 @@ const messageRoutes = require("./routes/messageRoutes");
 
 require("./config/passport");
 
+const UI_URL=process.env.FRONTEND_URL;
+
+
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: UI_URL,
     credentials: true,
   },
 });
@@ -41,7 +48,7 @@ callDB();
 
 app.use(express.json());
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: UI_URL,
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
 }));

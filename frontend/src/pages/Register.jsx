@@ -22,10 +22,12 @@ const Register = () => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", user);
+      const res = await axios.post(`${backendUrl}/api/auth/register`, user);
 
       toast.success("Registered Successfully");
       navigate("/login");

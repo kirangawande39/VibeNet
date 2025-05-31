@@ -20,7 +20,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
   const [lastMessage, setlastMessage] = useState(null)
 
   const [previewImage, setPreviewImage] = useState(null);
-
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const fileInputRef = useRef();
 
   const handleImageButtonClick = () => {
@@ -35,7 +35,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
       formData.append("image", file);
       formData.append("chatId", chatId);
 
-      const res = await axios.post("http://localhost:5000/api/messages/image", formData, {
+      const res = await axios.post(`${backendUrl}/api/messages/image`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -88,7 +88,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
     const createOrFetchChat = async () => {
       try {
         const res = await axios.post(
-          "http://localhost:5000/api/chats",
+          `${backendUrl}/api/chats`,
           { senderId: user.id, receiverId: selectedUser._id },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -110,7 +110,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
     const fetchMessages = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/messages/${chatId}`,
+          `${backendUrl}/api/messages/${chatId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setMessages(res.data);
@@ -131,7 +131,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
     );
     if (unseen) {
       axios
-        .put(`http://localhost:5000/api/messages/seen/${chatId}`, {}, {
+        .put(`${backendUrl}/api/messages/seen/${chatId}`, {}, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .catch(console.error);
@@ -202,7 +202,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/messages",
+        `${backendUrl}/api/messages`,
         { chatId, text: newMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -250,7 +250,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
   const handleDeleteMessage = async (msgId) => {
     try {
       const res = await axios.delete(
-        `http://localhost:5000/api/messages/${msgId}`,
+        `${backendUrl}/api/messages/${msgId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

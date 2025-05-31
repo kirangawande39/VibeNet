@@ -17,7 +17,7 @@ const EditProfile = () => {
   const [isEditingBioName, setIsEditingBioName] = useState(false);
   const [bio, setBio] = useState(profileData?.bio || "");
   const [name, setName] = useState(profileData?.name || "");
-
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const fileInputRef = useRef(null);
 
   if (!user) {
@@ -30,7 +30,7 @@ const EditProfile = () => {
 
   const handleBioNameSave = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/users/${user._id}`, {
+      const res = await fetch(`${backendUrl}/api/users/${user._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -62,7 +62,7 @@ const EditProfile = () => {
       formData.append("profilePic", file);
 
       const res = await fetch(
-        `http://localhost:5000/api/users/${user._id}/uploadProfilePic`,
+        `${backendUrl}/api/users/${user._id}/uploadProfilePic`,
         {
           method: "PUT",
           body: formData,

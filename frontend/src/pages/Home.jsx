@@ -9,8 +9,10 @@ import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import { BsRewind } from "react-icons/bs";
 import Spinner from "../components/Spinner";
-const Home = () => {
 
+
+const Home = () => {
+  
   const { updateUser } = useContext(AuthContext);
   const { user } = useContext(AuthContext);
 
@@ -18,10 +20,12 @@ const Home = () => {
 
   const [posts, setPost] = useState([])
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  
   const fetchPostData = async () => {
-
+    
     try {
-      const res = await axios.get(`http://localhost:5000/api/posts`);
+      const res = await axios.get(`${backendUrl}/api/posts`);
       // console.log('res :' + res.data.posts);
       // console.log(res.data.posts);
       setPost(res.data.posts);
@@ -38,7 +42,7 @@ const Home = () => {
   const fetchStories = async () => {
 
     try {
-      const res = await axios.get("http://localhost:5000/api/stories");
+      const res = await axios.get(`${backendUrl}/api/stories`);
       // console.log('res :' + res.data.posts);
       // console.log(res.data.posts);
       // setPost(res.data.posts);
@@ -50,6 +54,12 @@ const Home = () => {
     }
   }
 
+
+
+
+
+
+
   useEffect(() => {
     fetchStories();
   }, [])
@@ -58,6 +68,7 @@ const Home = () => {
   return (
     <div className="container mt-4">
       <div className="story-scroll-container mb-3">
+     
         <StoryList stories={stories} />
       </div>
 
