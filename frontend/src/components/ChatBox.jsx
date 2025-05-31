@@ -422,7 +422,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
         {isTyping && (
           <div className="d-flex align-items-center gap-2 mb-4 ms-2">
             <img
-              src={selectedUser.profilePic.url || selectedUser.profilePic || "/default-profile.png"}
+              src={selectedUser.profilePic?.url || selectedUser.profilePic || "/default-profile.png"}
               alt="Typing..."
               className="rounded-circle"
               style={{ width: "32px", height: "32px", objectFit: "cover" }}

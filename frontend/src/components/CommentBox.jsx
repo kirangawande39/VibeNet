@@ -123,7 +123,7 @@ const CommentBox = ({ postId }) => {
         {comments.slice(0).reverse().map((comment) => (
           <div key={comment._id} className="comment">
             <img
-              src={comment.user?.profilePic || user.profilePic}
+              src={comment.user?.profilePic.url || user.profilePic.url}
               alt="Profile"
               className="comment-profile-pic"
             />
@@ -151,8 +151,8 @@ const CommentBox = ({ postId }) => {
       <form className="comment-form" onSubmit={handleCommentSubmit}>
         <img
           src={
-            user.profilePic ||
-            updateUser.profilePic ||
+            user.profilePic.url ||
+            updateUser.profilePic.url ||
             "https://cdn-icons-png.flaticon.com/512/149/149071.png"
           }
           alt="Profile"
