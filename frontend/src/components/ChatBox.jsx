@@ -348,8 +348,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
                 <img
                   src={
                     isOwn
-                      ? user.profilePic.url || user.profilePic || "/default-profile.png"
-                      : msg.sender?.profilePic.url || msg.sender?.profilePic || "/default-profile.png"
+                      ? user.profilePic?.url || user.profilePic || "/default-profile.png"
+                      : msg.sender?.profilePic?.url || msg.sender?.profilePic || "/default-profile.png"
                   }
                   alt="Profile"
                   className="rounded-circle me-2 ms-2"
