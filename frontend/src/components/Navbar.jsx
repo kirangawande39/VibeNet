@@ -79,7 +79,7 @@ const Navbar = () => {
                       <FaUser className="me-2" /> Profile
                     </Link>
                     <Link
-                      to="/chat"
+                      to={`/chat/${user.id}`}
                       className="dropdown-item d-flex align-items-center"
                       onClick={() => setMenuOpen(false)}
                     >
@@ -118,7 +118,7 @@ const Navbar = () => {
         </Link>
         {user && (
           <>
-            <Link to="/chat" className="bottom-icon">
+            <Link to={`/chat/${user.id}`} className="bottom-icon">
               <FaCommentDots />
             </Link>
             <Link to={`/users/${user.id}`} className="bottom-icon">

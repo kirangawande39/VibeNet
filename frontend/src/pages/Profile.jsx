@@ -253,8 +253,8 @@ const Profile = () => {
         <div className={`d-flex align-items-center ${uploadStory ? 'story-ring' : ''}`} onClick={handleProfileStoryClick} style={{ cursor: uploadStory ? "pointer" : "default" }}>
           <img
             src={
-              user.profilePic?.url ||
-              user.profilePic ||
+              profileData.profilePic?.url ||
+              profileData.profilePic ||
               "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
             }
             alt="Profile"

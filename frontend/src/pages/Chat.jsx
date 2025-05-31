@@ -4,6 +4,8 @@ import ChatBox from "../components/ChatBox";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import Spinner from "../components/Spinner";
+import {  useParams } from "react-router-dom";
+
 
 const Chat = () => {
   const { user, updateUser } = useContext(AuthContext);
@@ -17,7 +19,7 @@ const Chat = () => {
   const [loading, setLoading] = useState(true);
   const [statusLoading, setStatusLoading] = useState(true);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
+  const {id}=useParams();
   const dummyMessages = {
     user1: [
       { id: 1, sender: "user1", text: "Hey!" },
@@ -54,7 +56,7 @@ const Chat = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${backendUrl}/api/users/${user._id ? user._id : user.id}`
+        `${backendUrl}/api/users/${id ? id : user.id}`
       );
       setLocalUser(res.data.user);
       updateUser(res.data.user);

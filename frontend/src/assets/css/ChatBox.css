@@ -31,6 +31,42 @@
   position: relative;
   word-wrap: break-word;
 }
+.sender-image {
+  background-color: transparent;
+  border-radius: 18px;
+  padding: 2px;
+  margin-top: 6px;
+  position: relative;
+  max-width: 250px;
+  overflow: hidden;
+}
+
+.receiver-image {
+  background-color: transparent;
+  border-radius: 18px;
+  padding: 2px;
+  margin-top: 6px;
+  position: relative;
+  max-width: 250px;
+  overflow: hidden;
+}
+
+.message-image {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s ease-in-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.sender-image:hover .message-image,
+.receiver-image:hover .message-image {
+  transform: scale(1.03);
+}
+
 
 /* Optional arrow bubble style like WhatsApp */
 .sender-message::after {
@@ -223,4 +259,29 @@
 
 .delete-msg:active {
   transform: scale(0.9);
+}
+
+
+.message-image-container {
+  max-width: 250px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e2e2e2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-top: 8px;
+  transition: transform 0.3s ease;
+}
+
+.message-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.message-image:hover {
+  transform: scale(1.05);
 }

@@ -361,47 +361,51 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
                   className="me-2 ms-2"
                   style={{ width: "200px", height: "300px", objectFit: "cover" }}
                 /> */}
-                <div
-                  className={`p-2 rounded ${isOwn ? "sender-message" : "receiver-message"}`}
-                  style={{ maxWidth: "60%" }}
-                >
-                  {/* 📝 Show Text if present */}
-                  {msg.text && <div>{msg.text}</div>}
+                <div style={{ maxWidth: "60%" }}>
+                  {/* 📝 Text Message Box (with time + seen inside) */}
+                  {msg.text && (
+                    <div className={`p-2 rounded ${isOwn ? "sender-message" : "receiver-message"}`}>
+                      <div>{msg.text}</div>
 
-                  {/* 🖼️ Show Image if present */}
-                  {msg.image.url && (
-                    <div className="mt-2">
-                      <img
-                        src={msg.image.url} // ✅ Cloudinary URL directly
-                        alt="sent"
-                        style={{
-                          width: "250px",
-                          maxWidth: "100%",
-                          height: "auto",
-                          objectFit: "cover",
-                          borderRadius: "12px",
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                          transition: "transform 0.3s ease",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => window.open(msg.image.url, "_blank")} // Optional full-size view
-                      />
+                      {/* 🕒 Time */}
+                      <div className="text-muted text-end mt-1" style={{ fontSize: "0.75rem" }}>
+                        {time}
+                      </div>
+
+                      {/* ✅ Seen Status (only for own message) */}
+                      {isOwn && (
+                        <div className="text-muted text-end" style={{ fontSize: "0.65rem", marginTop: "2px" }}>
+                          <span style={{ color: msg.seen ? "#34B7F1" : "gray" }}>✔✔</span>
+                        </div>
+                      )}
                     </div>
                   )}
 
+                  {/* 🖼️ Image Block (image + time + seen shown outside box) */}
+                  {msg.image?.url && (
+                    <div className={`message-image-container ${isOwn ? "sender-image" : "receiver-image"}`}>
+                      <img
+                        src={msg.image.url}
+                        alt="sent"
+                        className="message-image"
+                        onClick={() => window.open(msg.image.url, "_blank")}
+                      />
 
-                  {/* 🕒 Time */}
-                  <div className="text-muted text-end mt-1" style={{ fontSize: "0.75rem" }}>
-                    {time}
-                  </div>
+                      {/* ⏱ Time below image */}
+                      <div className="text-muted text-end mt-1" style={{ fontSize: "0.75rem" }}>
+                        {time}
+                      </div>
 
-                  {/* ✅ Seen Status (if own message) */}
-                  {isOwn && (
-                    <div className="text-muted text-end" style={{ fontSize: "0.65rem", marginTop: "2px" }}>
-                      <span style={{ color: msg.seen ? "#34B7F1" : "gray" }}>✔✔</span>
+                      {/* ✅ Seen Status for image (only if own message) */}
+                      {isOwn && (
+                        <div className="text-muted text-end" style={{ fontSize: "0.65rem", marginTop: "2px" }}>
+                          <span style={{ color: msg.seen ? "#34B7F1" : "gray" }}>✔✔</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
+
 
               </div>
 
@@ -461,7 +465,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
           />
 
           {/* Visible button to trigger file picker */}
-          <button onClick={handleImageButtonClick} className="btn btn-primary " style={{marginLeft:"5px"}}>
+          <button onClick={handleImageButtonClick} className="btn btn-primary " style={{ marginLeft: "5px" }}>
             <MdInsertPhoto />
           </button>
 

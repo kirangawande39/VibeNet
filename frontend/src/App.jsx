@@ -18,7 +18,7 @@ function App() {
         <Route path="/users/:id" element={<Profile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/chat" element={<Chat />} />
+        <Route path="/chat/:id" element={<Chat />} />
         <Route path="/users/:id/edit_profile" element={<EditProfile />} />
       </Routes>
       </AuthProvider>
