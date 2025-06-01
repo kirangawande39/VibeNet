@@ -439,23 +439,51 @@
 }
 
 
+/* Suggestion Box Styles */
+.suggestion-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-bottom: 50px;
+}
 
 .suggestion-box {
-  background-color: #fafafa;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
-
+  background: white;
+  transition: all 0.3s ease;
+  height: 100%;
 }
 
 .suggestion-box:hover {
-  transform: translateY(-3px);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
 }
 
-.suggestion-box img {
+.icon-wrapper {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 123, 255, 0.1);
   border-radius: 50%;
 }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .suggestion-box {
+    margin-bottom: 20px;
+  }
+  
+  .icon-wrapper {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .icon-wrapper svg {
+    font-size: 32px;
+  }
+}
+
 
 .menu-button {
   background: transparent;
@@ -497,4 +525,212 @@
 
 .menu-dropdown .delete-btn:hover {
   background-color: #fceae9;
+}
+
+
+/* Gallery Grid Layout */
+.post-gallery {
+  width: 100%;
+  padding: 0;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px; /* Very small gap between grid items */
+  width: 100%;
+}
+
+.gallery-item {
+  width: 100%;
+  aspect-ratio: 1/1; /* Makes each item square */
+  margin-bottom: 0 !important;
+}
+
+.post-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.post-img-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.post-img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.post-caption {
+  display: none; /* Hide caption in grid view */
+}
+
+/* Menu styles for grid view */
+.menu-container {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+.menu-toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
+  text-shadow: 0 0 3px rgba(0,0,0,0.5);
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  z-index: 1000;
+  min-width: 120px;
+  padding: 5px 0;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #e74c3c;
+  padding: 5px 10px;
+  width: 100%;
+  text-align: left;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-message {
+  color: #8e8e8e;
+  margin-bottom: 15px;
+}
+
+.create-first-btn {
+  background: #0095f6;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* For larger screens - switch back to Instagram feed style */
+@media (min-width: 768px) {
+  .gallery-grid {
+    display: block;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .gallery-item {
+    aspect-ratio: unset;
+    margin-bottom: 20px !important;
+  }
+
+  .post-card {
+    border: 1px solid #ddd !important;
+    padding: 10px !important;
+    border-radius: 8px;
+  }
+
+  .post-img-container img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .post-caption {
+    display: block;
+    margin-top: 10px;
+  }
+}
+
+
+/* Image Modal Styles */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+.modal-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90vh;
+  z-index: 10000;
+  background: #000;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.full-image {
+  max-height: 80vh;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.image-caption {
+  color: white;
+  text-align: center;
+  margin-top: 15px;
+  padding: 0 20px;
+  max-width: 600px;
+}
+
+/* Make sure body doesn't scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
 }

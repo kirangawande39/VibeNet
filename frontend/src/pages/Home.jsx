@@ -2,89 +2,67 @@ import { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import PostCard from "../components/PostCard";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../assets/css/Home.css"
+import "../assets/css/Home.css";
 import StoryList from "../components/StoryList";
-import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { toast } from "react-toastify";
-import { BsRewind } from "react-icons/bs";
 import Spinner from "../components/Spinner";
 
-
 const Home = () => {
-  
-  const { updateUser } = useContext(AuthContext);
   const { user } = useContext(AuthContext);
-
-  const [stories, setStories] = useState([])
-
-  const [posts, setPost] = useState([])
-
+  const [stories, setStories] = useState([]);
+  const [posts, setPost] = useState([]);
+  const [loading, setLoading] = useState(true);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  
+
   const fetchPostData = async () => {
-    
     try {
       const res = await axios.get(`${backendUrl}/api/posts`);
-      // console.log('res :' + res.data.posts);
-      // console.log(res.data.posts);
       setPost(res.data.posts);
+      setLoading(false);
     } catch (err) {
-      // alert(res.data.message);
-      console.error("Failed to fetch profile data:", err);
+      console.error("Failed to fetch posts:", err);
+      setLoading(false);
     }
-  }
+  };
+
+  const fetchStories = async () => {
+    try {
+      const res = await axios.get(`${backendUrl}/api/stories`);
+      setStories(res.data.stories);
+    } catch (err) {
+      console.error("Failed to fetch stories:", err);
+    }
+  };
 
   useEffect(() => {
     fetchPostData();
-  }, [])
-
-  const fetchStories = async () => {
-
-    try {
-      const res = await axios.get(`${backendUrl}/api/stories`);
-      // console.log('res :' + res.data.posts);
-      // console.log(res.data.posts);
-      // setPost(res.data.posts);
-      console.log('Stories :', res.data.stories);
-      setStories(res.data.stories)
-    } catch (err) {
-      // alert(res.data.message);
-      console.error("Failed to fetch profile data:", err);
-    }
-  }
-
-
-
-
-
-
-
-  useEffect(() => {
     fetchStories();
-  }, [])
-
+  }, []);
 
   return (
-    <div className="container mt-4">
-      <div className="story-scroll-container mb-3">
-     
+    <div className="instagram-container">
+      {/* Stories */}
+      <div className="stories-wrapper">
         <StoryList stories={stories} />
       </div>
 
-
-      {/* <button onClick={fetchPostData}>Thsi is post page</button> */}
-      <div className="row justify-content-center">
-        {posts.length > 0 ? (
+      {/* Posts - No margin between them */}
+      <div className="posts-feed">
+        {loading ? (
+          <div className="spinner-container">
+            <Spinner />
+          </div>
+        ) : posts.length > 0 ? (
           posts.map((post) => (
-            <div key={post._id} className="col-md-6 mb-4">
-              <PostCard post={post} />
-            </div>
+            <PostCard key={post._id} post={post} />
           ))
         ) : (
-          <Spinner />
+          <div className="no-posts">No posts available</div>
         )}
       </div>
+
+     
+     
     </div>
   );
 };

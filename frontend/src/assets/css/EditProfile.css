@@ -19,3 +19,7 @@
   break-inside: avoid;
   margin-bottom: 1rem;
 }
+
+.edit-post{
+  margin-bottom: 100px !important;
+}

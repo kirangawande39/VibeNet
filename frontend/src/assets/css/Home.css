@@ -1,53 +1,100 @@
-
-.story-scroll-container {
-  overflow-x: auto;          /* enable horizontal scrolling */
-  white-space: nowrap;       /* keep children in one line */
-  padding: 10px 0;
-  -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
-  scrollbar-width: thin;
-  scrollbar-color: #888 #e0e0e0;
+/* Instagram-like layout */
+.instagram-container {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  background-color: #fafafa;
+  position: relative;
+  padding-bottom: 60px; /* Space for bottom nav */
 }
 
-/* Scrollbar styles for Chrome/Safari */
-.story-scroll-container::-webkit-scrollbar {
-  height: 6px;
-}
-.story-scroll-container::-webkit-scrollbar-track {
-  background: #e0e0e0;
-}
-.story-scroll-container::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 3px;
-}
-.story-scroll-container::-webkit-scrollbar-thumb:hover {
-  background: #555;
+/* Header */
+.instagram-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 12px 16px;
+  border-bottom: 1px solid #dbdbdb;
+  z-index: 100;
 }
 
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
+.instagram-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  font-family: 'Instagram', sans-serif;
+}
 
-.card {
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  
-  .card-header {
-    background: white;
-    border-bottom: none;
-  }
-  
-  .card-img-top {
-    object-fit: cover;
-    height: 400px;
-  }
-  
-  .card-body {
-    padding: 10px;
-  }
-  
-  .card-body span {
-    font-size: 14px;
-    color: gray;
-  }
-  
+.header-icons i {
+  font-size: 1.5rem;
+  margin-left: 16px;
+}
 
- 
+/* Stories */
+.stories-wrapper {
+  background: white;
+  padding: 12px 0;
+  border-bottom: 1px solid #dbdbdb;
+  margin-bottom: 4px;
+}
+
+/* Posts Feed - No margins between posts */
+.posts-feed {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.posts-feed > div {
+  border-bottom: none;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0;
+  border-top: 1px solid #dbdbdb;
+  z-index: 100;
+}
+
+.bottom-nav i {
+  font-size: 1.5rem;
+  color: #262626;
+}
+
+.bottom-nav .active {
+  color: #0095f6;
+}
+
+/* Loading State */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.no-posts {
+  text-align: center;
+  padding: 40px 0;
+  color: #8e8e8e;
+}
+
+/* Remove any card margins from PostCard component */
+.post-card {
+  margin-bottom: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  border-bottom: 1px solid #dbdbdb !important;
+}

@@ -11,9 +11,9 @@ import { FaPlus } from "react-icons/fa";
 import { MdOutlinePersonSearch } from "react-icons/md";
 import { FaUserCircle, FaInfoCircle, FaEdit } from "react-icons/fa";
 import { RiDeleteBin2Line } from "react-icons/ri";
-import { FiMoreVertical } from 'react-icons/fi';
-import Spinner from "../components/Spinner";
 
+import Spinner from "../components/Spinner";
+import { FiMoreVertical, FiX } from "react-icons/fi";
 // Start of component
 const Profile = () => {
   const [file, setFile] = useState(null);
@@ -24,6 +24,10 @@ const Profile = () => {
   const [story, setStory] = useState(false);
   const [uploadStory, setUploadedStory] = useState(null);
   const [storyFile, setStoryFile] = useState(null);
+
+
+
+
   const [showStoryModal, setShowStoryModal] = useState(false); // for modal
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
@@ -56,13 +60,8 @@ const Profile = () => {
 
 
   const toggleMenu = (postId) => {
-    if (openMenuId === postId) {
-      setOpenMenuId(null);  // close if already open
-    } else {
-      setOpenMenuId(postId); // open new one
-    }
+    setOpenMenuId(openMenuId === postId ? null : postId);
   };
-
 
   const handlePostDelete = async (postId) => {
     alert(`Post was deleted ${postId} is here`)
@@ -134,7 +133,7 @@ const Profile = () => {
   if (!profileData) {
     return (
       <div className="container mt-4">
-        <Spinner/>
+        <Spinner />
       </div>
     );
   }
@@ -319,7 +318,7 @@ const Profile = () => {
                     <li key={follower._id} className="list-group-item d-flex align-items-center justify-content-between">
                       <div className="d-flex align-items-center">
                         <img
-                          src={follower.profilePic?.url || follower.profilePic  || "/default-profile.png"}
+                          src={follower.profilePic?.url || follower.profilePic || "/default-profile.png"}
                           alt="profile"
                           className="rounded-circle"
                           style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "10px" }}
@@ -459,65 +458,73 @@ const Profile = () => {
         {mpost ? (
           <div className="post-gallery">
             {posts && posts.length > 0 ? (
-              <div className="gallery-grid">
-                {posts.map((post) => (
-                  <div key={post._id} className="gallery-item" style={{ marginBottom: '20px' }}>
-                    <div className="post-card" style={{ position: 'relative', border: '1px solid #ddd', padding: '10px' }}>
-                      <div className="post-img-container">
-                        <img src={post.image} alt="Post" style={{ width: '200px', height: 'auto' }} />
-                      </div>
-                      <p className="post-caption">{post.text}</p>
-
-                      {post.user === id && (
-                        <div className="menu-container" style={{ position: 'absolute', top: '10px', right: '10px' }}>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleMenu(post._id);
-                            }}
-                            aria-label="Toggle menu"
-                            style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
-                          >
-                            <FiMoreVertical size={24} />
-                          </button>
-
-                          {openMenuId === post._id && (
-                            <div
-                              className="menu-dropdown"
-                              style={{
-                                position: 'absolute',
-                                top: '30px',
-                                right: '0',
-                                background: '#fff',
-                                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                                borderRadius: '6px',
-                                zIndex: 1000,
-                                minWidth: '12px',
-                                padding: '5px 0',
-                              }}
-                            >
-                              <button
-                                onClick={() => handlePostDelete(post._id)}
-                                style={{
-
-                                  border: 'none',
-
-                                  cursor: 'pointer',
-                                  color: '#e74c3c',
-
-                                }}
-                              >
-                                <RiDeleteBin2Line />
-                              </button>
-                            </div>
-                          )}
+              <>
+                {/* Grid View */}
+                <div className="gallery-grid">
+                  {posts.map((post) => (
+                    <div key={post._id} className="gallery-item">
+                      <div className="post-card">
+                        <div
+                          className="post-img-container"
+                          onClick={() => setSelectedImage(post)}
+                        >
+                          <img src={post.image} alt="Post" />
                         </div>
-                      )}
+                        <p className="post-caption">{post.text}</p>
+
+                        {post.user === id && (
+                          <div className="menu-container">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleMenu(post._id);
+                              }}
+                              aria-label="Toggle menu"
+                              className="menu-toggle-btn"
+                            >
+                              <FiMoreVertical size={24} />
+                            </button>
+
+                            {openMenuId === post._id && (
+                              <div className="menu-dropdown">
+                                <button
+                                  onClick={() => handlePostDelete(post._id)}
+                                  className="delete-btn"
+                                >
+                                  <RiDeleteBin2Line /> Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Full Image View Modal */}
+                {selectedImage && (
+                  <div className="image-modal">
+                    <div className="modal-overlay" onClick={() => setSelectedImage(null)}></div>
+                    <div className="modal-content">
+                      <button
+                        className="close-btn"
+                        onClick={() => setSelectedImage(null)}
+                      >
+                        <FiX size={24} />
+                      </button>
+                      <img
+                        src={selectedImage.image}
+                        alt="Selected Post"
+                        className="full-image"
+                      />
+                      <div className="image-caption">
+                        {selectedImage.text}
+                      </div>
                     </div>
                   </div>
-                ))}
-
-              </div>
+                )}
+              </>
             ) : (
               <div className="empty-state">
                 <p className="empty-message">No posts available</p>
@@ -582,52 +589,83 @@ const Profile = () => {
 
         {/* Image Modal */}
         {selectedImage && (
-          <div className="modal-overlay" onClick={closeModal}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <button className="modal-close-btn" onClick={closeModal}>
-                &times;
+          <div className="image-modal">
+            <div className="modal-overlay" onClick={() => setSelectedImage(null)}></div>
+            <div className="modal-content">
+              <button
+                className="close-btn"
+                onClick={() => setSelectedImage(null)}
+              >
+                <FiX size={24} />
               </button>
               <img
-                src={selectedImage}
-                alt="Selected"
-                className="modal-image"
+                src={selectedImage.image}
+                alt="Selected Post"
+                className="full-image"
               />
+              <div className="image-caption">
+                {selectedImage.text}
+              </div>
             </div>
           </div>
         )}
       </div>
 
       {/* Suggestion Boxes */}
-      <div className="suggestion-section mt-5">
-        <h4 className="mb-4">Complete your profile</h4>
-        <div className="row gap-3 justify-content-center">
+      <div className="suggestion-section mt-5 px-3">
+        <h4 className="mb-4 fw-bold text-center">Complete your profile</h4>
+        <div className="row justify-content-center g-3">
 
           {/* Upload profile picture */}
-          <div className="col-md-3 suggestion-box text-center p-3">
-            <FaUserCircle size={40} className="mb-2" />
-            <h6>Upload Profile Picture</h6>
-            <button className="btn btn-primary btn-sm mt-2" onClick={handleEdit}>Upload</button>
+          <div className="col-md-4 col-sm-6">
+            <div className="suggestion-box text-center p-4 rounded-4 shadow-sm border">
+              <div className="icon-wrapper mb-3">
+                <FaUserCircle size={48} className="text-primary" />
+              </div>
+              <h6 className="fw-semibold mb-3">Upload Profile Picture</h6>
+              <button
+                className="btn btn-sm btn-outline-primary rounded-pill px-4"
+                onClick={handleEdit}
+              >
+                Upload
+              </button>
+            </div>
           </div>
 
           {/* Add Bio */}
-          <div className="col-md-3 suggestion-box text-center p-3">
-            <FaInfoCircle size={40} className="mb-2" />
-            <h6>Add a Bio</h6>
-            <button className="btn btn-primary btn-sm mt-2" onClick={handleEdit}>Add Bio</button>
+          <div className="col-md-4 col-sm-6">
+            <div className="suggestion-box text-center p-4 rounded-4 shadow-sm border">
+              <div className="icon-wrapper mb-3">
+                <FaInfoCircle size={48} className="text-info" />
+              </div>
+              <h6 className="fw-semibold mb-3">Add a Bio</h6>
+              <button
+                className="btn btn-sm btn-outline-info rounded-pill px-4"
+                onClick={handleEdit}
+              >
+                Add Bio
+              </button>
+            </div>
           </div>
 
           {/* Edit Profile */}
-          <div className="col-md-3 suggestion-box text-center p-3 mb-5">
-            <FaEdit size={40} className="mb-2" />
-            <h6>Edit Profile</h6>
-            <button className="btn btn-primary btn-sm mt-2" onClick={handleEdit}>Edit</button>
+          <div className="col-md-4 col-sm-6">
+            <div className="suggestion-box text-center p-4 rounded-4 shadow-sm border">
+              <div className="icon-wrapper mb-3">
+                <FaEdit size={48} className="text-success" />
+              </div>
+              <h6 className="fw-semibold mb-3">Edit Profile</h6>
+              <button
+                className="btn btn-sm btn-outline-success rounded-pill px-4"
+                onClick={handleEdit}
+              >
+                Edit
+              </button>
+            </div>
           </div>
-
-
 
         </div>
       </div>
-
 
     </div>
   );

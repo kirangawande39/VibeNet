@@ -130,7 +130,7 @@ const PostCard = ({ post }) => {
   };
 
   return (
-    <div className="card shadow-sm my-3" style={{ position: "relative" }}>
+    <div className="card " style={{ position: "relative" }}>
       {/* Audio element for like sound */}
       <audio
         ref={likeSoundRef}
