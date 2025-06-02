@@ -10,6 +10,7 @@ const StorySchema = new mongoose.Schema(
       required: true,
       default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
     },
+    seenBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // ✅ New field added
   },
   { timestamps: true }
 );
