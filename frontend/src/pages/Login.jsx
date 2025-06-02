@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext,useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -9,12 +9,22 @@ import "react-toastify/dist/ReactToastify.css";
 // import { FaGoogle } from "react-icons/fa";
 import googleLogo from '../assets/img/google_logo.png';
 
+
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { login, user } = useContext(AuthContext);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+  useEffect(() => {
+    if (user) {
+      
+      navigate("/");
+    }
+  }, [user, navigate]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -31,6 +41,9 @@ const Login = () => {
       setTimeout(() => {
         navigate("/");
       }, 1000);
+
+
+
     } catch (error) {
       console.error("Login Failed:", error.response?.data || error.message);
       toast.error(

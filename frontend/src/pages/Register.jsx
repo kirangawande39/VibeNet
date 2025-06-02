@@ -1,37 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import googleLogo from '../assets/img/google_logo.png';
 import "../assets/css/Register.css";
-// import { FaGoogle } from "react-icons/fa";
+
+import { AuthContext } from "../context/AuthContext";
 
 const Register = () => {
-  const [user, setUser] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     username: "",
     email: "",
     password: "",
   });
 
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // Redirect logged-in users away from Register page
+  useEffect(() => {
+    if (user) {
+      navigate("/");  // Redirect to home if already logged in
+    }
+  }, [user, navigate]);
+
   const handleChange = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${backendUrl}/api/auth/register`, user);
+      const res = await axios.post(`${backendUrl}/api/auth/register`, formData);
 
       toast.success("Registered Successfully");
       navigate("/login");
-
     } catch (err) {
       if (err.response && err.response.data && err.response.data.message) {
         toast.error(err.response.data.message);
@@ -41,7 +49,6 @@ const Register = () => {
     }
   };
 
-  // Dummy Google signup handler (replace with real OAuth logic later)
   const handleGoogleSignIn = () => {
     toast.info("Google Sign Up clicked!");
   };
@@ -51,13 +58,7 @@ const Register = () => {
       <ToastContainer position="top-center" autoClose={2000} theme="light" />
       <div className="card p-4 shadow-sm text-center" style={{ width: "350px" }}>
 
-        {/* VibeNet Heading */}
-        <h1
-          className="text-primary logo fw-bold mb-3"
-          
-        >
-          VibeNet
-        </h1>
+        <h1 className="text-primary logo fw-bold mb-3">VibeNet</h1>
 
         <h4 className="mb-3">Sign Up</h4>
 
@@ -68,7 +69,7 @@ const Register = () => {
               name="name"
               placeholder="Full Name"
               className="form-control"
-              value={user.name}
+              value={formData.name}
               onChange={handleChange}
               required
             />
@@ -79,7 +80,7 @@ const Register = () => {
               name="username"
               placeholder="Username"
               className="form-control"
-              value={user.username}
+              value={formData.username}
               onChange={handleChange}
               required
             />
@@ -90,7 +91,7 @@ const Register = () => {
               name="email"
               placeholder="Email"
               className="form-control"
-              value={user.email}
+              value={formData.email}
               onChange={handleChange}
               required
             />
@@ -101,7 +102,7 @@ const Register = () => {
               name="password"
               placeholder="Password"
               className="form-control"
-              value={user.password}
+              value={formData.password}
               onChange={handleChange}
               required
             />
@@ -109,7 +110,6 @@ const Register = () => {
           <button type="submit" className="btn btn-primary w-100">Sign Up</button>
         </form>
 
-        {/* Google Sign Up Button */}
         <button
           onClick={handleGoogleSignIn}
           className="btn btn-light w-100 border d-flex align-items-center justify-content-center gap-2 mt-3 rounded-pill shadow-sm"
@@ -122,7 +122,6 @@ const Register = () => {
           />
           Sign up with Google
         </button>
-
 
         <p className="mt-2">
           Already have an account? <a href="/login" className="text-primary">Login</a>
