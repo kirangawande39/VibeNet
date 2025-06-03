@@ -27,6 +27,7 @@
     "react-router-dom": "^7.4.0",
     "react-toastify": "^11.0.5",
     "socket.io-client": "^4.8.1",
+    "timeago.js": "^4.0.2",
     "toastify": "^2.0.1",
     "tostify": "^0.0.1"
   },

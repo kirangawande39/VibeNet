@@ -39,7 +39,10 @@ const getStories = async (req, res) => {
   console.log("Get stories logic here");
 
   try {
-    const stories = await Story.find().populate('user');
+    const stories = await Story.find()
+    .populate('user')
+    .populate("seenBy.user", "username name profilePic");
+    
     console.log("Stories:" + stories);
     res.status(201).json({ success: true, stories });
   }
@@ -55,31 +58,41 @@ const deleteStory = async (req, res) => {
 const seenStory = async (req, res) => {
   try {
     const storyId = req.params.id;
-
-  
+    const userId = req.user.id;
 
     const story = await Story.findById(storyId);
     if (!story) {
       return res.status(404).json({ message: "Story not found" });
     }
 
-    const userId = req.user.id;
-
-    const alreadySeen = story.seenBy.some((uid) =>
-      uid.toString() === userId
-    );
+    // Check for existing user in both old and new formats
+    const alreadySeen = story.seenBy.some(entry => {
+      if (typeof entry === "object" && entry.user) {
+        return entry.user.toString() === userId;
+      } else {
+        // If old format is just ObjectId
+        return entry.toString() === userId;
+      }
+    });
 
     if (!alreadySeen) {
-      story.seenBy.push(userId);
+      story.seenBy.push({
+        user: userId,
+        viewedAt: new Date()
+      });
+
       await story.save();
       return res.status(200).json({ message: "Story marked as seen" });
     }
-    
+
     return res.status(200).json({ message: "Already marked as seen" });
+    
   } catch (error) {
     console.error("Error marking story as seen:", error.message);
     return res.status(500).json({ message: "Server error" });
   }
-}
+};
+
+
 
 module.exports = { createStory, getStories, deleteStory, seenStory };
