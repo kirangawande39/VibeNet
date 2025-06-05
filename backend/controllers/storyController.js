@@ -40,9 +40,9 @@ const getStories = async (req, res) => {
 
   try {
     const stories = await Story.find()
-    .populate('user')
-    .populate("seenBy.user", "username name profilePic");
-    
+      .populate('user')
+      .populate("seenBy.user", "username name profilePic");
+
     console.log("Stories:" + stories);
     res.status(201).json({ success: true, stories });
   }
@@ -86,7 +86,7 @@ const seenStory = async (req, res) => {
     }
 
     return res.status(200).json({ message: "Already marked as seen" });
-    
+
   } catch (error) {
     console.error("Error marking story as seen:", error.message);
     return res.status(500).json({ message: "Server error" });
@@ -94,5 +94,53 @@ const seenStory = async (req, res) => {
 };
 
 
+// Like Story Controller
+const likeStory = (req, res) => {
+  try {
+    console.log("✅ Like route is here");
 
-module.exports = { createStory, getStories, deleteStory, seenStory };
+    const storyId = req.params.id;
+    const userId = req.user.id;
+
+    console.log("👉 Story ID:", storyId);
+    console.log("👤 User ID:", userId);
+
+    // Dummy response for testing
+    return res.status(200).json({
+      success: true,
+      message: "Story liked successfully",
+      data: { storyId, userId }
+    });
+  } catch (err) {
+    console.error("❌ Error in likeStory:", err);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+// Unlike Story Controller
+const unLikeStory = (req, res) => {
+  try {
+    console.log("✅ Unlike route is here");
+
+    const storyId = req.params.id;
+    const userId = req.user.id;
+
+    console.log("👉 Story ID:", storyId);
+    console.log("👤 User ID:", userId);
+
+    // Dummy response for testing
+    return res.status(200).json({
+      success: false,
+      message: "Story unliked successfully",
+      data: { storyId, userId }
+    });
+  } catch (err) {
+    console.error("❌ Error in unLikeStory:", err);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+
+
+
+module.exports = { createStory, getStories, deleteStory, seenStory, likeStory, unLikeStory };

@@ -1,5 +1,5 @@
 const express = require("express");
-const { createStory, getStories, deleteStory ,seenStory } = require("../controllers/storyController");
+const { createStory, getStories, deleteStory ,seenStory,likeStory,unLikeStory } = require("../controllers/storyController");
 const { protect } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
@@ -17,5 +17,8 @@ router.get("/", getStories); // Get all stories
 router.delete("/:id", deleteStory); // Delete a story
 
 router.put("/:id/seen", protect, seenStory);
+
+router.put("/:id/like", protect, likeStory);
+router.put("/:id/unlike", protect, unLikeStory);
 
 module.exports = router;

@@ -15,7 +15,13 @@ const StorySchema = new mongoose.Schema(
         user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         viewedAt: { type: Date, default: Date.now }
       }
-    ]
+    ],
+    
+    likedBy: [{
+      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      likedAt: { type: Date, default: Date.now }
+    }]
+
 
 
   },
