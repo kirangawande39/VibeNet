@@ -94,23 +94,31 @@ const seenStory = async (req, res) => {
 };
 
 
-// Like Story Controller
-const likeStory = (req, res) => {
-  try {
-    console.log("✅ Like route is here");
 
+
+const likeStory = async (req, res) => {
+  try {
     const storyId = req.params.id;
     const userId = req.user.id;
 
-    console.log("👉 Story ID:", storyId);
-    console.log("👤 User ID:", userId);
+    // Check if already liked
+    const story = await Story.findById(storyId);
+    const alreadyLiked = story.likedBy.some(like => like.user.toString() === userId);
 
-    // Dummy response for testing
+    if (alreadyLiked) {
+      return res.status(400).json({ success: false, message: "Story already liked" });
+    }
+
+    // Push like
+    story.likedBy.push({ user: userId });
+    await story.save();
+
     return res.status(200).json({
       success: true,
       message: "Story liked successfully",
-      data: { storyId, userId }
+      data: story
     });
+
   } catch (err) {
     console.error("❌ Error in likeStory:", err);
     return res.status(500).json({ success: false, message: "Internal server error" });
@@ -118,27 +126,30 @@ const likeStory = (req, res) => {
 };
 
 // Unlike Story Controller
-const unLikeStory = (req, res) => {
+const unLikeStory = async (req, res) => {
   try {
-    console.log("✅ Unlike route is here");
-
     const storyId = req.params.id;
     const userId = req.user.id;
 
-    console.log("👉 Story ID:", storyId);
-    console.log("👤 User ID:", userId);
+    // Pull the like
+    const story = await Story.findByIdAndUpdate(
+      storyId,
+      { $pull: { likedBy: { user: userId } } },
+      { new: true }
+    );
 
-    // Dummy response for testing
     return res.status(200).json({
-      success: false,
+      success: true,
       message: "Story unliked successfully",
-      data: { storyId, userId }
+      data: story
     });
+
   } catch (err) {
     console.error("❌ Error in unLikeStory:", err);
     return res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
 
 
 
