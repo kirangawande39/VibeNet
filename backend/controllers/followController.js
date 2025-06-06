@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Follow = require("../models/Follow");
 const User = require("../models/User");
 
@@ -73,4 +74,48 @@ const unfollowUser = async (req, res) => {
   }
 };
 
-module.exports = { followUser, unfollowUser };
+
+const removeFollower = async (req, res) => {
+  console.log("removeFollower route is called");
+  try {
+    const currentUserId = req.user.id;
+    const followerId = req.params.followedId;
+
+    console.log("Current User ID:", currentUserId);
+    console.log("Follower ID:", followerId);
+
+    if (currentUserId === followerId) {
+      return res.status(400).json({ message: "You can't remove yourself." });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      new mongoose.Types.ObjectId(currentUserId),
+      { $pull: { followers: new mongoose.Types.ObjectId(followerId) } },
+      { new: true }
+    );
+    console.log("Updated currentUser followers:", updatedUser?.followers);
+
+    const updatedFollower = await User.findByIdAndUpdate(
+      new mongoose.Types.ObjectId(followerId),
+      { $pull: { following: new mongoose.Types.ObjectId(currentUserId) } },
+      { new: true }
+    );
+    console.log("Updated follower following:", updatedFollower?.following);
+
+    const deletedFollow = await Follow.findOneAndDelete({
+      follower: followerId,
+      following: currentUserId,
+    });
+    console.log("Deleted follow doc:", deletedFollow);
+
+    res.status(200).json({ message: "Follower removed successfully." });
+  } catch (err) {
+    console.error("Remove follower error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+module.exports = { followUser, unfollowUser, removeFollower };
+

@@ -2,15 +2,14 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../assets/css/StoryList.css"; // see below for custom CSS
 import {
-  FaArrowLeft,
-  FaArrowRight,
   FaHeart,
   FaShare,
   FaPlus,
   FaTimes,
   FaPlay,
-  FaPause,
+ 
 } from "react-icons/fa";
+import { GrFormNext,GrFormPrevious  } from "react-icons/gr";
 import { IoEyeSharp } from "react-icons/io5";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
@@ -36,6 +35,22 @@ const StoryList = ({ stories }) => {
   const nextTimeout = useRef(null);
   const seenSet = useRef(new Set());
   const storyListRef = useRef(null);
+
+
+
+useEffect(() => {
+  const initialMap = {};
+
+  stories.forEach((story) => {
+    const likedByUser = story.likedBy.some(
+      (entry) => entry.user === currentUserId
+    );
+    initialMap[story._id] = likedByUser;
+  });
+
+  setLikedMap(initialMap);
+}, [stories]);
+
 
   // Group stories by user
   const storiesByUser = stories.reduce((acc, story) => {
@@ -379,7 +394,7 @@ const StoryList = ({ stories }) => {
             return (
               <div
                 key={user._id}
-                className="text-center position-relative me-3"
+                className="text-center position-relative me-3 "
                 onClick={() => openStory(user._id, 0)}
                 style={{ cursor: "pointer", minWidth: "80px" }}
               >
@@ -518,7 +533,7 @@ const StoryList = ({ stories }) => {
                       goPrev();
                     }}
                   >
-                    <FaArrowLeft size={30} />
+                    <GrFormPrevious  size={30} />
                   </button>
                   <button
                     className="position-absolute top-50 end-0 translate-middle-y btn btn-link text-white p-2"
@@ -527,7 +542,7 @@ const StoryList = ({ stories }) => {
                       goNext();
                     }}
                   >
-                    <FaArrowRight size={30} />
+                    <GrFormNext size={30} />
                   </button>
                 </div>
 
@@ -589,6 +604,7 @@ const StoryList = ({ stories }) => {
                                 <img
                                   src={
                                     entry.user?.profilePic?.url ||
+                                    entry.user?.profilePic ||
                                     "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                                   }
                                   alt={entry.user?.username}

@@ -76,6 +76,7 @@ app.get("/", (req, res) => {
   res.send("Hello, I am root route");
 });
 
+
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);

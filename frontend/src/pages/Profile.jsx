@@ -26,7 +26,9 @@ const Profile = () => {
   const [storyFile, setStoryFile] = useState(null);
 
 
+  const [unfollowModal, setUnfollowModal] = useState({ show: false, user: null });
 
+  const [removeModal, setRemoveModal] = useState({ show: false, follower: null });
 
   const [showStoryModal, setShowStoryModal] = useState(false); // for modal
   const [showFollowers, setShowFollowers] = useState(false);
@@ -243,6 +245,58 @@ const Profile = () => {
     if (uploadStory) setShowStoryModal(true);
   };
 
+
+  const handleRemove = async (followerId) => {
+    try {
+      const res = await axios.put(
+        `${backendUrl}/api/follow/remove-follower/${followerId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      alert(res.data.message)
+      setProfileData((prev) => ({
+        ...prev,
+        followers: prev.followers.filter(f => f._id !== followerId)
+      }));
+
+      // Close modal
+      setRemoveModal({ show: false, follower: null });
+    } catch (err) {
+      console.error("Error removing follower:", err);
+    }
+  };
+
+
+
+
+
+  const handleUnfollow = async (userIdToUnfollow) => {
+    try {
+      const res = await axios.post(
+        `${backendUrl}/api/follow/${userIdToUnfollow}/unfollow`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setProfileData(prev => ({
+        ...prev,
+        following: prev.following.filter(user => user._id !== userIdToUnfollow)
+      }));
+
+      // Close modal
+      setUnfollowModal({ show: false, user: null });
+      // alert(res.data.message || "Unfollowed successfully!");
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+    }
+  };
+
+
+
   return (
     <div className="profile-container">
       <ToastContainer />
@@ -328,7 +382,13 @@ const Profile = () => {
                           <small>{follower.name || ""}</small>
                         </div>
                       </div>
-                      <button className="btn btn-sm btn-outline-primary">Following</button>
+                      <button
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => setRemoveModal({ show: true, follower })}
+                      >
+                        Remove
+                      </button>
+
                     </li>
                   ))
               ) : (
@@ -338,6 +398,47 @@ const Profile = () => {
 
             <button className="story-close-btn" onClick={() => setShowFollowers(false)}>×</button>
           </div>
+          {removeModal.show && (
+            <div className="modal-backdrop" onClick={() => setRemoveModal({ show: false, follower: null })}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="d-flex align-items-center mb-3">
+                  <img
+                    src={removeModal.follower.profilePic?.url || removeModal.follower.profilePic || "/default-profile.png"}
+                    alt="profile"
+                    className="rounded-circle"
+                    style={{ width: "50px", height: "50px", objectFit: "cover", marginRight: "10px" }}
+                  />
+                  <div>
+                    <h6 className="mb-0">{removeModal.follower.username}</h6>
+                    <small>{removeModal.follower.name || ""}</small>
+                  </div>
+                </div>
+
+                <p className="mb-3">Are you sure you want to remove this follower?</p>
+
+                <div className="d-flex justify-content-end gap-2">
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => setRemoveModal({ show: false, follower: null })}
+                  >
+                    Cancel
+                  </button>
+                  {removeModal?.follower?._id && (
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleRemove(removeModal.follower._id)}
+                    >
+                      Yes, Remove
+                    </button>
+                  )}
+
+                </div>
+              </div>
+            </div>
+          )}
+
+
+
         </div>
       )}
 
@@ -382,7 +483,13 @@ const Profile = () => {
                           <small>{followed.name || ""}</small>
                         </div>
                       </div>
-                      <button className="btn btn-sm btn-outline-primary">Following</button>
+                      <button
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => setUnfollowModal({ show: true, user: followed })}
+                      >
+                        Following
+                      </button>
+
                     </li>
                   ))
               ) : (
@@ -392,6 +499,43 @@ const Profile = () => {
 
             <button className="story-close-btn" onClick={() => setShowFollowing(false)}>×</button>
           </div>
+
+          {unfollowModal.show && (
+            <div className="modal-backdrop" onClick={() => setUnfollowModal({ show: false, user: null })}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="d-flex align-items-center mb-3">
+                  <img
+                    src={unfollowModal.user.profilePic?.url || unfollowModal.user.profilePic || "/default-profile.png"}
+                    alt="profile"
+                    className="rounded-circle"
+                    style={{ width: "50px", height: "50px", objectFit: "cover", marginRight: "10px" }}
+                  />
+                  <div>
+                    <h6 className="mb-0">{unfollowModal.user.username}</h6>
+                    <small>{unfollowModal.user.name || ""}</small>
+                  </div>
+                </div>
+
+                <p className="mb-3">Are you sure you want to unfollow this user?</p>
+
+                <div className="d-flex justify-content-end gap-2">
+                  <button
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={() => setUnfollowModal({ show: false, user: null })}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() => handleUnfollow(unfollowModal.user._id)}
+                  >
+                    Unfollow
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       )}
 
