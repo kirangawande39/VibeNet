@@ -26,6 +26,10 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const storyRoutes = require("./routes/storyRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
+const errorHandler = require("./middlewares/errorHandler.js");
+const notFound = require("./middlewares/notFound.js");
+
+
 
 require("./config/passport");
 
@@ -88,6 +92,13 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/stories", storyRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/messages", messageRoutes);
+
+app.use(notFound);
+
+app.use(errorHandler);
+
+
+
 
 // ⚡️ Socket.io
 // Top pe Add karo

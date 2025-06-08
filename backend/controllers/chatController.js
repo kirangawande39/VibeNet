@@ -1,41 +1,41 @@
 const Chat = require("../models/Chat");
 
 // 👉 Create Chat (only once per user pair)
-const createChat = async (req, res) => {
-    const { senderId, receiverId } = req.body;
+const createChat = async (req, res, next) => {
+  const { senderId, receiverId } = req.body;
 
-    try {
-        // Check if chat already exists
-        let chat = await Chat.findOne({
-            members: { $all: [senderId, receiverId] }
-        });
+  try {
+    // Check if chat already exists
+    let chat = await Chat.findOne({
+      members: { $all: [senderId, receiverId] }
+    });
 
-        if (chat) return res.status(200).json(chat);
+    if (chat) return res.status(200).json(chat);
 
-        // If not exists, create new chat
-        chat = new Chat({ members: [senderId, receiverId] });
-        await chat.save();
+    // If not exists, create new chat
+    chat = new Chat({ members: [senderId, receiverId] });
+    await chat.save();
 
-        res.status(201).json(chat);
-    } catch (err) {
-        res.status(500).json({ message: "Error creating chat", error: err.message });
-    }
+    res.status(201).json(chat);
+  } catch (err) {
+    next(err);
+  }
 };
 
 // 👉 Get All Chats of a User
-const getUserChats = async (req, res) => {
-    const userId = req.params.userId;
+const getUserChats = async (req, res, next) => {
+  const userId = req.params.userId;
 
-    try {
-        const chats = await Chat.find({
-            members: userId,
-            lastMessage: { $ne: "" } // optional: only active chats
-        }).populate("members", "name profilePic"); // optional if you want user info
+  try {
+    const chats = await Chat.find({
+      members: userId,
+      lastMessage: { $ne: "" }
+    }).populate("members", "name profilePic");
 
-        res.status(200).json(chats);
-    } catch (err) {
-        res.status(500).json({ message: "Error fetching chats", error: err.message });
-    }
+    res.status(200).json(chats);
+  } catch (err) {
+    next(err);
+  }
 };
 
 module.exports = { createChat, getUserChats };

@@ -7,9 +7,10 @@ import {
   FaPlus,
   FaTimes,
   FaPlay,
- 
+
+
 } from "react-icons/fa";
-import { GrFormNext,GrFormPrevious  } from "react-icons/gr";
+import { GrFormNext, GrFormPrevious } from "react-icons/gr";
 import { IoEyeSharp } from "react-icons/io5";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
@@ -18,8 +19,15 @@ import { format } from "timeago.js";
 const isVideo = (url) => url?.match(/\.(mp4|webm|ogg)$/i);
 
 const StoryList = ({ stories }) => {
-  const { user: currentUser } = useContext(AuthContext);
-  const currentUserId = currentUser?._id;
+  const { user } = useContext(AuthContext);
+  const currentUser = user || updateUser;
+  const currentUserId = currentUser?._id || currentUser?.id;
+
+  const token = localStorage.getItem("token");
+  console.log("Token : ", token)
+
+  console.log("currentUserId :", currentUserId);
+  console.log("User :", user.id);
 
   const [index, setIndex] = useState(null); // { userId, storyIndex } or null
   const [progress, setProgress] = useState(0);
@@ -38,18 +46,18 @@ const StoryList = ({ stories }) => {
 
 
 
-useEffect(() => {
-  const initialMap = {};
+  useEffect(() => {
+    const initialMap = {};
 
-  stories.forEach((story) => {
-    const likedByUser = story.likedBy.some(
-      (entry) => entry.user === currentUserId
-    );
-    initialMap[story._id] = likedByUser;
-  });
+    stories.forEach((story) => {
+      const likedByUser = story.likedBy.some(
+        (entry) => entry.user === currentUserId
+      );
+      initialMap[story._id] = likedByUser;
+    });
 
-  setLikedMap(initialMap);
-}, [stories]);
+    setLikedMap(initialMap);
+  }, [stories]);
 
 
   // Group stories by user
@@ -72,20 +80,32 @@ useEffect(() => {
       stories: storiesByUser[uid],
     }));
 
-  // Calculate unique viewers overall
-  const uniqueViewers = new Set();
-  stories.forEach((story) => {
-    if (story.seenBy) {
-      story.seenBy.forEach((entry) => {
-        const userId =
-          typeof entry === "object" && entry.user
-            ? entry.user._id || entry.user
-            : entry;
-        uniqueViewers.add(userId.toString());
-      });
-    }
-  });
-  const uniqueViewsCount = uniqueViewers.size;
+  //  // Calculate unique viewers overall
+  // const uniqueViewers = new Set();
+
+  // stories.forEach((story) => {
+  //   if (Array.isArray(story.seenBy)) {
+  //     story.seenBy.forEach((entry) => {
+  //       let userId;
+
+  //       if (entry?.user?._id) {
+  //         userId = entry.user._id;
+  //       } else if (entry?.user) {
+  //         userId = entry.user;
+  //       } else if (typeof entry === "string") {
+  //         userId = entry;
+  //       }
+
+  //       if (userId) {
+  //         uniqueViewers.add(userId.toString());
+  //       }
+  //     });
+  //   }
+  // });
+
+  // const uniqueViewsCount = uniqueViewers.size;
+  // console.log("✅ Total Unique Viewers:", uniqueViewsCount);
+
 
   const openStory = (userId, storyIndex = 0) => {
     clearInterval(progressInterval.current);
@@ -108,20 +128,18 @@ useEffect(() => {
     setIsUserInteracting(false);
   };
 
-  const togglePause = (e) => {
-    e.stopPropagation();
-    if (!currentStory) return;
-    if (isVideo(currentStory.mediaUrl)) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play().catch(console.error);
-      }
-      setIsPlaying((prev) => !prev);
-      setIsUserInteracting(true);
-      setTimeout(() => setIsUserInteracting(false), 800);
+  const togglePause = () => {
+    if (!videoRef.current) return;
+
+    if (isPlaying) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      videoRef.current.play();
+      setIsPlaying(true);
     }
   };
+
 
   const currentUserIdInModal = index?.userId;
   const currentStoryIndex = index?.storyIndex || 0;
@@ -178,6 +196,9 @@ useEffect(() => {
     }
   };
 
+
+
+
   useEffect(() => {
     if (!currentStory || seenSet.current.has(currentStory._id)) return;
     seenSet.current.add(currentStory._id);
@@ -185,6 +206,7 @@ useEffect(() => {
     const markAsSeen = async () => {
       try {
         const token = localStorage.getItem("token");
+
         if (!token) return;
         await axios.put(
           `${backendUrl}/api/stories/${currentStory._id}/seen`,
@@ -328,20 +350,24 @@ useEffect(() => {
         <div className="d-flex overflow-auto pb-2">
           {/* Your Story Bubble */}
           <div
-            className="text-center position-relative me-3"
+            className="text-center position-relative me-3 flex-shrink-0"
             onClick={() => openStory(currentUserId, 0)}
-            style={{ cursor: "pointer", minWidth: "80px" }}
+            style={{ cursor: "pointer", minWidth: "80px", maxWidth: "90px" }}
           >
             <div
-              className={`rounded-circle border border-2 ${
-                currentUserStories.length > 0 &&
+              className={`rounded-circle border border-2 ${currentUserStories?.length > 0 &&
                 currentUserStories.every((s) => seenStories.has(s._id))
-                  ? "border-secondary"
-                  : "border-primary"
-              }`}
-              style={{ width: "70px", height: "70px", overflow: "hidden" }}
+                ? "border-secondary"
+                : "border-primary"
+                }`}
+              style={{
+                width: "70px",
+                height: "70px",
+                overflow: "hidden",
+                position: "relative",
+              }}
             >
-              {currentUserStories.length > 0 ? (
+              {currentUserStories?.length > 0 ? (
                 isVideo(currentUserStories[0].mediaUrl) ? (
                   <video
                     className="w-100 h-100 object-fit-cover"
@@ -349,12 +375,14 @@ useEffect(() => {
                     muted
                     loop
                     preload="metadata"
+                    style={{ objectFit: "cover" }}
                   />
                 ) : (
                   <img
                     className="w-100 h-100 object-fit-cover"
                     src={currentUserStories[0].mediaUrl}
                     alt="Your Story"
+                    style={{ objectFit: "cover" }}
                   />
                 )
               ) : (
@@ -366,10 +394,13 @@ useEffect(() => {
                     "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
                   }
                   alt="Your Story"
+                  style={{ objectFit: "cover" }}
                 />
               )}
             </div>
-            <small className="d-block mt-1 text-truncate">Your Story</small>
+            <small className="d-block mt-1 text-truncate" style={{ maxWidth: "90px" }}>
+              Your Story
+            </small>
             {currentUserStories.length === 0 && (
               <div
                 className="position-absolute bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
@@ -394,15 +425,19 @@ useEffect(() => {
             return (
               <div
                 key={user._id}
-                className="text-center position-relative me-3 "
+                className="text-center position-relative me-3 flex-shrink-0"
                 onClick={() => openStory(user._id, 0)}
-                style={{ cursor: "pointer", minWidth: "80px" }}
+                style={{ cursor: "pointer", minWidth: "80px", maxWidth: "90px" }}
               >
                 <div
-                  className={`rounded-circle border border-2 ${
-                    isSeen ? "border-secondary" : "border-primary"
-                  }`}
-                  style={{ width: "70px", height: "70px", overflow: "hidden" }}
+                  className={`rounded-circle border border-2 ${isSeen ? "border-secondary" : "border-primary"
+                    }`}
+                  style={{
+                    width: "70px",
+                    height: "70px",
+                    overflow: "hidden",
+                    position: "relative",
+                  }}
                 >
                   {isVideo(stories[0].mediaUrl) ? (
                     <video
@@ -411,16 +446,18 @@ useEffect(() => {
                       muted
                       loop
                       preload="metadata"
+                      style={{ objectFit: "cover" }}
                     />
                   ) : (
                     <img
                       className="w-100 h-100 object-fit-cover"
                       src={stories[0].mediaUrl}
                       alt={user.username}
+                      style={{ objectFit: "cover" }}
                     />
                   )}
                 </div>
-                <small className="d-block mt-1 text-truncate">
+                <small className="d-block mt-1 text-truncate" style={{ maxWidth: "90px" }}>
                   {user.username}
                 </small>
               </div>
@@ -445,17 +482,15 @@ useEffect(() => {
                   <div key={i} className="flex-fill mx-1">
                     <div className="progress bg-secondary" style={{ height: "4px" }}>
                       <div
-                        className={`progress-bar ${
-                          i < currentStoryIndex ? "bg-white" : ""
-                        }`}
+                        className={`progress-bar ${i < currentStoryIndex ? "bg-white" : ""}`}
                         role="progressbar"
                         style={{
                           width:
                             i === currentStoryIndex
                               ? `${progress}%`
                               : i < currentStoryIndex
-                              ? "100%"
-                              : "0%",
+                                ? "100%"
+                                : "0%",
                         }}
                       ></div>
                     </div>
@@ -477,16 +512,17 @@ useEffect(() => {
                       className="rounded-circle"
                       style={{ width: "40px", height: "40px", objectFit: "cover" }}
                     />
-                    <span className="ms-2 text-white">
+                    <span className="ms-2 text-white fw-semibold">
                       {currentStory.user.username}
                     </span>
-                    <span className="ms-2 text-secondary">
+                    <span className="ms-2 text-secondary small">
                       {format(currentStory.createdAt)}
                     </span>
                   </div>
                   <button
                     className="btn btn-sm btn-outline-light"
                     onClick={closeStory}
+                    aria-label="Close Story Modal"
                   >
                     <FaTimes />
                   </button>
@@ -494,46 +530,51 @@ useEffect(() => {
 
                 {/* Story Media */}
                 <div
-                  className="position-relative d-flex justify-content-center align-items-center bg-black"
+                  className="fullscreen-story position-relative"
                   onClick={togglePause}
-                  style={{ minHeight: "60vh" }}
+                  style={{ maxHeight: "70vh", overflow: "hidden" }}
                 >
                   {isVideo(currentStory.mediaUrl) ? (
                     <video
                       ref={videoRef}
                       src={currentStory.mediaUrl}
-                      className="w-100"
-                      autoPlay
                       playsInline
                       muted={false}
                       controls={false}
                       onTimeUpdate={handleVideoTimeUpdate}
                       onEnded={goNext}
-                      style={{ maxHeight: "70vh", objectFit: "contain" }}
+                      style={{ width: "100%", height: "auto", maxHeight: "70vh", objectFit: "contain" }}
                     />
                   ) : (
                     <img
                       src={currentStory.mediaUrl}
-                      className="w-100"
                       alt="story"
-                      style={{ maxHeight: "70vh", objectFit: "contain" }}
+                      style={{ width: "100%", height: "auto", maxHeight: "70vh", objectFit: "contain" }}
                     />
                   )}
+
+                  {/* Play Icon when paused */}
                   {isVideo(currentStory.mediaUrl) && !isPlaying && (
-                    <div className="position-absolute top-50 start-50 translate-middle">
+                    <div
+                      className="position-absolute top-50 start-50 translate-middle"
+                      style={{ cursor: "pointer" }}
+                      onClick={togglePause}   // click pe play karega
+                    >
                       <FaPlay size={48} color="white" />
                     </div>
                   )}
 
-                  {/* Prev/Next Buttons */}
+
+                  {/* Navigation Buttons */}
                   <button
                     className="position-absolute top-50 start-0 translate-middle-y btn btn-link text-white p-2"
                     onClick={(e) => {
                       e.stopPropagation();
                       goPrev();
                     }}
+                    aria-label="Previous Story"
                   >
-                    <GrFormPrevious  size={30} />
+                    <GrFormPrevious size={30} />
                   </button>
                   <button
                     className="position-absolute top-50 end-0 translate-middle-y btn btn-link text-white p-2"
@@ -541,90 +582,114 @@ useEffect(() => {
                       e.stopPropagation();
                       goNext();
                     }}
+                    aria-label="Next Story"
                   >
                     <GrFormNext size={30} />
                   </button>
                 </div>
 
                 {/* Footer Actions */}
-                <div className="d-flex justify-content-between align-items-center p-2">
+                <div
+                  className="d-flex justify-content-between align-items-center px-3 py-2 border-top"
+                  style={{ backgroundColor: "#1c1c1c" }}
+                >
+                  {/* Like & Share */}
                   <div className="d-flex align-items-center">
+                    {/* Like Button */}
                     <button
-                      className="btn btn-link text-white me-3"
+                      className="btn btn-link text-white me-3 p-0 d-flex align-items-center"
                       type="button"
                       onClick={toggleLike}
                     >
                       <FaHeart
                         size={28}
-                        color={likedMap[currentStory._id] ? "red" : "white"}
+                        color={likedMap?.[currentStory?._id] ? "red" : "white"}
+                        className="me-1"
                       />
+                      {/* <span>{likedMap?.[currentStory?._id] ? "Liked" : "Like"}</span> */}
                     </button>
+
+                    {/* Share Button */}
                     <button
-                      className="btn btn-link text-white"
+                      className="btn btn-link text-white p-0 d-flex align-items-center"
                       type="button"
                       onClick={handleStoryShare}
                     >
-                      <FaShare size={24} />
+                      <FaShare re size={24} className="me-1" />
+
                     </button>
                   </div>
-                  {currentUserId === currentStory.user._id && (
-                    <div className="d-flex align-items-center text-white">
-                      <span className="me-1">{uniqueViewsCount}</span>
-                      <IoEyeSharp size={20} onClick={handleViews} style={{ cursor: "pointer" }} />
+
+                  {/* View Count (Only for Owner) */}
+                  {currentUserId === currentStory?.user?._id && (
+                    <div
+                      className="d-flex align-items-center text-white"
+                      style={{ cursor: "pointer" }}
+                      onClick={handleViews}
+                    >
+                      <span className="me-1">{currentStory?.seenBy?.length || 0}</span>
+                      <IoEyeSharp size={20} />
                     </div>
                   )}
                 </div>
 
                 {/* Viewers Modal */}
                 {showViewers && (
-                  <div className="position-absolute top-0 end-0 p-3" style={{ width: "300px" }}>
-                    <div className="bg-light rounded p-2">
+                  <div
+                    className="position-absolute top-0 end-0 p-3"
+                    style={{ width: "300px", zIndex: 1055 }}
+                  >
+                    <div className="bg-light rounded p-2 shadow">
                       <div className="d-flex justify-content-between align-items-center mb-2">
                         <h6 className="mb-0">Viewed by</h6>
                         <button
                           className="btn btn-sm btn-outline-secondary"
                           onClick={() => setShowViewers(false)}
+                          aria-label="Close viewers list"
                         >
                           &times;
                         </button>
                       </div>
-                      <ul className="list-unstyled mb-0">
+                      <ul className="list-unstyled mb-0" style={{ maxHeight: "300px", overflowY: "auto" }}>
                         {currentStory?.seenBy?.length > 0 ? (
                           currentStory.seenBy
                             .slice()
-                            .sort(
-                              (a, b) =>
-                                new Date(b.viewedAt) - new Date(a.viewedAt)
-                            )
-                            .map((entry) => (
-                              <li
-                                key={entry.user._id}
-                                className="d-flex align-items-center mb-2"
-                              >
-                                <img
-                                  src={
-                                    entry.user?.profilePic?.url ||
-                                    entry.user?.profilePic ||
-                                    "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                                  }
-                                  alt={entry.user?.username}
-                                  className="rounded-circle me-2"
-                                  style={{
-                                    width: "30px",
-                                    height: "30px",
-                                    objectFit: "cover",
-                                  }}
-                                />
-                                <div>
-                                  <div>{entry.user.username}</div>
-                                  {entry.viewedAt && (
-                                    <small className="text-muted">
-                                      {format(entry.viewedAt)}
-                                    </small>
-                                  )}
-                                </div>
-                              </li>
-                            ))
+                            .sort((a, b) => new Date(b.viewedAt) - new Date(a.viewedAt))
+                            .map((entry) => {
+                              // Check if this user is in likedBy list by comparing user ids
+                              const userLiked = currentStory.likedBy?.some(
+                                (likedEntry) => likedEntry.user === entry.user._id
+                              );
+
+                              return (
+                                <li
+                                  key={entry.user._id}
+                                  className="d-flex align-items-center justify-content-between mb-2"
+                                >
+                                  <div className="d-flex align-items-center">
+                                    <img
+                                      src={
+                                        entry.user?.profilePic?.url ||
+                                        entry.user?.profilePic ||
+                                        "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                                      }
+                                      alt={entry.user?.username}
+                                      className="rounded-circle me-2"
+                                      style={{ width: "30px", height: "30px", objectFit: "cover" }}
+                                    />
+                                    <div>
+                                      <div>{entry.user.username}</div>
+                                      {entry.viewedAt && (
+                                        <small className="text-muted">{format(entry.viewedAt)}</small>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  {/* Show red heart if user liked the story */}
+                                  {userLiked && <FaHeart size={18} color="red" />}
+                                </li>
+                              );
+                            })
                         ) : (
                           <li className="text-center text-muted">No views yet.</li>
                         )}
@@ -632,12 +697,16 @@ useEffect(() => {
                     </div>
                   </div>
                 )}
+
+
+
               </div>
             </div>
           </div>
         </div>
       )}
     </>
+
   );
 };
 

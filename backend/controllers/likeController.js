@@ -1,17 +1,17 @@
 const Like = require("../models/Like");
 const Post = require("../models/Post");
-const { post } = require("../routes/authRoutes");
 
 // Like a Post
-
-const likePost = async (req, res) => {
+const likePost = async (req, res, next) => {
   const userId = req.user.id;
   const postId = req.params.postId;
 
   try {
     const alreadyLiked = await Like.findOne({ user: userId, post: postId });
     if (alreadyLiked) {
-      return res.status(400).json({ message: "Post already liked" });
+      const error = new Error("Post already liked");
+      error.statusCode = 400;
+      throw error;
     }
 
     await Like.create({ user: userId, post: postId });
@@ -20,7 +20,6 @@ const likePost = async (req, res) => {
       $addToSet: { likes: userId },
     });
 
-    // Fetch updated post to get likes count
     const updatedPost = await Post.findById(postId);
 
     res.status(200).json({
@@ -28,14 +27,12 @@ const likePost = async (req, res) => {
       totalLikes: updatedPost.likes.length,
     });
   } catch (error) {
-    console.error("Error liking post:", error);
-    res.status(500).json({ message: "Internal server error" });
+    next(error);
   }
 };
 
-
 // Unlike a Post
-const unlikePost = async (req, res) => {
+const unlikePost = async (req, res, next) => {
   const userId = req.user.id;
   const postId = req.params.postId;
 
@@ -43,7 +40,9 @@ const unlikePost = async (req, res) => {
     const existingLike = await Like.findOne({ user: userId, post: postId });
 
     if (!existingLike) {
-      return res.status(400).json({ message: "You have not liked this post." });
+      const error = new Error("You have not liked this post.");
+      error.statusCode = 400;
+      throw error;
     }
 
     await Like.deleteOne({ user: userId, post: postId });
@@ -52,18 +51,15 @@ const unlikePost = async (req, res) => {
       $pull: { likes: userId },
     });
 
-    // Fetch updated post to get likes count
     const updatedPost = await Post.findById(postId);
 
-    return res.status(200).json({
+    res.status(200).json({
       message: "Post unliked successfully!",
       totalLikes: updatedPost.likes.length,
     });
   } catch (error) {
-    console.error("Error in unlikePost:", error);
-    return res.status(500).json({ message: "Something went wrong. Please try again." });
+    next(error);
   }
 };
-
 
 module.exports = { likePost, unlikePost };

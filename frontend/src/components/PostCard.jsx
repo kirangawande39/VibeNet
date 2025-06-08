@@ -7,9 +7,9 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "../assets/css/PostCard.css";
 import CommentBox from "./CommentBox";
-
+import { handleError } from '../utils/errorHandler';
 dayjs.extend(relativeTime);
-
+import { ToastContainer, toast } from 'react-toastify';
 const PostCard = ({ post }) => {
   const [liked, setLiked] = useState(false);
   const [totalLikes, setTotalLikes] = useState(post.likes.length);
@@ -73,8 +73,8 @@ const PostCard = ({ post }) => {
         }
       );
       setTotalLikes(res.data.totalLikes);
-    } catch (error) {
-      console.error("Error liking post:", error);
+    } catch (err) {
+    handleError(err);
     }
   };
 
@@ -88,8 +88,8 @@ const PostCard = ({ post }) => {
         }
       );
       setTotalLikes(res.data.totalLikes);
-    } catch (error) {
-      console.error("Error unliking post:", error);
+    } catch (err) {
+      handleError(err);
     }
   };
 
@@ -108,8 +108,8 @@ const PostCard = ({ post }) => {
       );
       setIsFollowing(true);
       alert(res.data.message || "Followed successfully!");
-    } catch (error) {
-      console.error("Error following user:", error);
+    } catch (err) {
+       handleError(err);
     }
   };
 
@@ -124,14 +124,17 @@ const PostCard = ({ post }) => {
       );
       setIsFollowing(false);
       alert(res.data.message || "Unfollowed successfully!");
-    } catch (error) {
-      console.error("Error unfollowing user:", error);
+    } catch (err) {
+      handleError(err);
     }
   };
 
   return (
     <div className="card " style={{ position: "relative" }}>
-      {/* Audio element for like sound */}
+     
+     <ToastContainer/>
+     
+     {/* Audio element for like sound */}
       <audio
         ref={likeSoundRef}
         src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"

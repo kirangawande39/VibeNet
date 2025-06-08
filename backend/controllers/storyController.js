@@ -1,18 +1,14 @@
 const Story = require("../models/Story");
 
-const createStory = async (req, res) => {
+const createStory = async (req, res, next) => {
   console.log("Create story logic here");
 
   try {
     const file = req.file;
 
-
-
     if (!file) {
-      return res.status(400).json({ message: "No file uploaded" });
+      throw new Error("No file uploaded");
     }
-
-    console.log("Uploaded File Info:", file); // ✅
 
     const storyUrl = file.path;
     const mediaType = file.mimetype.startsWith("video") ? "video" : "image";
@@ -24,114 +20,97 @@ const createStory = async (req, res) => {
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
-    console.log("Story Created:", story); // ✅ Don’t use + story
-
     res.status(201).json({ success: true, story });
   } catch (err) {
-    console.error("Error creating story:", err);
-    res.status(500).json({ message: "Internal server error" });
+    next(err);
   }
 };
 
-
-
-const getStories = async (req, res) => {
+const getStories = async (req, res, next) => {
   console.log("Get stories logic here");
 
   try {
     const stories = await Story.find()
-      .populate('user')
+      .populate("user")
       .populate("seenBy.user", "username name profilePic");
 
-    console.log("Stories:" + stories);
     res.status(201).json({ success: true, stories });
-  }
-  catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (err) {
+    next(err);
   }
 };
 
-const deleteStory = async (req, res) => {
-  res.send("Delete story logic here");
+const deleteStory = async (req, res, next) => {
+  try {
+    res.send("Delete story logic here");
+  } catch (err) {
+    next(err);
+  }
 };
 
-const seenStory = async (req, res) => {
+const seenStory = async (req, res, next) => {
   try {
     const storyId = req.params.id;
     const userId = req.user.id;
 
     const story = await Story.findById(storyId);
     if (!story) {
-      return res.status(404).json({ message: "Story not found" });
+      throw new Error("Story not found");
     }
 
-    // Check for existing user in both old and new formats
-    const alreadySeen = story.seenBy.some(entry => {
+    const alreadySeen = story.seenBy.some((entry) => {
       if (typeof entry === "object" && entry.user) {
         return entry.user.toString() === userId;
       } else {
-        // If old format is just ObjectId
         return entry.toString() === userId;
       }
     });
 
     if (!alreadySeen) {
-      story.seenBy.push({
-        user: userId,
-        viewedAt: new Date()
-      });
-
+      story.seenBy.push({ user: userId, viewedAt: new Date() });
       await story.save();
       return res.status(200).json({ message: "Story marked as seen" });
     }
 
     return res.status(200).json({ message: "Already marked as seen" });
-
-  } catch (error) {
-    console.error("Error marking story as seen:", error.message);
-    return res.status(500).json({ message: "Server error" });
+  } catch (err) {
+    next(err);
   }
 };
 
-
-
-
-const likeStory = async (req, res) => {
+const likeStory = async (req, res, next) => {
   try {
     const storyId = req.params.id;
     const userId = req.user.id;
 
-    // Check if already liked
     const story = await Story.findById(storyId);
-    const alreadyLiked = story.likedBy.some(like => like.user.toString() === userId);
-
-    if (alreadyLiked) {
-      return res.status(400).json({ success: false, message: "Story already liked" });
+    if (!story) {
+      throw new Error("Story not found");
     }
 
-    // Push like
+    const alreadyLiked = story.likedBy.some((like) => like.user.toString() === userId);
+    if (alreadyLiked) {
+      throw new Error("Story already liked");
+    }
+
     story.likedBy.push({ user: userId });
     await story.save();
 
     return res.status(200).json({
       success: true,
       message: "Story liked successfully",
-      data: story
+      data: story,
     });
-
   } catch (err) {
-    console.error("❌ Error in likeStory:", err);
-    return res.status(500).json({ success: false, message: "Internal server error" });
+    next(err);
   }
 };
 
-// Unlike Story Controller
-const unLikeStory = async (req, res) => {
+const unLikeStory = async (req, res, next) => {
   try {
     const storyId = req.params.id;
     const userId = req.user.id;
 
-    // Pull the like
     const story = await Story.findByIdAndUpdate(
       storyId,
       { $pull: { likedBy: { user: userId } } },
@@ -141,17 +120,18 @@ const unLikeStory = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Story unliked successfully",
-      data: story
+      data: story,
     });
-
   } catch (err) {
-    console.error("❌ Error in unLikeStory:", err);
-    return res.status(500).json({ success: false, message: "Internal server error" });
+    next(err);
   }
 };
 
-
-
-
-
-module.exports = { createStory, getStories, deleteStory, seenStory, likeStory, unLikeStory };
+module.exports = {
+  createStory,
+  getStories,
+  deleteStory,
+  seenStory,
+  likeStory,
+  unLikeStory,
+};

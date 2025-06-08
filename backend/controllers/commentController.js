@@ -2,7 +2,7 @@ const Comment = require("../models/Comment");
 const Post = require("../models/Post");
 
 // Add a Comment
-const addComment = async (req, res) => {
+const addComment = async (req, res, next) => {
   try {
     console.log("Comment route is here");
 
@@ -23,59 +23,48 @@ const addComment = async (req, res) => {
 
     // Step 4: Respond with populated comment
     res.status(201).json(comment);
-
   } catch (error) {
-    console.error("Error adding comment:", error);
-    res.status(500).json({ error: "Failed to add comment" });
+    next(error);
   }
 };
 
-
 // Get Comments
-const getComments = async (req, res) => {
-
-    console.log("All comments is here"+req.params.postId)
+const getComments = async (req, res, next) => {
+  try {
+    console.log("All comments is here" + req.params.postId);
     const comments = await Comment.find({ post: req.params.postId }).populate("user");
-    
-    // console.log("Comments:"+comments)
-
-    res.json({comments});
+    res.json({ comments });
+  } catch (error) {
+    next(error);
+  }
 };
 
 // Delete Comment
-const deleteComment = async (req, res) => {
+const deleteComment = async (req, res, next) => {
   console.log("Delete comment logic here");
-  console.log("CommentId:"+req.params.commentId)
-   const commentId = req.params.commentId;
+  console.log("CommentId:" + req.params.commentId);
+  const commentId = req.params.commentId;
 
-  try{
-
+  try {
     // Find the comment to get the postId
     const comment = await Comment.findById(commentId);
     if (!comment) {
       return res.status(404).json({ message: "Comment not found" });
     }
 
-    const postId = comment.post; // Assuming comment has a post field
+    const postId = comment.post;
 
     const comments = await Comment.findByIdAndDelete(commentId);
-
-    console.log("deleted comment:"+comments)
+    console.log("deleted comment:" + comments);
 
     await Post.findByIdAndUpdate(postId, {
-      $pull: { comments: commentId }
+      $pull: { comments: commentId },
     });
+
     res.status(200).json({ message: "Comment deleted and removed from post" });
-
+  } catch (error) {
+    next(error);
   }
-  catch (error) {
-    console.error("Error delete comment:", error);
-    res.status(500).json({ error: "Failed to delete comment" });
-  }
-
-
-
-
 };
 
 module.exports = { addComment, getComments, deleteComment };

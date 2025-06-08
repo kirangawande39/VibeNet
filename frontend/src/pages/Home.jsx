@@ -7,7 +7,8 @@ import StoryList from "../components/StoryList";
 import { AuthContext } from "../context/AuthContext";
 import Spinner from "../components/Spinner";
 import { useNavigate } from "react-router-dom"; // for redirect
-
+import { handleError } from '../utils/errorHandler';
+import { ToastContainer, toast } from 'react-toastify';
 const Home = () => {
   const { user } = useContext(AuthContext);
   const [stories, setStories] = useState([]);
@@ -34,8 +35,7 @@ const Home = () => {
       setPost(res.data.posts);
       setLoading(false);
     } catch (err) {
-      console.error("Failed to fetch posts:", err);
-      setLoading(false);
+      handleError(err);
     }
   };
 
@@ -45,7 +45,7 @@ const Home = () => {
       console.log("Stories : ", res.data.stories);
       setStories(res.data.stories);
     } catch (err) {
-      console.error("Failed to fetch stories:", err);
+      handleError(err);
     }
   };
 
@@ -60,6 +60,8 @@ const Home = () => {
 
   return (
     <div className="instagram-container">
+
+      <ToastContainer/>
       {/* Stories */}
       <div className="stories-wrapper">
         <StoryList stories={stories} />
@@ -69,7 +71,7 @@ const Home = () => {
       <div className="posts-feed">
         {loading ? (
           <div className="spinner-container">
-            <Spinner />
+            <Spinner/>
           </div>
         ) : posts.length > 0 ? (
           posts.map((post) => <PostCard key={post._id} post={post} />)

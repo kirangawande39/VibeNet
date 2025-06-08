@@ -11,9 +11,11 @@ import { FaPlus } from "react-icons/fa";
 import { MdOutlinePersonSearch } from "react-icons/md";
 import { FaUserCircle, FaInfoCircle, FaEdit } from "react-icons/fa";
 import { RiDeleteBin2Line } from "react-icons/ri";
-
+import { handleError } from '../utils/errorHandler';
 import Spinner from "../components/Spinner";
 import { FiMoreVertical, FiX } from "react-icons/fi";
+
+
 // Start of component
 const Profile = () => {
   const [file, setFile] = useState(null);
@@ -82,9 +84,8 @@ const Profile = () => {
       // Remove deleted post from local state
       setPosts(posts.filter(post => post._id !== postId));
       alert(res.data.message);
-    } catch (error) {
-      console.error("Error deleting post:", error);
-      alert("Failed to delete post");
+    } catch (err) {
+      handleError(err);
     }
   }
 
@@ -102,7 +103,7 @@ const Profile = () => {
         console.log("user", response.data.user)
         setProfileData(response.data.user);
       } catch (err) {
-        console.error("Failed to fetch profile data:", err);
+        handleError(err);
       }
     };
 
@@ -117,7 +118,7 @@ const Profile = () => {
         console.log("Posts:", res.data.posts)
         setPosts(res.data.posts);
       } catch (err) {
-        console.error("Failed to fetch profile data:", err);
+        handleError(err);
       }
     };
 
@@ -167,8 +168,7 @@ const Profile = () => {
       });
       toast.success(res.data.message);
     } catch (err) {
-      console.error("Error post create :", err);
-      alert("Failed to create post");
+       handleError(err);
     }
   };
 
@@ -234,7 +234,7 @@ const Profile = () => {
 
       alert("Story uploaded successfully!");
     } catch (err) {
-      alert("Upload failed: " + err.response?.data?.message || err.message);
+      handleError(err);
     }
   };
 
@@ -264,7 +264,7 @@ const Profile = () => {
       // Close modal
       setRemoveModal({ show: false, follower: null });
     } catch (err) {
-      console.error("Error removing follower:", err);
+       handleError(err);
     }
   };
 
@@ -290,8 +290,8 @@ const Profile = () => {
       // Close modal
       setUnfollowModal({ show: false, user: null });
       // alert(res.data.message || "Unfollowed successfully!");
-    } catch (error) {
-      console.error("Error unfollowing user:", error);
+    } catch (err) {
+       handleError(err);
     }
   };
 

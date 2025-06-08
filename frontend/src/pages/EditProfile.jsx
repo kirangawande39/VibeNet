@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { FaEdit, FaSave, FaTimes } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
-
+import { handleError } from '../utils/errorHandler';
 import "../assets/css/EditProfile.css"
 const EditProfile = () => {
   const { updateUser } = useContext(AuthContext);
@@ -47,9 +47,8 @@ const EditProfile = () => {
       updateUser(updatedUser);
       toast.success("Profile updated!");
       setIsEditingBioName(false);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update profile.");
+    } catch (err) {
+      handleError(err);
     }
   };
 
@@ -76,9 +75,8 @@ const EditProfile = () => {
       setUser(updatedUser);
       updateUser(updatedUser);
       toast.success("Profile picture updated!");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to upload profile picture.");
+    } catch (err) {
+      handleError(err);
     }
   };
 

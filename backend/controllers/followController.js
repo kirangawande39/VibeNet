@@ -2,62 +2,60 @@ const mongoose = require("mongoose");
 const Follow = require("../models/Follow");
 const User = require("../models/User");
 
-const followUser = async (req, res) => {
-    console.log("Follow user logic here");
-    try {
-        const followerId = req.user.id; // logged-in user
-        const followingId = req.params.userId; // user to follow
+const followUser = async (req, res, next) => {
+  console.log("Follow user logic here");
+  try {
+    const followerId = req.user.id;
+    const followingId = req.params.userId;
 
-        console.log("followerId :" + followerId);
-        console.log("followingId :" + followingId);
+    console.log("followerId:", followerId);
+    console.log("followingId:", followingId);
 
-        // Prevent self-follow
-        if (followerId === followingId) {
-            return res.status(400).json({ message: "You can't follow yourself." });
-        }
-
-        // Check if already following
-        const alreadyFollowed = await Follow.findOne({ follower: followerId, following: followingId });
-        if (alreadyFollowed) {
-            return res.status(400).json({ message: "Already following." });
-        }
-
-        // Add userId to the following array of the logged-in user
-        await User.findByIdAndUpdate(req.user.id, {
-            $addToSet: { following: req.params.userId }
-        });
-
-        // Add logged-in user to the followers array of the target user
-        await User.findByIdAndUpdate(req.params.userId, {
-            $addToSet: { followers: req.user.id }
-        });
-
-        const follow = await Follow.create({ follower: followerId, following: followingId });
-        res.status(201).json({ message: "User followed.", follow });
-
-
-
-    } catch (err) {
-        res.status(500).json({ error: "Something went wrong." });
+    if (followerId === followingId) {
+      const error = new Error("You can't follow yourself.");
+      error.statusCode = 400;
+      throw error;
     }
+
+    const alreadyFollowed = await Follow.findOne({ follower: followerId, following: followingId });
+    if (alreadyFollowed) {
+      const error = new Error("Already following.");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    await User.findByIdAndUpdate(followerId, {
+      $addToSet: { following: followingId },
+    });
+
+    await User.findByIdAndUpdate(followingId, {
+      $addToSet: { followers: followerId },
+    });
+
+    const follow = await Follow.create({ follower: followerId, following: followingId });
+
+    res.status(201).json({ message: "User followed.", follow });
+  } catch (err) {
+    next(err);
+  }
 };
 
-const unfollowUser = async (req, res) => {
-    console.log("Unfollow user logic here");
-    try {
-    const currentUserId = req.user.id; // logged-in user
-    const targetUserId = req.params.userId; // jise unfollow karna hai
+const unfollowUser = async (req, res, next) => {
+  console.log("Unfollow user logic here");
+  try {
+    const currentUserId = req.user.id;
+    const targetUserId = req.params.userId;
 
-    if (currentUserId.toString() === targetUserId) {
-      return res.status(400).json({ message: "You can't unfollow yourself." });
+    if (currentUserId === targetUserId) {
+      const error = new Error("You can't unfollow yourself.");
+      error.statusCode = 400;
+      throw error;
     }
 
-    // Remove from current user's following
     await User.findByIdAndUpdate(currentUserId, {
       $pull: { following: targetUserId },
     });
 
-    // Remove from target user's followers
     await User.findByIdAndUpdate(targetUserId, {
       $pull: { followers: currentUserId },
     });
@@ -69,13 +67,11 @@ const unfollowUser = async (req, res) => {
 
     res.status(200).json({ message: "Unfollowed successfully." });
   } catch (err) {
-    console.error("Unfollow error:", err);
-    res.status(500).json({ message: "Server error" });
+    next(err);
   }
 };
 
-
-const removeFollower = async (req, res) => {
+const removeFollower = async (req, res, next) => {
   console.log("removeFollower route is called");
   try {
     const currentUserId = req.user.id;
@@ -85,7 +81,9 @@ const removeFollower = async (req, res) => {
     console.log("Follower ID:", followerId);
 
     if (currentUserId === followerId) {
-      return res.status(400).json({ message: "You can't remove yourself." });
+      const error = new Error("You can't remove yourself.");
+      error.statusCode = 400;
+      throw error;
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -110,12 +108,8 @@ const removeFollower = async (req, res) => {
 
     res.status(200).json({ message: "Follower removed successfully." });
   } catch (err) {
-    console.error("Remove follower error:", err);
-    res.status(500).json({ message: "Server error" });
+    next(err);
   }
 };
 
-
-
 module.exports = { followUser, unfollowUser, removeFollower };
-

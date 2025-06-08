@@ -8,7 +8,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import { FaGoogle } from "react-icons/fa";
 import googleLogo from '../assets/img/google_logo.png';
-
+import { handleError } from '../utils/errorHandler';
 
 
 const Login = () => {
@@ -44,12 +44,8 @@ const Login = () => {
 
 
 
-    } catch (error) {
-      console.error("Login Failed:", error.response?.data || error.message);
-      toast.error(
-        error.response?.data?.message ||
-        "Login failed. Please check your credentials."
-      );
+    } catch (err) {
+      handleError(err);
     }
   };
 
@@ -60,6 +56,7 @@ const Login = () => {
 
   return (
     <div className="login-container d-flex align-items-center justify-content-center vh-100">
+      
       <div className="login-box shadow-lg p-4 rounded bg-white text-center">
         <ToastContainer />
 

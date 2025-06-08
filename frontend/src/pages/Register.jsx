@@ -6,7 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import googleLogo from '../assets/img/google_logo.png';
 import "../assets/css/Register.css";
-
+import { handleError } from '../utils/errorHandler';
 import { AuthContext } from "../context/AuthContext";
 
 const Register = () => {
@@ -41,11 +41,7 @@ const Register = () => {
       toast.success("Registered Successfully");
       navigate("/login");
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
-        toast.error(err.response.data.message);
-      } else {
-        toast.error("Something went wrong");
-      }
+      handleError(err);
     }
   };
 

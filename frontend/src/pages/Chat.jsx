@@ -5,8 +5,8 @@ import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import Spinner from "../components/Spinner";
 import {  useParams } from "react-router-dom";
-
-
+import { handleError } from '../utils/errorHandler';
+import { ToastContainer, toast } from 'react-toastify';
 const Chat = () => {
   const { user, updateUser } = useContext(AuthContext);
   const [localUser, setLocalUser] = useState();
@@ -60,8 +60,8 @@ const Chat = () => {
       );
       setLocalUser(res.data.user);
       updateUser(res.data.user);
-    } catch (error) {
-      console.error("Failed to fetch user data.", error);
+    } catch (err) {
+       handleError(err);
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,7 @@ const Chat = () => {
         setOnlineUsers(res.data.onlineUsers || []);
         setLastSeen(res.data.lastSeen || {});
       } catch (err) {
-        console.error("Failed to fetch online status:", err);
+         console.log(err)
       } finally {
         setStatusLoading(false);
       }
@@ -136,6 +136,7 @@ const Chat = () => {
 
   return (
     <div className="container mt-4">
+      <ToastContainer/>
       <div className="row">
         {/* Follower List */}
         <div className={`col-md-4 ${isMobile && selectedUser ? "d-none" : ""}`}>

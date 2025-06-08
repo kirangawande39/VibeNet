@@ -5,6 +5,8 @@ import { RiDeleteBin2Line } from "react-icons/ri";
 import "../assets/css/ChatBox.css"
 import { IoIosSend } from "react-icons/io";
 import { MdInsertPhoto } from "react-icons/md";
+import { handleError } from '../utils/errorHandler';
+import { ToastContainer, toast } from 'react-toastify';
 const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
   if (!user || !selectedUser) {
     return <div>Please select a user to start chat</div>;
@@ -64,8 +66,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
       });
 
       alert("Image uploaded successfully");
-    } catch (error) {
-      console.error("Image upload failed:", error);
+    } catch (err) {
+      handleError(err);
     }
   };
 
@@ -96,8 +98,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
         setChatId(res.data._id);
         onLastMessageUpdate(lastMessage);
         setlastMessage(res.data.lastMessage);
-      } catch (error) {
-        console.error("Error creating chat:", error);
+      } catch (err) {
+        handleError(err);
       }
     };
 
@@ -115,8 +117,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
         );
         setMessages(res.data);
         socket.emit("join-chat", chatId);
-      } catch (error) {
-        console.error("Error fetching messages:", error);
+      } catch (err) {
+        handleError(err);
       }
     };
 
@@ -134,7 +136,11 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
         .put(`${backendUrl}/api/messages/seen/${chatId}`, {}, {
           headers: { Authorization: `Bearer ${token}` },
         })
-        .catch(console.error);
+        .catch(err => {
+          console.error(err);
+          const errorMsg = err.response?.data?.message || "Something went wrong!";
+          toast.error(errorMsg);
+        });
 
       socket.emit("mark-seen", { chatId, userId: user.id });
     }
@@ -231,7 +237,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
         receiverId: selectedUser._id,
       });
     } catch (err) {
-      console.error("Error sending message:", err);
+      handleError(err);
     }
   };
 
@@ -263,7 +269,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
       // Notify other user
       socket.emit("delete-message", { chatId, msgId });
     } catch (err) {
-      console.error("Error deleting message:", err);
+       handleError(err);
     }
   };
 
@@ -305,6 +311,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
 
   return (
     <div className="card">
+      <ToastContainer/>
       <div className="card-header d-flex align-items-center bg-light justify-content-between">
         <div className="d-flex align-items-center">
           <img

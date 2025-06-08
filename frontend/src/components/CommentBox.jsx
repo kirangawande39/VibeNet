@@ -7,8 +7,9 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { AuthContext } from "../context/AuthContext";
 import { MdDeleteForever } from "react-icons/md";
 import socket from "../socket";
-
+import { handleError } from '../utils/errorHandler';
 dayjs.extend(relativeTime);
+import { ToastContainer, toast } from 'react-toastify';
 
 const CommentBox = ({ postId }) => {
   const { user, updateUser } = useContext(AuthContext);
@@ -23,8 +24,8 @@ const CommentBox = ({ postId }) => {
       try {
         const res = await axios.get(`${backendUrl}/api/comments/${postId}`);
         setComments(res.data.comments);
-      } catch (error) {
-        console.error("Error fetching comments:", error);
+      } catch (err) {
+         handleError(err);
       }
     };
 
@@ -92,7 +93,7 @@ const CommentBox = ({ postId }) => {
       setComments((prev) => [...prev, commentWithPostId]);  // ✅ Show live with icon
       setNewComment("");
     } catch (err) {
-      console.error("Error posting comment:", err);
+       handleError(err);
     }
   };
 
@@ -112,13 +113,14 @@ const CommentBox = ({ postId }) => {
         postId,
       });
     } catch (err) {
-      console.error("Error deleting comment:", err);
+      handleError(err);
     }
   };
 
 
   return (
     <div className="comment-box">
+      <ToastContainer/>
       <div className="comments-list">
         {comments.slice(0).reverse().map((comment) => (
           <div key={comment._id} className="comment">

@@ -1,25 +1,19 @@
 const Post = require("../models/Post");
-const authMiddleware = require('../middlewares/authMiddleware');
+const { cloudinary } = require("../config/cloudConfig");
 
-const { cloudinary } = require("../config/cloudConfig"); 
-
-// Create a Post
-const createPost = async (req, res) => {
+// 👉 Create a Post
+const createPost = async (req, res, next) => {
   const { description } = req.body;
-  console.log("Create post route is here");
 
   try {
-    const imageUrl = req.file.path; // Cloudinary secure_url
-    const imagePublicId = req.file.filename; // Cloudinary public_id
-
-    console.log("Uploaded image URL:", imageUrl);
-    console.log("Uploaded image public_id:", imagePublicId);
+    const imageUrl = req.file.path;
+    const imagePublicId = req.file.filename;
 
     const post = await Post.create({
       user: req.params.id,
       text: description,
       image: imageUrl,
-      imagePublicId: imagePublicId,
+      imagePublicId,
     });
 
     res.status(201).json({
@@ -27,61 +21,52 @@ const createPost = async (req, res) => {
       post,
     });
   } catch (error) {
-    console.error("Error Creating Post:", error);
-    res.status(500).json({ message: "Internal server error" });
+    next(error);
   }
 };
-;
-  
-// Get All Posts
-const getAllPosts = async (req, res) => {
 
-    console.log("getAllPosts is here");
-
-    try{
-
-      const posts = await Post.find().populate("user");
-      // console.log("posts is :"+posts)
-      // res.json(posts);
-      // res.json({posts})
-      res.status(201).json({posts:posts,message:"post fetch sucessfully..."});
-
-    }
-    catch(error){
-      console.error("Error post getting :",error)
-      res.status(500).json({message:"Internal server error"});
-    }
-
-    
+// 👉 Get All Posts
+const getAllPosts = async (req, res, next) => {
+  try {
+    console.log("all post is here")
+    const posts = await Post.find().populate("user");
+    res.status(200).json({
+      posts,
+      message: "Posts fetched successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
-// Get Single Post by ID
-const getPostById = async (req, res) => {
-    
+// 👉 Get Single Post by ID
+const getPostById = async (req, res, next) => {
+  try {
     const post = await Post.findById(req.params.id);
-    if (post) res.json(post);
-    else res.status(404).json({ message: "Post not found" });
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+    res.json(post);
+  } catch (error) {
+    next(error);
+  }
 };
 
-
-const getPostsByUserId = async (req, res) => {
-    try {
-      const posts = await Post.find({ user: req.params.id });
-  
-      if (posts.length > 0) {
-        res.json({ posts });
-      } else {
-        res.status(404).json({ message: "No posts found for this user." });
-      }
-    } catch (error) {
-      console.error("Error fetching posts by user ID:", error);
-      res.status(500).json({ message: "Internal server error" });
+// 👉 Get Posts by User ID
+const getPostsByUserId = async (req, res, next) => {
+  try {
+    const posts = await Post.find({ user: req.params.id });
+    if (!posts.length) {
+      return res.status(404).json({ message: "No posts found for this user" });
     }
-  };
-  
+    res.json({ posts });
+  } catch (error) {
+    next(error);
+  }
+};
 
-// Delete Post
-const deletePost = async (req, res) => {
+// 👉 Delete Post
+const deletePost = async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
 
@@ -90,22 +75,25 @@ const deletePost = async (req, res) => {
     }
 
     if (post.user.toString() !== req.user.id) {
-      return res.status(401).json({ message: "Not authorized" });
+      return res.status(401).json({ message: "Not authorized to delete this post" });
     }
 
-    // Delete image from Cloudinary if public_id is present
     if (post.imagePublicId) {
       await cloudinary.uploader.destroy(post.imagePublicId);
       console.log("Image deleted from Cloudinary:", post.imagePublicId);
     }
 
     await post.deleteOne();
-
     res.json({ message: "Post deleted successfully" });
   } catch (error) {
-    console.error("Error deleting post:", error);
-    res.status(500).json({ message: "Internal server error" });
+    next(error);
   }
 };
 
-module.exports = { createPost, getAllPosts, getPostById, deletePost,getPostsByUserId };
+module.exports = {
+  createPost,
+  getAllPosts,
+  getPostById,
+  deletePost,
+  getPostsByUserId,
+};
