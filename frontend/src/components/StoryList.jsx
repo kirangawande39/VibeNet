@@ -71,7 +71,7 @@ const StoryList = ({ stories }) => {
   const currentUserStories = currentUserId
     ? storiesByUser[currentUserId] || []
     : [];
-    
+
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const otherUsersStories = Object.keys(storiesByUser)
@@ -408,7 +408,7 @@ const StoryList = ({ stories }) => {
             <small className="d-block mt-1 text-truncate" style={{ maxWidth: "90px" }}>
               Your Story
             </small>
-            {currentUserId}
+            
 
 
             {currentUserStories.length === 0 && (

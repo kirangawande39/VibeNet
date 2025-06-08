@@ -7,6 +7,7 @@ import { IoIosSend } from "react-icons/io";
 import { MdInsertPhoto } from "react-icons/md";
 import { handleError } from '../utils/errorHandler';
 import { ToastContainer, toast } from 'react-toastify';
+import Spinner from "./Spinner";
 const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
   if (!user || !selectedUser) {
     return <div>Please select a user to start chat</div>;
@@ -19,7 +20,9 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
   const chatEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const [chatId, setChatId] = useState(null);
-  const [lastMessage, setlastMessage] = useState(null)
+  const [lastMessage, setlastMessage] = useState(null);
+
+  const [loading,setLoading]=useState(true);
 
   const [previewImage, setPreviewImage] = useState(null);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -111,6 +114,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
 
     const fetchMessages = async () => {
       try {
+        setLoading(true);
         const res = await axios.get(
           `${backendUrl}/api/messages/${chatId}`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -119,6 +123,9 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
         socket.emit("join-chat", chatId);
       } catch (err) {
         handleError(err);
+      }
+      finally{
+        setLoading(false);
       }
     };
 
@@ -331,7 +338,10 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
         className="card-body chat-box"
         style={{ height: "300px", overflowY: "auto" }}
       >
-        {messages.map((msg, index) => {
+        {loading ?
+        <Spinner/>
+        :
+        messages.map((msg, index) => {
           const isOwn = msg.sender._id === user.id;
           const time = new Date(msg.createdAt).toLocaleTimeString([], {
             hour: "2-digit",

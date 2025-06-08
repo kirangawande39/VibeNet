@@ -10,6 +10,7 @@ import socket from "../socket";
 import { handleError } from '../utils/errorHandler';
 dayjs.extend(relativeTime);
 import { ToastContainer, toast } from 'react-toastify';
+import Spinner from "./Spinner";
 
 const CommentBox = ({ postId }) => {
   const { user, updateUser } = useContext(AuthContext);
@@ -17,15 +18,21 @@ const CommentBox = ({ postId }) => {
 
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
+  const [loading,setLoading]=useState(true);
+
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   // ⏬ Fetch comments on mount
   useEffect(() => {
     const fetchComments = async () => {
       try {
+        setLoading(true);
         const res = await axios.get(`${backendUrl}/api/comments/${postId}`);
         setComments(res.data.comments);
       } catch (err) {
          handleError(err);
+      }
+      finally{
+        setLoading(false);
       }
     };
 
@@ -122,7 +129,10 @@ const CommentBox = ({ postId }) => {
     <div className="comment-box">
       <ToastContainer/>
       <div className="comments-list">
-        {comments.slice(0).reverse().map((comment) => (
+        {loading ? 
+        <Spinner/>
+        :
+        comments.slice(0).reverse().map((comment) => (
           <div key={comment._id} className="comment">
             <img
               src={
@@ -154,7 +164,9 @@ const CommentBox = ({ postId }) => {
               <p className="comment-text">{comment.text}</p>
             </div>
           </div>
-        ))}
+        ))
+        
+        }
 
       </div>
 

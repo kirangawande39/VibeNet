@@ -8,7 +8,7 @@ const flash = require("connect-flash");
 const MongoStore = require("connect-mongo");
 const http = require("http");
 const { Server } = require("socket.io");
-const path = require('path');
+
 require("./cron/storyCleanup.js");
 
 
@@ -58,7 +58,7 @@ app.use(cors({
 }));
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
-app.use(express.static(path.join(__dirname, '/frontend/dist')));
+
 
 const store = MongoStore.create({
   mongoUrl: process.env.MONGODB_URL,
@@ -204,9 +204,6 @@ module.exports = { io };
 
 // React frontend serve
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
-});
 
 server.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
