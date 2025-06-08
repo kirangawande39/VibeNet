@@ -71,6 +71,7 @@ const StoryList = ({ stories }) => {
   const currentUserStories = currentUserId
     ? storiesByUser[currentUserId] || []
     : [];
+    
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const otherUsersStories = Object.keys(storiesByUser)
@@ -341,6 +342,14 @@ const StoryList = ({ stories }) => {
     setTimeout(() => setIsUserInteracting(false), 800);
   };
 
+  const hasSeenAllStoriesCurrentUser = currentUserStories.length > 0 &&
+    currentUserStories.every(story =>
+      story.seenBy.some(entry =>
+        (typeof entry.user === 'object' ? entry.user._id : entry.user) === currentUserId
+      )
+    );
+
+
   if (!stories?.length) return null;
 
   return (
@@ -354,12 +363,9 @@ const StoryList = ({ stories }) => {
             onClick={() => openStory(currentUserId, 0)}
             style={{ cursor: "pointer", minWidth: "80px", maxWidth: "90px" }}
           >
+
             <div
-              className={`rounded-circle border border-2 ${currentUserStories?.length > 0 &&
-                currentUserStories.every((s) => seenStories.has(s._id))
-                ? "border-secondary"
-                : "border-primary"
-                }`}
+              className={`rounded-circle border border-2 ${hasSeenAllStoriesCurrentUser ? "border-secondary" : "border-primary"}`}
               style={{
                 width: "70px",
                 height: "70px",
@@ -398,9 +404,13 @@ const StoryList = ({ stories }) => {
                 />
               )}
             </div>
+
             <small className="d-block mt-1 text-truncate" style={{ maxWidth: "90px" }}>
               Your Story
             </small>
+            {currentUserId}
+
+
             {currentUserStories.length === 0 && (
               <div
                 className="position-absolute bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
@@ -420,8 +430,12 @@ const StoryList = ({ stories }) => {
           {/* Other Users' Stories */}
           {otherUsersStories.map(({ user, stories }) => {
             const isSeen = stories.every((s) =>
-              s.seenBy?.includes(currentUserId)
+              s.seenBy.some((entry) => {
+                const seenUserId = typeof entry.user === 'string' ? entry.user : entry.user?._id;
+                return seenUserId === currentUserId;
+              })
             );
+
             return (
               <div
                 key={user._id}
@@ -430,8 +444,7 @@ const StoryList = ({ stories }) => {
                 style={{ cursor: "pointer", minWidth: "80px", maxWidth: "90px" }}
               >
                 <div
-                  className={`rounded-circle border border-2 ${isSeen ? "border-secondary" : "border-primary"
-                    }`}
+                  className={`rounded-circle border border-2 ${isSeen ? "border-secondary" : "border-primary"}`}
                   style={{
                     width: "70px",
                     height: "70px",
@@ -463,6 +476,7 @@ const StoryList = ({ stories }) => {
               </div>
             );
           })}
+
         </div>
       </div>
 
