@@ -11,6 +11,7 @@ import {
   FaUserPlus,
   FaEllipsisV,
 } from "react-icons/fa";
+
 import "../assets/css/Navbar.css";
 
 const Navbar = () => {
@@ -116,6 +117,11 @@ const Navbar = () => {
         <Link to="/" className="bottom-icon">
           <FaHome />
         </Link>
+
+        <Link to="/search" className="bottom-icon">
+          <FaSearch />
+        </Link>
+
         {user && (
           <>
             <Link to={`/chat/${user.id}`} className="bottom-icon">

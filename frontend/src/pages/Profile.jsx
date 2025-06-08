@@ -168,7 +168,7 @@ const Profile = () => {
       });
       toast.success(res.data.message);
     } catch (err) {
-       handleError(err);
+      handleError(err);
     }
   };
 
@@ -264,7 +264,7 @@ const Profile = () => {
       // Close modal
       setRemoveModal({ show: false, follower: null });
     } catch (err) {
-       handleError(err);
+      handleError(err);
     }
   };
 
@@ -291,7 +291,7 @@ const Profile = () => {
       setUnfollowModal({ show: false, user: null });
       // alert(res.data.message || "Unfollowed successfully!");
     } catch (err) {
-       handleError(err);
+      handleError(err);
     }
   };
 
@@ -399,23 +399,40 @@ const Profile = () => {
             <button className="story-close-btn" onClick={() => setShowFollowers(false)}>×</button>
           </div>
           {removeModal.show && (
-            <div className="modal-backdrop" onClick={() => setRemoveModal({ show: false, follower: null })}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="modal-backdrop"
+              onClick={() => setRemoveModal({ show: false, follower: null })}
+            >
+              <div className="modal-content-s" onClick={(e) => e.stopPropagation()}>
+                {/* Header with Profile Info */}
                 <div className="d-flex align-items-center mb-3">
                   <img
-                    src={removeModal.follower.profilePic?.url || removeModal.follower.profilePic || "/default-profile.png"}
+                    src={
+                      removeModal.follower?.profilePic?.url ||
+                      removeModal.follower?.profilePic ||
+                      "/default-profile.png"
+                    }
                     alt="profile"
                     className="rounded-circle"
-                    style={{ width: "50px", height: "50px", objectFit: "cover", marginRight: "10px" }}
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      objectFit: "cover",
+                      marginRight: "12px",
+                    }}
                   />
                   <div>
-                    <h6 className="mb-0">{removeModal.follower.username}</h6>
-                    <small>{removeModal.follower.name || ""}</small>
+                    <h6 className="mb-0">{removeModal.follower?.username}</h6>
+                    <small>{removeModal.follower?.name || ""}</small>
                   </div>
                 </div>
 
-                <p className="mb-3">Are you sure you want to remove this follower?</p>
+                {/* Confirmation Text */}
+                <p className="mb-3">
+                  Are you sure you want to remove this follower?
+                </p>
 
+                {/* Action Buttons */}
                 <div className="d-flex justify-content-end gap-2">
                   <button
                     className="btn btn-sm btn-outline-secondary"
@@ -431,11 +448,11 @@ const Profile = () => {
                       Yes, Remove
                     </button>
                   )}
-
                 </div>
               </div>
             </div>
           )}
+
 
 
 
@@ -502,7 +519,7 @@ const Profile = () => {
 
           {unfollowModal.show && (
             <div className="modal-backdrop" onClick={() => setUnfollowModal({ show: false, user: null })}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-content-s" onClick={(e) => e.stopPropagation()}>
                 <div className="d-flex align-items-center mb-3">
                   <img
                     src={unfollowModal.user.profilePic?.url || unfollowModal.user.profilePic || "/default-profile.png"}
