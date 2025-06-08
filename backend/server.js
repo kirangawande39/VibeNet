@@ -196,6 +196,11 @@ app.get("/api/online-status", (req, res) => {
 // Export io if needed in other files
 module.exports = { io };
 
+app.all("*", (req, res, next) => {
+  console.log("page not found! ")
+    next(new ExpressError(404, "Page not found"))
+})
+
 server.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
 });
