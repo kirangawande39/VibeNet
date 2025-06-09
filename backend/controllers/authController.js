@@ -62,7 +62,7 @@ const login = async (req, res, next) => {
 // Google OAuth
 const googleAuth = async (req, res, next) => {
   try {
-    res.send("Google Authentication Logic Here");
+     cosole.log("google auth route is here")
   } catch (err) {
     next(err);
   }

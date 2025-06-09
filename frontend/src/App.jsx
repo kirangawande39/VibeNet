@@ -1,4 +1,6 @@
-import { Routes, Route } from "react-router-dom";
+import { useEffect, useContext } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
+
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
@@ -6,15 +8,45 @@ import Register from "./pages/Register";
 import Chat from "./pages/Chat";
 import EditProfile from "./pages/EditProfile";
 import Navbar from "./components/Navbar";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { AuthProvider } from './context/AuthContext';
 import NotFound from "./pages/NotFound";
 import Search from "./pages/Search";
+
+import { AuthProvider, AuthContext } from "./context/AuthContext";
+
+function AppWrapper() {
+  // This wrapper is outside AuthProvider
+  // We just return AuthProvider wrapping App, to avoid hooks outside provider issues
+  return (
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  );
+}
+
 function App() {
+  const { login, user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // This runs on app load
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const username = params.get("username");
+    const email = params.get("email");
+    const id = params.get("id");
+
+    if (token && username) {
+      localStorage.setItem("token", token);
+      login({ username, email , id });
+      navigate("/", { replace: true }); // Redirect to home after login
+    } else if (!user) {
+      navigate("/login", { replace: true });
+    }
+  }, [login, navigate, user]);
+
   return (
     <>
-      <AuthProvider>
-      <Navbar/>
+      <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/users/:id" element={<Profile />} />
@@ -22,14 +54,11 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/chat/:id" element={<Chat />} />
         <Route path="/users/:id/edit_profile" element={<EditProfile />} />
-
-        <Route path="/search" element={<Search/> } />
-
-         <Route path="*" element={<NotFound />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
-      </AuthProvider>
     </>
   );
 }
 
-export default App;
+export default AppWrapper;

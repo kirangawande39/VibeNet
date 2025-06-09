@@ -51,7 +51,7 @@ const Login = () => {
 
   // Dummy Google sign in handler (replace with real logic later)
   const handleGoogleSignIn = () => {
-    toast.info("Google Sign in clicked!");
+     window.location.href = "http://localhost:5000/api/auth/google";
   };
 
   return (

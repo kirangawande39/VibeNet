@@ -66,7 +66,7 @@ const Home = () => {
       <div className="stories-wrapper">
         <StoryList stories={stories} />
       </div>
-
+     
       {/* Posts - No margin between them */}
       <div className="posts-feed">
         {loading ? (
