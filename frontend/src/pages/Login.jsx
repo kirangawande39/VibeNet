@@ -1,6 +1,6 @@
 import { useState, useContext,useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext";
 import "../assets/css/Login.css";
@@ -109,9 +109,9 @@ const Login = () => {
 
         <p className="mt-3">
           Don't have an account?{" "}
-          <a href="/register" className="text-primary">
+          <Link to="/register" className="text-primary">
             Sign Up
-          </a>
+          </Link>
         </p>
       </div>
     </div>

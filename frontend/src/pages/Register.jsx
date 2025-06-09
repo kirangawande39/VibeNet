@@ -45,9 +45,9 @@ const Register = () => {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    toast.info("Google Sign Up clicked!");
-  };
+  // const handleGoogleSignIn = () => {
+  //   toast.info("Google Sign Up clicked!");
+  // };
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
@@ -106,7 +106,7 @@ const Register = () => {
           <button type="submit" className="btn btn-primary w-100">Sign Up</button>
         </form>
 
-        <button
+        {/* <button
           onClick={handleGoogleSignIn}
           className="btn btn-light w-100 border d-flex align-items-center justify-content-center gap-2 mt-3 rounded-pill shadow-sm"
           style={{ fontWeight: "600" }}
@@ -117,7 +117,7 @@ const Register = () => {
             style={{ width: "20px", height: "20px" }}
           />
           Sign up with Google
-        </button>
+        </button> */}
 
         <p className="mt-2">
           Already have an account? <a href="/login" className="text-primary">Login</a>
