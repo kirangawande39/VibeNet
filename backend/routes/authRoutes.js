@@ -2,8 +2,12 @@ const express = require("express");
 const { register, login, googleAuth } = require("../controllers/authController");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
-
+require("dotenv").config();
 const router = express.Router();
+
+
+const UI_URL=process.env.FRONTEND_URL;
+
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
@@ -39,7 +43,7 @@ router.get(
     const token = generateToken(_id);
 
     // ✅ Encode URI components in case of special characters
-    const redirectUrl = `http://localhost:5173/google?token=${token}&username=${encodeURIComponent(
+    const redirectUrl = `${UI_URL}/google?token=${token}&username=${encodeURIComponent(
       username
     )}&email=${encodeURIComponent(email)}&id=${_id}`;
 
