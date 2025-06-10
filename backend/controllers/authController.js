@@ -2,6 +2,8 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
+
+const UI_URL = process.env.FRONTEND_URL;
 // Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
@@ -62,14 +64,33 @@ const login = async (req, res, next) => {
 // Google OAuth
 const googleAuth = async (req, res, next) => {
   try {
-     cosole.log("google auth route is here")
+    cosole.log("google auth route is here")
   } catch (err) {
     next(err);
   }
 };
 
-const checkEmail= async (req,res)=>{
-   try {
+const googleCallBack = async (req, res, next) => {
+  try {
+    const { _id, username, email } = req.user;
+
+
+    const token = generateToken(_id);
+
+
+    const redirectUrl = `${UI_URL}/google?token=${token}&username=${encodeURIComponent(
+      username
+    )}&email=${encodeURIComponent(email)}&id=${_id}`;
+
+
+    res.redirect(redirectUrl);
+  } catch (err) {
+    next(err);
+  }
+}
+
+const checkEmail = async (req, res, next) => {
+  try {
     const { email } = req.body;
     if (!email) {
       return res.status(400).json({ message: "Email is required" });
@@ -87,4 +108,52 @@ const checkEmail= async (req,res)=>{
   }
 }
 
-module.exports = { register, login, googleAuth,checkEmail };
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Generate new reset token
+    const token = crypto.randomBytes(32).toString("hex");
+    const tokenExpiry = Date.now() + 3600000; // 1 hour
+
+    user.resetToken = token;
+    user.resetTokenExpires = tokenExpiry;
+
+    await user.save();
+
+    res.status(200).json({
+      token,
+      name: user.name || user.username || "User",
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+const resetPassword = async (req, res, next) => {
+  try {
+    const { token, newPassword } = req.body;
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpires: { $gt: new Date() },
+    });
+
+    if (!user) return res.status(400).json({ message: "Invalid or expired token" });
+
+    user.setPassword(newPassword, async (err) => {
+      if (err) return res.status(500).json({ message: "Password reset failed" });
+
+      user.resetToken = undefined;
+      user.resetTokenExpires = undefined;
+      await user.save();
+
+      res.status(200).json({ message: "Password has been reset successfully" });
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { register, login, googleAuth, checkEmail, forgotPassword, resetPassword, googleCallBack };

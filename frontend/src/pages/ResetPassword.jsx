@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { handleError } from "../utils/errorHandler";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -20,13 +21,13 @@ const ResetPassword = () => {
       toast.success("Password reset successful");
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Reset failed");
+      handleError(err);
     }
   };
 
   return (
     <div className="container mt-5" style={{ maxWidth: "400px" }}>
-      <ToastContainer />
+      
       <h3 className="mb-4 text-center">Reset Your Password</h3>
       <form onSubmit={handleReset}>
         <input

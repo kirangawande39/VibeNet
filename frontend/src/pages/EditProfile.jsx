@@ -2,7 +2,7 @@ import React, { useContext, useState, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext";
 import { useLocation } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import {  toast } from "react-toastify";
 import { FaEdit, FaSave, FaTimes } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import { handleError } from '../utils/errorHandler';
@@ -86,7 +86,7 @@ const EditProfile = () => {
 
   return (
     <div className="container mt-5">
-      <ToastContainer />
+   
       <div className="row gy-5">
         {/* Profile Card */}
         <div className="col-md-4">

@@ -9,7 +9,6 @@ import {
   FaSignOutAlt,
   FaSignInAlt,
   FaUserPlus,
-  FaEllipsisV,
 } from "react-icons/fa";
 
 import "../assets/css/Navbar.css";
@@ -40,8 +39,11 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Top Navbar */}
-      <nav className="main-navbar shadow-sm">
+      {/* Desktop Sidebar */}
+     
+
+      {/* Top Navbar for Mobile */}
+      <nav className="main-navbar shadow-sm d-md-none">
         <div className="container-fluid d-flex justify-content-between align-items-center px-3 py-2">
           {/* Logo */}
           <Link to="/" className="logo text-primary fw-bold fs-4">
@@ -49,7 +51,7 @@ const Navbar = () => {
           </Link>
 
           {/* Center Search */}
-          <div className="search-box d-none d-md-flex">
+          <div className="search-box d-none d-sm-flex">
             <FaSearch className="search-icon" />
             <input
               type="text"
@@ -59,14 +61,15 @@ const Navbar = () => {
           </div>
 
           {/* Right Side */}
-          <div
-            className="d-flex align-items-center position-relative"
-            ref={menuRef}
-          >
+          <div className="d-flex align-items-center position-relative" ref={menuRef}>
             {user ? (
               <>
-                <FaEllipsisV
-                  className="fs-4"
+                <img
+                  src={`https://ui-avatars.com/api/?name=${user.username}`}
+                  alt="avatar"
+                  className="rounded-circle me-2"
+                  width={32}
+                  height={32}
                   onClick={() => setMenuOpen(!menuOpen)}
                   style={{ cursor: "pointer" }}
                 />
@@ -85,6 +88,13 @@ const Navbar = () => {
                       onClick={() => setMenuOpen(false)}
                     >
                       <FaCommentDots className="me-2" /> Chat
+                    </Link>
+                    <Link
+                      to={`/search`}
+                      className="dropdown-item d-flex align-items-center"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <FaSearch className="me-2" /> Search
                     </Link>
                     <button
                       onClick={() => {

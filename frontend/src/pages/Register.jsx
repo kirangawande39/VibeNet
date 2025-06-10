@@ -3,7 +3,7 @@ import { useNavigate ,Link } from "react-router-dom";
 import axios from "axios";
 import emailjs from "@emailjs/browser";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { ToastContainer, toast } from "react-toastify";
+import {  toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../assets/css/Register.css";
 import { handleError } from "../utils/errorHandler";
@@ -93,7 +93,7 @@ const sendOtp = () => {
 
   return (
   <div className="container d-flex justify-content-center align-items-center min-vh-100 bg-light">
-    <ToastContainer position="top-center" autoClose={2000} theme="light" />
+    
     
     <div
       className="card p-4 px-4 shadow rounded-4 border-0"

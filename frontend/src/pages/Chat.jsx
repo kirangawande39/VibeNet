@@ -6,7 +6,7 @@ import axios from "axios";
 import Spinner from "../components/Spinner";
 import {  useParams } from "react-router-dom";
 import { handleError } from '../utils/errorHandler';
-import { ToastContainer, toast } from 'react-toastify';
+
 const Chat = () => {
   const { user, updateUser } = useContext(AuthContext);
   const [localUser, setLocalUser] = useState();
@@ -136,7 +136,7 @@ const Chat = () => {
 
   return (
     <div className="container mt-4">
-      <ToastContainer/>
+     
       <div className="row">
         {/* Follower List */}
         <div className={`col-md-4 ${isMobile && selectedUser ? "d-none" : ""}`}>

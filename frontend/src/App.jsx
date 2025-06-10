@@ -11,8 +11,13 @@ import Navbar from "./components/Navbar";
 import NotFound from "./pages/NotFound";
 import Search from "./pages/Search";
 
+import { ToastContainer ,Slide } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import './App.css'
+
 import { AuthProvider, AuthContext } from "./context/AuthContext";
 import ResetPassword from "./pages/ResetPassword";
+import SidebarNavbar from "./components/SidebarNavbar";
 
 function AppWrapper() {
   // This wrapper is outside AuthProvider
@@ -54,6 +59,7 @@ function App() {
   return (
     <>
       <Navbar />
+      <SidebarNavbar />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/users/:id" element={<Profile />} />
@@ -65,6 +71,17 @@ function App() {
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar
+        closeButton={false}
+        newestOnTop
+        draggable={false}
+        transition={Slide}
+        toastClassName="custom-toast"
+        bodyClassName="custom-toast-body"
+      />
     </>
   );
 }

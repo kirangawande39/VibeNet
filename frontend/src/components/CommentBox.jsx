@@ -127,7 +127,7 @@ const CommentBox = ({ postId }) => {
 
   return (
     <div className="comment-box">
-      <ToastContainer/>
+      
       <div className="comments-list">
         {loading ? 
         <Spinner/>

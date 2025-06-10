@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { ToastContainer, toast } from 'react-toastify';
+import {  toast } from 'react-toastify';
 import { BsFillPostcardHeartFill } from "react-icons/bs";
 import "../assets/css/Profile.css"
 import { FaPlus } from "react-icons/fa";
@@ -299,7 +299,7 @@ const Profile = () => {
 
   return (
     <div className="profile-container">
-      <ToastContainer />
+     
 
       {/* Profile Section */}
       <div className="profile-header d-flex justify-content-between align-items-center">
@@ -608,7 +608,7 @@ const Profile = () => {
           <BsFillPostcardHeartFill /> Posts
         </button>
         <button className={`btn ${mreals ? "btn-dark" : "btn-outline-dark"}`} onClick={() => { setMpost(false); setMreals(true); }}>
-          Reels
+          Create Post
         </button>
       </div>
 

@@ -1,100 +1,139 @@
-/* Instagram-like layout */
-.instagram-container {
-  max-width: 100%;
-  width: 100%;
-  margin: 0 auto;
+.home-layout {
+  display: flex;
   background-color: #fafafa;
-  position: relative;
-  padding-bottom: 60px; /* Space for bottom nav */
+  min-height: 100vh;
 }
 
-/* Header */
-.instagram-header {
-  position: sticky;
-  top: 0;
-  background: white;
-  padding: 12px 16px;
-  border-bottom: 1px solid #dbdbdb;
-  z-index: 100;
+/* Sidebar stays on left */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
 }
 
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.instagram-header h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0;
-  font-family: 'Instagram', sans-serif;
-}
-
-.header-icons i {
-  font-size: 1.5rem;
-  margin-left: 16px;
-}
-
-/* Stories */
-.stories-wrapper {
-  background: white;
-  padding: 12px 0;
-  border-bottom: 1px solid #dbdbdb;
-  margin-bottom: 4px;
-}
-
-/* Posts Feed - No margins between posts */
-.posts-feed {
-  width: 100%;
+/* Feed in center */
+.feed-section {
+  flex: 1;
   max-width: 600px;
   margin: 0 auto;
+  padding-top: 20px;
 }
 
-.posts-feed > div {
-  border-bottom: none;
+/* Right suggestion */
+
+
+.suggestion-panel h5 {
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
-/* Bottom Navigation */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  max-width: 600px;
-  background: white;
+.suggestion-placeholder {
+  font-size: 14px;
+  color: #888;
+}
+.suggestion-panel {
+  width: 250px;
+  padding: 10px;
+  margin-left: 20px;
+  background-color: var(--light-bg, #f8f9fa);
+  border-radius: 10px;
+  height: fit-content;
+}
+
+.suggestion-item {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+}
+
+.suggestion-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.suggestion-link:hover {
+  text-decoration: underline;
+}
+
+
+.suggestion-panel {
+  width: 280px;
+  padding: 15px;
+  background-color: var(--light-bg, #fff);
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  margin-left: 20px;
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+}
+
+/* ✅ Hide suggestion panel on small screens (like mobile) */
+@media (max-width: 768px) {
+  .suggestion-panel {
+    display: none;
+  }
+}
+
+
+.suggestion-card {
   display: flex;
-  justify-content: space-around;
-  padding: 12px 0;
-  border-top: 1px solid #dbdbdb;
-  z-index: 100;
+  align-items: center;
+  text-decoration: none;
+  margin-bottom: 15px;
+  padding: 5px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
 }
 
-.bottom-nav i {
-  font-size: 1.5rem;
-  color: #262626;
+.suggestion-card:hover {
+  background-color: #f5f5f5;
 }
 
-.bottom-nav .active {
-  color: #0095f6;
+.suggestion-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
 }
 
-/* Loading State */
+.suggestion-info strong {
+  display: block;
+  font-size: 14px;
+  color: #333;
+}
+
+.suggestion-info small {
+  font-size: 12px;
+}
+
+
+
+/* Show right panel only on large screens */
+@media (min-width: 992px) {
+  .suggestion-panel {
+    display: block;
+  }
+}
+
+.stories-wrapper {
+  margin-bottom: 20px;
+}
+
+.posts-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .spinner-container {
   display: flex;
   justify-content: center;
-  padding: 40px 0;
+  margin-top: 40px;
 }
 
 .no-posts {
   text-align: center;
-  padding: 40px 0;
-  color: #8e8e8e;
-}
-
-/* Remove any card margins from PostCard component */
-.post-card {
-  margin-bottom: 0 !important;
-  border-radius: 0 !important;
-  border: none !important;
-  border-bottom: 1px solid #dbdbdb !important;
+  color: #777;
+  padding: 50px 0;
+  font-size: 18px;
 }

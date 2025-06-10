@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext";
 import "../assets/css/Login.css";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import googleLogo from "../assets/img/google_logo.png";
 import { handleError } from "../utils/errorHandler";
@@ -101,7 +101,7 @@ const Login = () => {
   return (
     <div className="login-container d-flex align-items-center justify-content-center vh-100">
       <div className="login-box shadow-lg p-4 rounded bg-white text-center">
-        <ToastContainer />
+      
         <h1 className="text-primary logo fw-bold mb-4">VibeNet</h1>
         <h4 className="mb-3">Login to your account</h4>
 

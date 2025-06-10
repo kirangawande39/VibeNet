@@ -1,0 +1,29 @@
+body.dark-mode {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+
+body.dark-mode .sidebar,
+body.dark-mode .navbar,
+body.dark-mode .card,
+body.dark-mode .modal-content {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  border-color: #333;
+}
+
+body.dark-mode a {
+  color: #9bd3ff;
+}
+.dark {
+  background-color: #121212 !important;
+  color: #f0f0f0 !important;
+}
+
+.dark .sidebar {
+  background-color: #1e1e1e !important;
+}
+
+.dark .nav-link {
+  color: #ccc !important;
+}

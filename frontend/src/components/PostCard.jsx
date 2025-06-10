@@ -132,7 +132,7 @@ const PostCard = ({ post }) => {
   return (
     <div className="card " style={{ position: "relative" }}>
      
-     <ToastContainer/>
+  
      
      {/* Audio element for like sound */}
       <audio
@@ -216,6 +216,7 @@ const PostCard = ({ post }) => {
 
         {/* Toggleable Comment Box */}
         {showComment && <CommentBox postId={post._id} />}
+        
       </div>
     </div>
   );

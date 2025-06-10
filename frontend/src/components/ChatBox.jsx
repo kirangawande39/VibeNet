@@ -318,7 +318,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
 
   return (
     <div className="card">
-      <ToastContainer/>
+    
       <div className="card-header d-flex align-items-center bg-light justify-content-between">
         <div className="d-flex align-items-center">
           <img

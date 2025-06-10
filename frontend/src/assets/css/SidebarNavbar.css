@@ -1,0 +1,14 @@
+.sidebar {
+  width: 220px;
+  min-height: 100vh;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.home-feed {
+  margin-left: 220px;
+  padding: 20px;
+}

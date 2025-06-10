@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaSearch, FaTimesCircle } from "react-icons/fa";
-import { ToastContainer } from 'react-toastify';
+
 import { handleError } from '../utils/errorHandler';
 import '../assets/css/Search.css';
 
@@ -58,7 +58,7 @@ const Search = () => {
 
     return (
         <div className="search-main">
-            <ToastContainer />
+           
 
             {/* Search input */}
             <div className="input-wrapper">
