@@ -28,24 +28,27 @@ function App() {
   const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
- useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("token");
-  const username = params.get("username");
-  const email = params.get("email");
-  const id = params.get("id");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const username = params.get("username");
+    const email = params.get("email");
+    const id = params.get("id");
 
-  const currentPath = window.location.pathname;
+    const currentPath = window.location.pathname;
 
-  if (token && username) {
-    localStorage.setItem("token", token);
-    login({ username, email, id });
-    navigate("/", { replace: true });
-  } else if (!user && currentPath !== "/register" && currentPath !== "/login") {
-    // Redirect to login only if not already on register or login
-    navigate("/login", { replace: true });
-  }
-}, [login, navigate, user]);
+    // ⛔ Don't redirect if on reset-password page
+    if (currentPath.startsWith("/reset-password")) return;
+
+    if (token && username) {
+      localStorage.setItem("token", token);
+      login({ username, email, id });
+      navigate("/", { replace: true });
+    } else if (!user && currentPath !== "/register" && currentPath !== "/login") {
+      navigate("/login", { replace: true });
+    }
+  }, [login, navigate, user]);
+
 
 
   return (
