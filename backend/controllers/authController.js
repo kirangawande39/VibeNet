@@ -68,4 +68,23 @@ const googleAuth = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, googleAuth };
+const checkEmail= async (req,res)=>{
+   try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "Email not found" });
+    }
+
+    return res.status(200).json({ message: "Email exists" });
+  } catch (err) {
+    // Pass any unexpected errors to your global error handler
+    next(err);
+  }
+}
+
+module.exports = { register, login, googleAuth,checkEmail };

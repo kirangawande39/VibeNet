@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate ,Link } from "react-router-dom";
 import axios from "axios";
 import emailjs from "@emailjs/browser";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -145,8 +145,9 @@ const sendOtp = () => {
             className="btn btn-outline-primary rounded-end-3"
             onClick={sendOtp}
             disabled={isEmailVerified}
+            style={{fontSize:'0.50rem'}}
           >
-            OTP
+           Send OTP
           </button>
         </div>
 
@@ -192,9 +193,9 @@ const sendOtp = () => {
 
       <p className="mt-3 text-center text-muted" style={{ fontSize: "0.9rem" }}>
         Already have an account?{" "}
-        <a href="/login" className="text-primary text-decoration-none fw-semibold">
+        <Link to="/login" className="text-primary text-decoration-none fw-semibold">
           Login
-        </a>
+        </Link>
       </p>
     </div>
   </div>

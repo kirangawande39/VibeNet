@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import Search from "./pages/Search";
 
 import { AuthProvider, AuthContext } from "./context/AuthContext";
+import ResetPassword from "./pages/ResetPassword";
 
 function AppWrapper() {
   // This wrapper is outside AuthProvider
@@ -58,6 +59,7 @@ function App() {
         <Route path="/chat/:id" element={<Chat />} />
         <Route path="/users/:id/edit_profile" element={<EditProfile />} />
         <Route path="/search" element={<Search />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

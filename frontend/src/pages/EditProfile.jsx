@@ -91,12 +91,12 @@ const EditProfile = () => {
         {/* Profile Card */}
         <div className="col-md-4">
           <div className="card p-4 shadow rounded-4 text-center">
-           
+
             <img
               src={
                 user.profilePic.url ||
-                user.profilePic ||
-                "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+
+                "https://as1.ftcdn.net/v2/jpg/03/39/45/96/1000_F_339459697_XAFacNQmwnvJRqe1Fe9VOptPWMUxlZP8.jpg"
               }
               alt="Profile"
               className="rounded-circle mb-3 border"

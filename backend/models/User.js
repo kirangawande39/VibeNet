@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const passportLocalMongoose = require("passport-local-mongoose");
+
 const UserSchema = new mongoose.Schema(
   {
     username: { type: String, required: true, unique: true },
@@ -16,9 +17,15 @@ const UserSchema = new mongoose.Schema(
     savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
     isVerified: { type: Boolean, default: false },
     googleId: { type: String, default: null }, // For Google OAuth
+
+    // 🔑 Forgot password fields
+    resetToken: { type: String },
+    resetTokenExpires: { type: Date },
   },
   { timestamps: true }
 );
 
+// Plugin for password hashing & local auth
 UserSchema.plugin(passportLocalMongoose, { usernameField: "email" });
+
 module.exports = mongoose.model("User", UserSchema);
