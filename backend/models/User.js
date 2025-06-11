@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     profilePic: {
-      url: { type: String, default: "" },         // Cloudinary secure_url
+      url: { type: String, default: "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg" },         // Cloudinary secure_url
       public_id: { type: String, default: "" }     // Cloudinary public_id
     },
     coverPhoto: { type: String, default: "" },

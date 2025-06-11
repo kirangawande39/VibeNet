@@ -1,5 +1,5 @@
 const express = require("express");
-const { getUserProfile, updateUserProfile, followUser, unfollowUser ,searchUsers } = require("../controllers/userController");
+const { getUserProfile, updateUserProfile, followUser, unfollowUser ,searchUsers,getSuggestedUsers } = require("../controllers/userController");
 const { protect } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
@@ -18,6 +18,7 @@ const upload = multer({ storage: profilePicStorage });
 // Multer setup
 
 
+router.get('/suggestions', protect, getSuggestedUsers);
 
 
 router.get("/search", searchUsers);
@@ -27,7 +28,6 @@ router.put("/:id", updateUserProfile);
 // Update profile
 router.post("/:id/follow", followUser); // Follow a user
 router.post("/:id/unfollow", unfollowUser); // Unfollow a user
-
 
 // PUT /api/users/:id/uploadProfilePic
 

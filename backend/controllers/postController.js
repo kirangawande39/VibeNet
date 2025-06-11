@@ -25,11 +25,47 @@ const createPost = async (req, res, next) => {
   }
 };
 
-// 👉 Get All Posts
+// 👉 Get All Posts with Pagination
 const getAllPosts = async (req, res, next) => {
   try {
-    console.log("all post is here")
-    const posts = await Post.find().populate("user");
+    console.log("All posts route hit");
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+
+    const posts = await Post.aggregate([
+      {
+        $addFields: {
+          engagementScore: {
+            $add: [
+              { $size: "$likes" },
+              { $size: "$comments" }
+            ]
+          }
+        }
+      },
+      {
+        $sort: {
+          engagementScore: -1, // highest engagement first
+          createdAt: -1        // if tie, show newer one first
+        }
+      },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user"
+        }
+      },
+      {
+        $unwind: "$user"
+      }
+    ]);
+
     res.status(200).json({
       posts,
       message: "Posts fetched successfully",
@@ -38,6 +74,7 @@ const getAllPosts = async (req, res, next) => {
     next(error);
   }
 };
+
 
 // 👉 Get Single Post by ID
 const getPostById = async (req, res, next) => {

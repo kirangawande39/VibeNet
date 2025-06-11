@@ -123,7 +123,7 @@ const Navbar = () => {
       </nav>
 
       {/* Bottom Navigation for Mobile */}
-      <div className="bottom-nav d-md-none shadow-sm">
+      <div className="bottom-nav d-md-none shadow-sm ">
         <Link to="/" className="bottom-icon">
           <FaHome />
         </Link>

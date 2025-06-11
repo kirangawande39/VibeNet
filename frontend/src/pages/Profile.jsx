@@ -68,7 +68,7 @@ const Profile = () => {
   };
 
   const handlePostDelete = async (postId) => {
-    alert(`Post was deleted ${postId} is here`)
+    // alert(`Post was deleted ${postId} is here`)
 
     try {
       // backend route: DELETE /posts/:id
@@ -83,7 +83,7 @@ const Profile = () => {
 
       // Remove deleted post from local state
       setPosts(posts.filter(post => post._id !== postId));
-      alert(res.data.message);
+      toast.success(res.data.message);
     } catch (err) {
       handleError(err);
     }
@@ -115,7 +115,7 @@ const Profile = () => {
       if (!user) return;
       try {
         const res = await axios.get(`${backendUrl}/api/posts/${id}`);
-        console.log("Posts:", res.data.posts)
+        // console.log("Posts:", res.data.posts)
         setPosts(res.data.posts);
       } catch (err) {
         handleError(err);
@@ -307,8 +307,8 @@ const Profile = () => {
           <img
             src={
               profileData.profilePic?.url ||
-              profileData.profilePic ||
-              "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+              
+              "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
             }
             alt="Profile"
             className="profile-img"
@@ -372,7 +372,7 @@ const Profile = () => {
                     <li key={follower._id} className="list-group-item d-flex align-items-center justify-content-between">
                       <div className="d-flex align-items-center">
                         <img
-                          src={follower.profilePic?.url || follower.profilePic || "/default-profile.png"}
+                          src={follower.profilePic?.url ||  "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
                           alt="profile"
                           className="rounded-circle"
                           style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "10px" }}
@@ -409,8 +409,8 @@ const Profile = () => {
                   <img
                     src={
                       removeModal.follower?.profilePic?.url ||
-                      removeModal.follower?.profilePic ||
-                      "/default-profile.png"
+                     
+                      "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
                     }
                     alt="profile"
                     className="rounded-circle"
@@ -490,7 +490,7 @@ const Profile = () => {
                     <li key={followed._id} className="list-group-item d-flex align-items-center justify-content-between">
                       <div className="d-flex align-items-center">
                         <img
-                          src={followed.profilePic?.url || followed.profilePic || "/default-profile.png"}
+                          src={followed.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
                           alt="profile"
                           className="rounded-circle"
                           style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "10px" }}
@@ -522,7 +522,7 @@ const Profile = () => {
               <div className="modal-content-s" onClick={(e) => e.stopPropagation()}>
                 <div className="d-flex align-items-center mb-3">
                   <img
-                    src={unfollowModal.user.profilePic?.url || unfollowModal.user.profilePic || "/default-profile.png"}
+                    src={unfollowModal.user.profilePic?.url ||  "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
                     alt="profile"
                     className="rounded-circle"
                     style={{ width: "50px", height: "50px", objectFit: "cover", marginRight: "10px" }}

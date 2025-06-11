@@ -107,7 +107,7 @@ const PostCard = ({ post }) => {
         }
       );
       setIsFollowing(true);
-      alert(res.data.message || "Followed successfully!");
+      // alert(res.data.message || "Followed successfully!");
     } catch (err) {
        handleError(err);
     }
@@ -123,7 +123,7 @@ const PostCard = ({ post }) => {
         }
       );
       setIsFollowing(false);
-      alert(res.data.message || "Unfollowed successfully!");
+      // alert(res.data.message || "Unfollowed successfully!");
     } catch (err) {
       handleError(err);
     }
@@ -155,7 +155,7 @@ const PostCard = ({ post }) => {
       {/* Post Header */}
       <div className="card-header d-flex align-items-center bg-white">
         <img
-          src={post.user?.profilePic.url || post.user?.profilePic}
+          src={post.user?.profilePic.url ||"https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
           alt="profile"
           className="rounded-circle me-2"
           width="40"

@@ -1,4 +1,5 @@
-const User = require("../models/User");
+const User = require('../models/User');
+
 
 // Get User Profile
 const getUserProfile = async (req, res, next) => {
@@ -96,4 +97,87 @@ const searchUsers = async (req, res, next) => {
 };
 
 
-module.exports = { getUserProfile, updateUserProfile, followUser, unfollowUser, searchUsers };
+const getSuggestedUsers = async (req, res) => {
+    try {
+        console.log("Suggestion route is here");
+
+        console.log("User ID from token:", req.user.id);
+
+        const currentUser = await User.findById(req.user.id).lean();
+
+        if (!currentUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        console.log("Current User:", currentUser.username);
+        const following = currentUser.following || [];
+
+        console.log("Following:", following);
+
+        const pipeline = [
+            {
+                $match: {
+                    _id: { $ne: currentUser._id, $nin: following }
+                }
+            },
+            {
+                $addFields: {
+                    mutualIds: {
+                        $cond: {
+                            if: { $gt: [following.length, 0] },
+                            then: { $setIntersection: ["$followers", following] },
+                            else: []
+                        }
+                    },
+                    popularity: { $size: "$followers" }
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "mutualIds",
+                    foreignField: "_id",
+                    as: "mutualUsers"
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    username: 1,
+                    name: 1,
+                    profilePic: 1,
+                    mutualCount: { $size: "$mutualIds" },
+                    mutualUsernames: {
+                        $map: {
+                            input: "$mutualUsers",
+                            as: "user",
+                            in: "$$user.username"
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    mutualCount: -1,
+                    popularity: -1
+                }
+            },
+            { $limit: 10 }
+        ];
+
+
+        const suggestions = await User.aggregate(pipeline);
+
+        console.log("Suggestions:", suggestions);
+
+        res.status(200).json(suggestions);
+
+    } catch (err) {
+        console.error("Suggestion fetch failed:", err.message);
+        res.status(500).json({ message: "Failed to fetch suggestions" });
+    }
+};
+
+
+
+module.exports = { getUserProfile, updateUserProfile, followUser, unfollowUser, searchUsers, getSuggestedUsers };

@@ -26,19 +26,61 @@ const createStory = async (req, res, next) => {
   }
 };
 
+// const getStories = async (req, res, next) => {
+
+//   console.log(req.user.id);
+//   console.log("Get stories logic here");
+
+//   try {
+//     const stories = await Story.find()
+//       .populate("user")
+//       .populate("seenBy.user", "username name profilePic");
+
+//     res.status(201).json({ success: true, stories });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 const getStories = async (req, res, next) => {
   console.log("Get stories logic here");
 
   try {
+    const currentUserId = req.user.id;
+
     const stories = await Story.find()
       .populate("user")
       .populate("seenBy.user", "username name profilePic");
 
-    res.status(201).json({ success: true, stories });
+    // 1. Divide into seen and unseen for current user
+    const unseenStories = [];
+    const seenStories = [];
+
+    for (const story of stories) {
+      const seenByCurrentUser = story.seenBy.some(
+        (viewer) => viewer.user._id.toString() === currentUserId
+      );
+
+      if (seenByCurrentUser) {
+        seenStories.push(story);
+      } else {
+        unseenStories.push(story);
+      }
+    }
+
+    // 2. Sort each group by latest first
+    unseenStories.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    seenStories.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // 3. Combine both groups (unseen first)
+    const sortedStories = [...unseenStories, ...seenStories];
+
+    res.status(200).json({ success: true, stories: sortedStories });
   } catch (err) {
     next(err);
   }
 };
+
 
 const deleteStory = async (req, res, next) => {
   try {

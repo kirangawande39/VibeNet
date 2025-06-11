@@ -1,9 +1,37 @@
 const express = require("express");
 const { register, login, googleAuth, checkEmail, forgotPassword, resetPassword, googleCallBack } = require("../controllers/authController");
 const passport = require("passport");
+const User = require("../models/User")
 
 require("dotenv").config();
 const router = express.Router();
+
+router.post('/bulk-register', async (req, res, next) => {
+  try {
+    const users = req.body.users;
+
+    const createdUsers = [];
+
+    for (let user of users) {
+      const { name, email, password, username } = user;
+
+      const existing = await User.findOne({ email });
+      if (existing) continue;
+
+      const newUser = new User({ name, email, username });
+      const registeredUser = await User.register(newUser, password); // passport-local-mongoose
+
+      createdUsers.push({
+        id: registeredUser._id,
+        username: registeredUser.username
+      });
+    }
+
+    res.status(201).json({ message: "Users created", users: createdUsers });
+  } catch (err) {
+    next(err);
+  }
+});
 
 
 router.post("/register", register);

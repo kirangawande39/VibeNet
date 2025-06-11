@@ -140,9 +140,8 @@ const CommentBox = ({ postId }) => {
                   ? comment.user?.profilePic
                   : comment.user?.profilePic?.url)
                 || (typeof user?.profilePic === 'string'
-                  ? user?.profilePic
-                  : user?.profilePic?.url)
-                || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                  ? user?.profilePic?.url
+                  : "https://cdn-icons-png.flaticon.com/512/149/149071.png")
               }
 
               className="comment-profile-pic"

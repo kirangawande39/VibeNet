@@ -157,8 +157,8 @@ const Chat = () => {
                       <img
                         src={
                           follower.profilePic.url ||
-                          follower.profilePic ||
-                          "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+                          
+                          "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
                         }
                         alt={follower.username}
                         className="rounded-circle me-2"

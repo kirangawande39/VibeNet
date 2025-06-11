@@ -12,7 +12,7 @@ const upload = multer({ storage:StoryStorage });
 
 router.post("/", protect , upload.single('story')  , createStory); // Create a story
 
-router.get("/", getStories); // Get all stories
+router.get("/",protect, getStories); // Get all stories
 
 router.delete("/:id", deleteStory); // Delete a story
 
