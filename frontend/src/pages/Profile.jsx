@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import {  toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { BsFillPostcardHeartFill } from "react-icons/bs";
 import "../assets/css/Profile.css"
 import { FaPlus } from "react-icons/fa";
@@ -232,9 +232,13 @@ const Profile = () => {
       const story = res.data.story;
       setUploadedStory(story);
 
-      alert("Story uploaded successfully!");
+      toast.success("Story uploaded successfully!");
     } catch (err) {
-      handleError(err);
+      if (err.response && err.response.status === 429) {
+        toast.error(err.response.data || "Too many requests, try again later.");
+      } else {
+        handleError(err); 
+      }
     }
   };
 
@@ -299,7 +303,7 @@ const Profile = () => {
 
   return (
     <div className="profile-container">
-     
+
 
       {/* Profile Section */}
       <div className="profile-header d-flex justify-content-between align-items-center">
@@ -307,7 +311,7 @@ const Profile = () => {
           <img
             src={
               profileData.profilePic?.url ||
-              
+
               "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
             }
             alt="Profile"
@@ -372,7 +376,7 @@ const Profile = () => {
                     <li key={follower._id} className="list-group-item d-flex align-items-center justify-content-between">
                       <div className="d-flex align-items-center">
                         <img
-                          src={follower.profilePic?.url ||  "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
+                          src={follower.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
                           alt="profile"
                           className="rounded-circle"
                           style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "10px" }}
@@ -409,7 +413,7 @@ const Profile = () => {
                   <img
                     src={
                       removeModal.follower?.profilePic?.url ||
-                     
+
                       "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
                     }
                     alt="profile"
@@ -522,7 +526,7 @@ const Profile = () => {
               <div className="modal-content-s" onClick={(e) => e.stopPropagation()}>
                 <div className="d-flex align-items-center mb-3">
                   <img
-                    src={unfollowModal.user.profilePic?.url ||  "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
+                    src={unfollowModal.user.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
                     alt="profile"
                     className="rounded-circle"
                     style={{ width: "50px", height: "50px", objectFit: "cover", marginRight: "10px" }}

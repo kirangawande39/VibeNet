@@ -7,6 +7,8 @@ import Spinner from "../components/Spinner";
 import {  useParams } from "react-router-dom";
 import { handleError } from '../utils/errorHandler';
 
+import "../assets/css/Chat.css"
+
 const Chat = () => {
   const { user, updateUser } = useContext(AuthContext);
   const [localUser, setLocalUser] = useState();
@@ -135,7 +137,7 @@ const Chat = () => {
   }
 
   return (
-    <div className="container mt-4">
+    <div className="container chat-app mt-4">
      
       <div className="row">
         {/* Follower List */}

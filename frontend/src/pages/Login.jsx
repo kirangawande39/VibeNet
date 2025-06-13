@@ -47,7 +47,11 @@ const Login = () => {
       toast.success(res.data.message || "Login successful");
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {
-      handleError(err);
+      if (err.response && err.response.status === 429) {
+        toast.error(err.response.data || "Too many requests, try again later.");
+      } else {
+        handleError(err);
+      }
     }
   };
 
@@ -61,22 +65,26 @@ const Login = () => {
       const res = await axios.post(`${backendUrl}/api/auth/forgot-password`, { email: forgotEmail });
       const { token, name } = res.data;
       await emailjs.send(
-        "service_ishxb1z", // Replace with your EmailJS service ID
-        "template_jmfwewd", // Replace with your EmailJS template ID
+        "service_ishxb1z",
+        "template_jmfwewd",
         {
           to_email: forgotEmail,
           reset_link: `https://vibe-net-two.vercel.app/reset-password/${token}`,
           user_name: name,
         },
-        "oP6BKanobJVx_qqDN" // Replace with your EmailJS public key
+        "oP6BKanobJVx_qqDN"
       );
       console.log(forgotEmail)
       toast.success("Reset link sent to your email.");
       setShowForgotModal(false);
       setForgotEmail("");
       setEmailCheckStatus(null);
-    } catch {
-      toast.error("Failed to send reset link.");
+    } catch (err) {
+      if (err.response && err.response.status === 429) {
+        toast.error(err.response.data || "Too many requests, try again later.");
+      } else {
+        handleError(err); 
+      }
     }
   };
 
@@ -101,7 +109,7 @@ const Login = () => {
   return (
     <div className="login-container d-flex align-items-center justify-content-center vh-100">
       <div className="login-box shadow-lg p-4 rounded bg-white text-center">
-      
+
         <h1 className="text-primary logo fw-bold mb-4">VibeNet</h1>
         <h4 className="mb-3">Login to your account</h4>
 
