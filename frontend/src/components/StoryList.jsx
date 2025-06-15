@@ -24,10 +24,10 @@ const StoryList = ({ stories }) => {
   const currentUserId = currentUser?._id || currentUser?.id;
 
   const token = localStorage.getItem("token");
-  console.log("Token : ", token)
+  // console.log("Token : ", token)
 
-  console.log("currentUserId :", currentUserId);
-  console.log("User :", user.id);
+  // console.log("currentUserId :", currentUserId);
+  // console.log("User :", user.id);
 
   const [index, setIndex] = useState(null); // { userId, storyIndex } or null
   const [progress, setProgress] = useState(0);

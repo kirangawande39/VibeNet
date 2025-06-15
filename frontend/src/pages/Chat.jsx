@@ -51,7 +51,7 @@ const Chat = () => {
   const handleLastMessageUpdate = (newMessage) => {
     if (selectedUser) {
       updateLastMessage(selectedUser._id, newMessage);
-      console.log("newMessage :", newMessage);
+      // console.log("newMessage :", newMessage);
     }
   };
 
@@ -82,14 +82,14 @@ const Chat = () => {
   useEffect(() => {
     if (user && user._id) {
       socket.emit("user-online", user._id);
-      console.log("📡 Emitted user-online:", user._id);
+      // console.log("📡 Emitted user-online:", user._id);
     }
   }, [user]);
 
   // ✅ Listen to online-users broadcast (optional for live update)
   useEffect(() => {
     socket.on("online-users", (users) => {
-      console.log("🌐 Live online users:", users);
+      // console.log("🌐 Live online users:", users);
       setOnlineUsers(users);
     });
 
@@ -101,12 +101,12 @@ const Chat = () => {
   // ✅ Fetch online + last seen from backend REST API every 10 seconds
   useEffect(() => {
     const fetchOnlineStatus = async () => {
-      console.log("🌐 Trying to fetch online status...");
+      // console.log("🌐 Trying to fetch online status...");
       try {
         const res = await axios.get(`${backendUrl}/api/online-status`);
-        console.log("✅ Online users:", res.data);
-        console.log("res.data.onlineUsers:", res.data.onlineUsers);
-        console.log("res.data.lastSeen:", res.data.lastSeen);
+        // console.log("✅ Online users:", res.data);
+        // console.log("res.data.onlineUsers:", res.data.onlineUsers);
+        // console.log("res.data.lastSeen:", res.data.lastSeen);
         setOnlineUsers(res.data.onlineUsers || []);
         setLastSeen(res.data.lastSeen || {});
       } catch (err) {

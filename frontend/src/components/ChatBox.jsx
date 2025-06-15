@@ -49,7 +49,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
       });
 
 
-      console.log("image res :", res.data)
+      // console.log("image res :", res.data)
 
       const sentImageMessage = {
         ...res.data,
@@ -98,7 +98,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
           { senderId: user.id, receiverId: selectedUser._id },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        // console.log("ChatId :",res.data)
+        // // console.log("ChatId :",res.data)
         setChatId(res.data._id);
         onLastMessageUpdate(lastMessage);
         setlastMessage(res.data.lastMessage);
@@ -166,8 +166,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
 
   useEffect(() => {
     const handleReceive = (msg) => {
-      console.log("📥 Message received via socket:", msg);
-      console.log("💬 Current Chat ID:", chatId);
+      // console.log("📥 Message received via socket:", msg);
+      // console.log("💬 Current Chat ID:", chatId);
 
       if (!msg.sender || !msg.sender._id) {
         msg.sender = { _id: msg.senderId };
@@ -175,7 +175,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
 
       const incomingChatId = msg.chatId?._id || msg.chatId;
 
-      console.log("📊 Compare:", incomingChatId === chatId);
+      // console.log("📊 Compare:", incomingChatId === chatId);
 
       if (incomingChatId === chatId) {
         setMessages((prev) => [...prev, msg]);
@@ -239,7 +239,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      console.log("msg res :", res.data)
+      // console.log("msg res :", res.data)
 
       const sentMessage = {
         ...res.data,
@@ -358,7 +358,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
         style={{ height: "300px", overflowY: "auto" }}
       >
         {/* no latest msg avialable  */}
-        {console.log("🧾 Messages rendering:", messages)}
+        {/* // console.log("🧾 Messages rendering:", messages) */}
 
         {loading ? (
           <Spinner />
@@ -370,7 +370,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
               minute: "2-digit",
             });
             // latest msg is here  
-            console.log("🧾 Rendering message:", msg.text, "from", msg.sender?.name || msg.sender?._id);
+            // console.log("🧾 Rendering message:", msg.text, "from", msg.sender?.name || msg.sender?._id);
 
             return (
               <div

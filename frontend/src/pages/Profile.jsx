@@ -100,7 +100,7 @@ const Profile = () => {
       try {
         const response = await axios.get(`${backendUrl}/api/users/${id}`);
 
-        console.log("user", response.data.user)
+        // console.log("user", response.data.user)
         setProfileData(response.data.user);
       } catch (err) {
         handleError(err);

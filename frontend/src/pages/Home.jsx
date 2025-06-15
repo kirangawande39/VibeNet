@@ -139,7 +139,7 @@ const Home = () => {
   const fetchStories = async () => {
     try {
       const token = localStorage.getItem("token");
-      console.log("story token :", token);
+      // console.log("story token :", token);
 
       const res = await axios.get(`${backendUrl}/api/stories`, {
         headers: {
