@@ -6,6 +6,7 @@ const mongoose = require("mongoose")
 const { generateBotReply } = require("../utils/botReplyLogic.js");
 
 
+const BOT_USER_ID = process.env.BOT_USER_ID;
 
 
 const sendMessage = async (req, res, next) => {
@@ -14,7 +15,6 @@ const sendMessage = async (req, res, next) => {
   const { chatId, text } = req.body;
   const sender = req.user.id;
 
-  const BOT_USER_ID = "684db4e39d76770c4d55dd7b"; // Your ChatBot ID
 
   try {
     // Step 1: Save user message
