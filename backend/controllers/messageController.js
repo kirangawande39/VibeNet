@@ -1,23 +1,93 @@
 const { cloudinary } = require('../config/cloudConfig');
 const Message = require("../models/Message");
 const Chat = require("../models/Chat");
+const mongoose = require("mongoose")
 
-// 👉 Send a message
+const { generateBotReply } = require("../utils/botReplyLogic.js");
+
+
+
+
 const sendMessage = async (req, res, next) => {
+  console.log("✅ send message route is here");
+
   const { chatId, text } = req.body;
   const sender = req.user.id;
 
+  const BOT_USER_ID = "684db4e39d76770c4d55dd7b"; // Your ChatBot ID
+
   try {
+    // Step 1: Save user message
     const message = new Message({ chatId, sender, text });
     const savedMessage = await message.save();
+    console.log("✅ Message saved:", savedMessage);
 
+    // Step 2: Update chat last message
     await Chat.findByIdAndUpdate(chatId, { lastMessage: text });
 
+    // Step 3: Emit user message
+    if (req.io) {
+      console.log("📡 Emitting receive-message from backend (user)");
+      req.io.to(chatId).emit("receive-message", {
+        ...savedMessage._doc,
+        sender: {
+          _id: sender,
+          name: req.user.name || "User",
+          profilePic: req.user.profilePic || "",
+        },
+      });
+    }
+
+    // Step 4: Check if chat has bot and sender is not bot
+    const chat = await Chat.findById(chatId);
+    if (chat && chat.members.includes(BOT_USER_ID) && sender !== BOT_USER_ID) {
+      // ✅ Step 5: Await bot reply
+      let botReplyText;
+      try {
+        botReplyText = await generateBotReply(text); // 💡 FIXED
+      } catch (err) {
+        console.error("🤖 Bot failed:", err.message);
+        botReplyText = "Sorry, I'm having trouble replying right now. 😔";
+      }
+
+      // Step 6: Save bot message
+      const botMessage = new Message({
+        chatId,
+        sender: BOT_USER_ID,
+        receiver: sender,
+        text: botReplyText,
+        seen: true,
+      });
+
+      const savedBotMessage = await botMessage.save();
+
+      // Step 7: Update chat with bot's reply
+      await Chat.findByIdAndUpdate(chatId, { lastMessage: botReplyText });
+
+      // Step 8: Emit bot reply
+      if (req.io) {
+        console.log("📡 Emitting bot receive-message from backend");
+        req.io.to(chatId).emit("receive-message", {
+          ...savedBotMessage._doc,
+          sender: {
+            _id: BOT_USER_ID,
+            name: "ChatBot",
+            profilePic: {
+              url: "https://png.pngtree.com/png-clipart/20230401/original/pngtree-smart-chatbot-cartoon-clipart-png-image_9015126.png"
+            }
+          }
+        });
+      }
+    }
+
+    // Final: Respond to sender
     res.status(201).json(savedMessage);
   } catch (err) {
     next(err);
   }
 };
+
+
 
 // 👉 Get all messages of a chat
 const getMessages = async (req, res, next) => {
@@ -102,4 +172,56 @@ const sendImage = async (req, res, next) => {
   }
 };
 
-module.exports = { sendMessage, getMessages, seenMessages, deleteMessage, sendImage };
+
+
+const getUnseenMessageCounts = async (req, res, next) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.user.id);
+
+
+
+    const unseenCounts = await Message.aggregate([
+      {
+        $match: {
+          seen: false,
+          sender: { $ne: userId },
+        },
+      },
+      {
+        $lookup: {
+          from: "chats",
+          localField: "chatId",
+          foreignField: "_id",
+          as: "chat",
+        },
+      },
+      {
+        $unwind: "$chat"
+      },
+      {
+        $match: {
+          "chat.members": userId
+        }
+      },
+      {
+        $group: {
+          _id: "$chatId",
+          unseenCount: { $sum: 1 }
+        }
+      }
+    ]);
+
+    console.log("Unseen Counts:", unseenCounts);
+    res.status(200).json({ success: true, data: unseenCounts });
+  } catch (err) {
+    console.error("Aggregation error:", err);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+
+
+
+
+
+module.exports = { sendMessage, getMessages, seenMessages, deleteMessage, sendImage, getUnseenMessageCounts };

@@ -3,13 +3,19 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 
+const Message = require("../models/Message");
+
+const Chat = require("../models/Chat");
+
+
 const UI_URL = process.env.FRONTEND_URL;
 // Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
 
-// Register User
+
+
 const register = async (req, res, next) => {
   try {
     const { name, email, password, username } = req.body;
@@ -20,27 +26,54 @@ const register = async (req, res, next) => {
       throw new Error("User already exists");
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     const newUser = new User({ name, email, username });
-    const registeredUser = await User.register(newUser, password); // passport-local-mongoose
+    const registeredUser = await User.register(newUser, password);
 
-    if (registeredUser) {
-      res.status(201).json({
-        _id: registeredUser.id,
-        name: registeredUser.name,
-        email: registeredUser.email,
-        token: generateToken(registeredUser.id)
-      });
-    } else {
-      res.status(400);
-      throw new Error("Invalid user data");
-    }
+    const BOT_USER_ID = "684db4e39d76770c4d55dd7b"; // ⚠️ Replace with your actual bot user ID
+
+    // Add bot to user's followers/following
+    registeredUser.followers.push(BOT_USER_ID);
+    registeredUser.following.push(BOT_USER_ID);
+    await registeredUser.save();
+
+    // Add user to bot's followers/following
+    await User.findByIdAndUpdate(BOT_USER_ID, {
+      $addToSet: {
+        followers: registeredUser._id,
+        following: registeredUser._id,
+      },
+    });
+
+    // ✅ Create chat between user and bot
+    const chat = await Chat.create({
+      members: [registeredUser._id, BOT_USER_ID],
+    });
+
+    console.log("chat :: "+chat);
+
+    // ✅ Send welcome message in that chat
+    const message=await Message.create({
+      chatId: chat._id,
+      sender: BOT_USER_ID,
+      receiver: registeredUser._id,
+      text: "👋 Welcome to VibeNet! I'm your assistant bot. Feel free to ask anything.",
+    });
+
+    console.log("message::"+message);
+
+    // ✅ Final response
+    res.status(201).json({
+      _id: registeredUser.id,
+      name: registeredUser.name,
+      email: registeredUser.email,
+      token: generateToken(registeredUser.id),
+    });
+
   } catch (err) {
     next(err);
   }
 };
+
 
 // Login User
 const login = async (req, res, next) => {

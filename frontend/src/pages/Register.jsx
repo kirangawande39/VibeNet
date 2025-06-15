@@ -160,7 +160,7 @@ const Register = () => {
 
           {otpSent && !isEmailVerified && (
             <div className="form-group mb-3">
-              <h2>{generatedOtp ?? "otp is not avialable"}</h2>
+              
               <input
                 type="text"
                 placeholder="Enter OTP"

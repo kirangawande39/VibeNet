@@ -1,5 +1,5 @@
 const express = require("express");
-const { sendMessage, getMessages, seenMessages,deleteMessage,sendImage } = require("../controllers/messageController");
+const { sendMessage, getMessages, seenMessages,deleteMessage,sendImage,getUnseenMessageCounts } = require("../controllers/messageController");
 const { protect } = require("../middlewares/authMiddleware");
 
 const multer = require('multer');
@@ -8,6 +8,9 @@ const upload = multer({ storage:chatImageStorage });  // CloudinaryStorage se mu
 
 
 const router = express.Router();
+
+
+router.get("/unseen-counts", protect, getUnseenMessageCounts);
 
 router.post("/", protect, sendMessage); // Send a message
 router.get("/:chatId", protect, getMessages); // Get all messages in a chat

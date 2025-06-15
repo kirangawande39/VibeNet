@@ -8,7 +8,7 @@ const getUserProfile = async (req, res, next) => {
         console.log("user profile is here")
         const user = await User.findById(req.params.id).populate("followers").populate("following");
 
-        console.log("getUser:" + user)
+        // console.log("getUser:" + user)
         if (user) {
             console.log("data send to frontend ")
             res.json({ user });
@@ -168,7 +168,7 @@ const getSuggestedUsers = async (req, res) => {
 
         const suggestions = await User.aggregate(pipeline);
 
-        console.log("Suggestions:", suggestions);
+        // console.log("Suggestions:", suggestions);
 
         res.status(200).json(suggestions);
 

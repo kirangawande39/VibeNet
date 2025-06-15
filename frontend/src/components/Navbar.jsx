@@ -13,7 +13,7 @@ import {
 
 import "../assets/css/Navbar.css";
 
-const Navbar = () => {
+const Navbar = ({ totalUnseenCount }) => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -40,7 +40,7 @@ const Navbar = () => {
   return (
     <>
       {/* Desktop Sidebar */}
-     
+
 
       {/* Top Navbar for Mobile */}
       <nav className="main-navbar shadow-sm d-md-none">
@@ -49,6 +49,8 @@ const Navbar = () => {
           <Link to="/" className="logo text-primary fw-bold fs-4">
             VibeNet
           </Link>
+
+       
 
           {/* Center Search */}
           <div className="search-box d-none d-sm-flex">
@@ -134,9 +136,14 @@ const Navbar = () => {
 
         {user && (
           <>
-            <Link to={`/chat/${user.id}`} className="bottom-icon">
-              <FaCommentDots />
-            </Link>
+            <div className="chat-icon-wrapper">
+              <Link to={`/chat/${user.id}`} className="bottom-icon">
+                <FaCommentDots size={24} />
+                {totalUnseenCount > 0 && (
+                  <span className="unseen-badge">{totalUnseenCount}</span>
+                )}
+              </Link>
+            </div>
             <Link to={`/users/${user.id}`} className="bottom-icon">
               <FaUser />
             </Link>

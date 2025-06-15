@@ -189,3 +189,23 @@
     padding: 8px 16px;
   }
 }
+
+
+.chat-icon-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.unseen-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: red;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 50%;
+  font-weight: bold;
+  line-height: 1;
+  z-index: 10;
+}

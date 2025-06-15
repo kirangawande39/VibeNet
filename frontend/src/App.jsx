@@ -1,5 +1,7 @@
-import { useEffect, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
+import axios from "axios";
+import socket from "./socket";
 
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
@@ -11,14 +13,14 @@ import Navbar from "./components/Navbar";
 import NotFound from "./pages/NotFound";
 import Search from "./pages/Search";
 
-import { ToastContainer ,Slide } from "react-toastify";
+import { ToastContainer, Slide } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css'
 
 import { AuthProvider, AuthContext } from "./context/AuthContext";
 import ResetPassword from "./pages/ResetPassword";
 import SidebarNavbar from "./components/SidebarNavbar";
-
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 function AppWrapper() {
   // This wrapper is outside AuthProvider
   // We just return AuthProvider wrapping App, to avoid hooks outside provider issues
@@ -31,6 +33,8 @@ function AppWrapper() {
 
 function App() {
   const { login, user } = useContext(AuthContext);
+  const [unseenCounts, setUnseenCounts] = useState([])
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,11 +58,42 @@ function App() {
     }
   }, [login, navigate, user]);
 
+const fetchUnseenCounts = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.get(`${backendUrl}/api/messages/unseen-counts`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    setUnseenCounts(res.data.data);
+  } catch (err) {
+    console.error("Error fetching unseen counts:", err);
+  }
+};
+
+useEffect(() => {
+  fetchUnseenCounts(); // Initial fetch
+
+  // Real-time updates via socket
+  socket.on("message-seen", fetchUnseenCounts);
+  socket.on("receive-message", fetchUnseenCounts);
+
+  return () => {
+    socket.off("message-seen", fetchUnseenCounts);
+    socket.off("receive-message", fetchUnseenCounts);
+  };
+}, []);
+
+
+  const totalUnseenCount = unseenCounts.reduce((total, item) => total + item.unseenCount, 0);
+
+
 
 
   return (
     <>
-      <Navbar />
+      <Navbar totalUnseenCount={totalUnseenCount} />
       <SidebarNavbar />
       <Routes>
         <Route path="/" element={<Home />} />

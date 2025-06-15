@@ -21,6 +21,7 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
+
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
 
@@ -46,6 +47,17 @@ const Home = () => {
 
     fetchSuggestions();
   }, []);
+
+
+
+
+
+  // const getUnseenCountForChat = (chatId) => {
+  //   const chat = unseenCounts.find(item => item._id === chatId);
+  //   return chat ? chat.unseenCount : 0;
+  // };
+
+
 
   const handleFollow = async (userId) => {
     try {
@@ -124,22 +136,22 @@ const Home = () => {
     }
   };
 
- const fetchStories = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    console.log("story token :", token);
+  const fetchStories = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      console.log("story token :", token);
 
-    const res = await axios.get(`${backendUrl}/api/stories`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      const res = await axios.get(`${backendUrl}/api/stories`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    setStories(res.data.stories);
-  } catch (err) {
-    handleError(err);
-  }
-};
+      setStories(res.data.stories);
+    } catch (err) {
+      handleError(err);
+    }
+  };
 
   useEffect(() => {
     if (isMobile && isNewUser && !suggestionOpenedBefore) {
@@ -309,6 +321,11 @@ const Home = () => {
               </>
             )}
           </div>
+
+         
+
+
+
 
           <div className="vibenet-footer">
             <div className="vibenet-footer-links">

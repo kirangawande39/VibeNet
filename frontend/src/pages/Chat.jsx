@@ -4,10 +4,16 @@ import ChatBox from "../components/ChatBox";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import Spinner from "../components/Spinner";
-import {  useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { handleError } from '../utils/errorHandler';
+import { io } from "socket.io-client";
 
-import "../assets/css/Chat.css"
+import "../assets/css/Chat.css";
+
+// Initialize socket outside the component to avoid reconnection
+const socket = io(import.meta.env.VITE_BACKEND_URL, {
+  withCredentials: true,
+});
 
 const Chat = () => {
   const { user, updateUser } = useContext(AuthContext);
@@ -21,7 +27,8 @@ const Chat = () => {
   const [loading, setLoading] = useState(true);
   const [statusLoading, setStatusLoading] = useState(true);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  const {id}=useParams();
+  const { id } = useParams();
+
   const dummyMessages = {
     user1: [
       { id: 1, sender: "user1", text: "Hey!" },
@@ -57,13 +64,11 @@ const Chat = () => {
   const fetchUserData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        `${backendUrl}/api/users/${id ? id : user.id}`
-      );
+      const res = await axios.get(`${backendUrl}/api/users/${id ? id : user.id}`);
       setLocalUser(res.data.user);
       updateUser(res.data.user);
     } catch (err) {
-       handleError(err);
+      handleError(err);
     } finally {
       setLoading(false);
     }
@@ -73,14 +78,39 @@ const Chat = () => {
     fetchUserData();
   }, []);
 
+  // ✅ Emit user-online after user info is ready
+  useEffect(() => {
+    if (user && user._id) {
+      socket.emit("user-online", user._id);
+      console.log("📡 Emitted user-online:", user._id);
+    }
+  }, [user]);
+
+  // ✅ Listen to online-users broadcast (optional for live update)
+  useEffect(() => {
+    socket.on("online-users", (users) => {
+      console.log("🌐 Live online users:", users);
+      setOnlineUsers(users);
+    });
+
+    return () => {
+      socket.off("online-users");
+    };
+  }, []);
+
+  // ✅ Fetch online + last seen from backend REST API every 10 seconds
   useEffect(() => {
     const fetchOnlineStatus = async () => {
+      console.log("🌐 Trying to fetch online status...");
       try {
         const res = await axios.get(`${backendUrl}/api/online-status`);
+        console.log("✅ Online users:", res.data);
+        console.log("res.data.onlineUsers:", res.data.onlineUsers);
+        console.log("res.data.lastSeen:", res.data.lastSeen);
         setOnlineUsers(res.data.onlineUsers || []);
         setLastSeen(res.data.lastSeen || {});
       } catch (err) {
-         console.log(err)
+        console.error("❌ Failed to fetch online status:", err);
       } finally {
         setStatusLoading(false);
       }
@@ -100,10 +130,7 @@ const Chat = () => {
 
   const handleSendMessage = (newMessage) => {
     if (!selectedUser) return;
-    const updatedMessages = [
-      ...messages,
-      { sender: user.username, text: newMessage },
-    ];
+    const updatedMessages = [...messages, { sender: user.username, text: newMessage }];
     setMessages(updatedMessages);
   };
 
@@ -127,7 +154,6 @@ const Chat = () => {
     return `${days} day${days > 1 ? "s" : ""} ago`;
   };
 
-  // ⏳ Show loading spinner
   if (loading || statusLoading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
@@ -138,7 +164,6 @@ const Chat = () => {
 
   return (
     <div className="container chat-app mt-4">
-     
       <div className="row">
         {/* Follower List */}
         <div className={`col-md-4 ${isMobile && selectedUser ? "d-none" : ""}`}>
@@ -151,15 +176,13 @@ const Chat = () => {
                 return (
                   <button
                     key={index}
-                    className={`list-group-item list-group-item-action d-flex align-items-center justify-content-between ${selectedUser && follower._id === selectedUser._id ? "active" : ""
-                      }`}
+                    className={`list-group-item list-group-item-action d-flex align-items-center justify-content-between ${selectedUser && follower._id === selectedUser._id ? "active" : ""}`}
                     onClick={() => handleUserSelect(follower)}
                   >
                     <div className="d-flex align-items-center">
                       <img
                         src={
-                          follower.profilePic.url ||
-                          
+                          follower.profilePic?.url ||
                           "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
                         }
                         alt={follower.username}
@@ -186,10 +209,7 @@ const Chat = () => {
               })
             ) : (
               <div className="text-muted p-2 d-flex justify-between items-center gap-2">
-                <button
-                  className="btn btn-sm btn-outline-secondary"
-                  onClick={() => window.history.back()}
-                >
+                <button className="btn btn-sm btn-outline-secondary" onClick={() => window.history.back()}>
                   ← Back
                 </button>
                 <span>No followers to show</span>

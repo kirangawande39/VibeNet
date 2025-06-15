@@ -22,7 +22,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
   const [chatId, setChatId] = useState(null);
   const [lastMessage, setlastMessage] = useState(null);
 
-  const [loading,setLoading]=useState(true);
+  const [loading, setLoading] = useState(true);
 
   const [previewImage, setPreviewImage] = useState(null);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -31,6 +31,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
   const handleImageButtonClick = () => {
     fileInputRef.current.click();
   };
+
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file || !chatId) return;
@@ -124,7 +125,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
       } catch (err) {
         handleError(err);
       }
-      finally{
+      finally {
         setLoading(false);
       }
     };
@@ -162,17 +163,35 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
     return () => socket.off("online-users", handleOnline);
   }, [user]);
 
+
   useEffect(() => {
     const handleReceive = (msg) => {
+      console.log("📥 Message received via socket:", msg);
+      console.log("💬 Current Chat ID:", chatId);
+
       if (!msg.sender || !msg.sender._id) {
         msg.sender = { _id: msg.senderId };
       }
-      setMessages((prev) => [...prev, msg]);
+
+      const incomingChatId = msg.chatId?._id || msg.chatId;
+
+      console.log("📊 Compare:", incomingChatId === chatId);
+
+      if (incomingChatId === chatId) {
+        setMessages((prev) => [...prev, msg]);
+
+        // Optional scroll
+        setTimeout(() => {
+          chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
     };
 
     socket.on("receive-message", handleReceive);
     return () => socket.off("receive-message", handleReceive);
-  }, []);
+  }, [chatId]);
+
+
 
   useEffect(() => {
     const showTyping = ({ senderId }) =>
@@ -227,8 +246,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
         sender: { _id: user.id, profilePic: user.profilePic },
       };
 
-      onLastMessageUpdate(newMessage);
-      setMessages((prev) => [...prev, sentMessage]);
+      // onLastMessageUpdate(newMessage);
+      // setMessages((prev) => [...prev, sentMessage]);
       setNewMessage("");
 
 
@@ -276,7 +295,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
       // Notify other user
       socket.emit("delete-message", { chatId, msgId });
     } catch (err) {
-       handleError(err);
+      handleError(err);
     }
   };
 
@@ -318,7 +337,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
 
   return (
     <div className="card">
-    
+
       <div className="card-header d-flex align-items-center bg-light justify-content-between">
         <div className="d-flex align-items-center">
           <img
@@ -338,106 +357,107 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
         className="card-body chat-box"
         style={{ height: "300px", overflowY: "auto" }}
       >
-        {loading ?
-        <Spinner/>
-        :
-        messages.map((msg, index) => {
-          const isOwn = msg.sender._id === user.id;
-          const time = new Date(msg.createdAt).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
+        {/* no latest msg avialable  */}
+        {console.log("🧾 Messages rendering:", messages)}
 
-          return (
-            <div
-              key={msg._id || index}
-              className={`d-flex flex-column mb-3 ${isOwn ? "align-items-end" : "align-items-start"}`}
-              onMouseDown={() => onMessageMouseDown(msg._id)}
-              onMouseUp={onMessageMouseUpOrLeave}
-              onMouseLeave={onMessageMouseUpOrLeave}
-              onTouchStart={() => onMessageMouseDown(msg._id)}
-              onTouchEnd={onMessageMouseUpOrLeave}
-              style={{ position: "relative" }}
-            >
-              {/* <p>chatId:{msg.chatId}</p>
-              <p>LastMsg:{lastMessage}</p> */}
-              <div className={`d-flex ${isOwn ? "flex-row-reverse" : ""}`}>
-                <img
-                  src={
-                    isOwn
-                      ? user.profilePic?.url ||  "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
-                      : msg.sender?.profilePic?.url ||  "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
-                  }
-                  alt="Profile"
-                  className="rounded-circle me-2 ms-2"
-                  style={{ width: "30px", height: "30px", objectFit: "cover" }}
-                />
-                {/* <img
-                  src={chatImage?.url}
-                  alt="Profile"
-                  className="me-2 ms-2"
-                  style={{ width: "200px", height: "300px", objectFit: "cover" }}
-                /> */}
-                <div style={{ maxWidth: "60%" }}>
-                  {/* 📝 Text Message Box (with time + seen inside) */}
-                  {msg.text && (
+        {loading ? (
+          <Spinner />
+        ) : (
+          messages.map((msg, index) => {
+            const isOwn = msg?.sender?._id === user.id;
+            const time = new Date(msg.createdAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            // latest msg is here  
+            console.log("🧾 Rendering message:", msg.text, "from", msg.sender?.name || msg.sender?._id);
+
+            return (
+              <div
+                key={msg._id || index}
+                className={`d-flex flex-column mb-3 ${isOwn ? "align-items-end" : "align-items-start"}`}
+                onMouseDown={() => onMessageMouseDown(msg._id)}
+                onMouseUp={onMessageMouseUpOrLeave}
+                onMouseLeave={onMessageMouseUpOrLeave}
+                onTouchStart={() => onMessageMouseDown(msg._id)}
+                onTouchEnd={onMessageMouseUpOrLeave}
+                style={{ position: "relative" }}
+              >
+                <div className={`d-flex ${isOwn ? "flex-row-reverse" : ""}`}>
+                  <img
+                    src={
+                      isOwn
+                        ? user.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
+                        : msg.sender?.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
+                    }
+                    alt="Profile"
+                    className="rounded-circle me-2 ms-2"
+                    style={{ width: "30px", height: "30px", objectFit: "cover" }}
+                  />
+
+                  <div style={{ maxWidth: "60%" }}>
+                    {/* 📝 Text Message Box */}
                     <div className={`p-2 rounded ${isOwn ? "sender-message" : "receiver-message"}`}>
-                      <div>{msg.text}</div>
+                      <div>
+                        {msg.text?.trim() ? msg.text : (
+                          <span className="text-muted"><i>[No text]</i></span>
+                        )}
+                      </div>
 
                       {/* 🕒 Time */}
                       <div className="text-muted text-end mt-1" style={{ fontSize: "0.75rem" }}>
                         {time}
                       </div>
 
-                      {/* ✅ Seen Status (only for own message) */}
+                      {/* ✅ Seen Status (only own message) */}
                       {isOwn && (
                         <div className="text-muted text-end" style={{ fontSize: "0.65rem", marginTop: "2px" }}>
                           <span style={{ color: msg.seen ? "#34B7F1" : "gray" }}>✔✔</span>
                         </div>
                       )}
                     </div>
-                  )}
 
-                  {/* 🖼️ Image Block (image + time + seen shown outside box) */}
-                  {msg.image?.url && (
-                    <div className={`message-image-container ${isOwn ? "sender-image" : "receiver-image"}`}>
-                      <img
-                        src={msg.image.url}
-                        alt="sent"
-                        className="message-image"
-                        onClick={() => window.open(msg.image.url, "_blank")}
-                      />
+                    {/* 🖼️ Image Block */}
+                    {msg.image?.url && (
+                      <div className={`message-image-container ${isOwn ? "sender-image" : "receiver-image"} mt-2`}>
+                        <img
+                          src={msg.image.url}
+                          alt="sent"
+                          className="message-image"
+                          onClick={() => window.open(msg.image.url, "_blank")}
+                        />
 
-                      {/* ⏱ Time below image */}
-                      <div className="text-muted text-end mt-1" style={{ fontSize: "0.75rem" }}>
-                        {time}
+                        {/* Time below image */}
+                        <div className="text-muted text-end mt-1" style={{ fontSize: "0.75rem" }}>
+                          {time}
+                        </div>
+
+                        {/* ✅ Seen Status for image */}
+                        {isOwn && (
+                          <div className="text-muted text-end" style={{ fontSize: "0.65rem", marginTop: "2px" }}>
+                            <span style={{ color: msg.seen ? "#34B7F1" : "gray" }}>✔✔</span>
+                          </div>
+                        )}
                       </div>
-
-                      {/* ✅ Seen Status for image (only if own message) */}
-                      {isOwn && (
-                        <div className="text-muted text-end" style={{ fontSize: "0.65rem", marginTop: "2px" }}>
-                          <span style={{ color: msg.seen ? "#34B7F1" : "gray" }}>✔✔</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
 
-
+                {/* 🗑️ Long-press delete button */}
+                {longPressMessageId === msg._id && isOwn && (
+                  <button
+                    className="msg-delete-btn"
+                    onClick={() => handleDeleteMessage(msg._id)}
+                    onMouseDown={(e) => e.stopPropagation()}
+                  >
+                    <RiDeleteBin2Line />
+                  </button>
+                )}
               </div>
+            );
+          })
+        )}
 
-              {longPressMessageId === msg._id && isOwn && (
-                <button
-                  className="msg-delete-btn"
-                  onClick={() => handleDeleteMessage(msg._id)}
-                  onMouseDown={(e) => e.stopPropagation()}
-                >
-                  <RiDeleteBin2Line />
-                </button>
-              )}
-            </div>
-          );
-        })}
 
 
         {isTyping && (
