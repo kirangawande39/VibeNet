@@ -7,6 +7,7 @@ const Message = require("../models/Message");
 
 const Chat = require("../models/Chat");
 
+const BOT_USER_ID = process.env.BOT_USER_ID;
 
 const UI_URL = process.env.FRONTEND_URL;
 // Generate JWT Token
@@ -29,7 +30,6 @@ const register = async (req, res, next) => {
     const newUser = new User({ name, email, username });
     const registeredUser = await User.register(newUser, password);
 
-    const BOT_USER_ID = "684db4e39d76770c4d55dd7b"; // ⚠️ Replace with your actual bot user ID
 
     // Add bot to user's followers/following
     registeredUser.followers.push(BOT_USER_ID);
