@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 const User = require("./models/User"); // path adjust kar apne project ke hisab se
+require("dotenv").config();
 
-const MONGO_URI = "mongodb://localhost:27017/VibeNet"; // ya tera Mongo Atlas ka URI
-const BOT_USER_ID = "684db4e39d76770c4d55dd7b"; // yaha tu chatbot ka _id daal
+const MONGO_URI = process.env.MONGO_URI;
+const BOT_USER_ID = process.env.BOT_USER_ID;
 
 async function addBotToAllUsers() {
   try {

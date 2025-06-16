@@ -49,17 +49,17 @@ const register = async (req, res, next) => {
       members: [registeredUser._id, BOT_USER_ID],
     });
 
-    console.log("chat :: "+chat);
+    console.log("chat :: " + chat);
 
     // ✅ Send welcome message in that chat
-    const message=await Message.create({
+    const message = await Message.create({
       chatId: chat._id,
       sender: BOT_USER_ID,
       receiver: registeredUser._id,
       text: "👋 Welcome to VibeNet! I'm your assistant bot. Feel free to ask anything.",
     });
 
-    console.log("message::"+message);
+    console.log("message::" + message);
 
     // ✅ Final response
     res.status(201).json({
@@ -106,66 +106,57 @@ const googleAuth = async (req, res, next) => {
 const googleCallBack = async (req, res, next) => {
   try {
     const { _id, username, email } = req.user;
-    
-    // console.log("_id :"+_id);
-    // console.log("username :"+username);
-    // console.log("email :"+email);
 
-    const googleAuthUser=await User.findById(_id);
+    const googleAuthUser = await User.findById(_id);
 
-    
-    // Add bot to user's followers/following
-    googleAuthUser.followers.push(BOT_USER_ID);
-    googleAuthUser.following.push(BOT_USER_ID);
-    await googleAuthUser.save();
-
-
-
-      // Add user to bot's followers/following
-    await User.findByIdAndUpdate(BOT_USER_ID, {
-      $addToSet: {
-        followers: googleAuthUser._id,
-        following: googleAuthUser._id,
-      },
+    // ✅ Check if chat with bot already exists
+    const existingBotChat = await Chat.findOne({
+      members: { $all: [googleAuthUser._id, BOT_USER_ID] },
     });
 
+    if (!existingBotChat) {
+      // 🔁 Add bot to user's followers/following
+      googleAuthUser.followers.push(BOT_USER_ID);
+      googleAuthUser.following.push(BOT_USER_ID);
+      await googleAuthUser.save();
 
-     // ✅ Create chat between user and bot
-    const chat = await Chat.create({
-      members: [googleAuthUser._id, BOT_USER_ID],
-    });
+      // 🔁 Add user to bot's followers/following
+      await User.findByIdAndUpdate(BOT_USER_ID, {
+        $addToSet: {
+          followers: googleAuthUser._id,
+          following: googleAuthUser._id,
+        },
+      });
 
-    console.log("chat :"+chat);
+      // ✅ Create chat between user and bot
+      const chat = await Chat.create({
+        members: [googleAuthUser._id, BOT_USER_ID],
+      });
 
+      console.log("chat created:", chat);
 
+      // ✅ Send welcome message
+      const message = await Message.create({
+        chatId: chat._id,
+        sender: BOT_USER_ID,
+        receiver: googleAuthUser._id,
+        text: "👋 Welcome to VibeNet! I'm your assistant bot. Feel free to ask anything.",
+      });
 
-   // ✅ Send welcome message in that chat
-    const message=await Message.create({
-      chatId: chat._id,
-      sender: BOT_USER_ID,
-      receiver: googleAuthUser._id,
-      text: "👋 Welcome to VibeNet! I'm your assistant bot. Feel free to ask anything.",
-    });
-
-    console.log("message::"+message);
-
-
-    
-
+      console.log("message sent:", message);
+    }
 
     const token = generateToken(_id);
-
 
     const redirectUrl = `${UI_URL}/google?token=${token}&username=${encodeURIComponent(
       username
     )}&email=${encodeURIComponent(email)}&id=${_id}`;
 
-
     res.redirect(redirectUrl);
   } catch (err) {
     next(err);
   }
-}
+};
 
 const checkEmail = async (req, res, next) => {
   try {
@@ -210,6 +201,7 @@ const forgotPassword = async (req, res, next) => {
     next(err);
   }
 }
+
 const resetPassword = async (req, res, next) => {
   try {
     const { token, newPassword } = req.body;
