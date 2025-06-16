@@ -106,6 +106,51 @@ const googleAuth = async (req, res, next) => {
 const googleCallBack = async (req, res, next) => {
   try {
     const { _id, username, email } = req.user;
+    
+    // console.log("_id :"+_id);
+    // console.log("username :"+username);
+    // console.log("email :"+email);
+
+    const googleAuthUser=await User.findById(_id);
+
+    
+    // Add bot to user's followers/following
+    googleAuthUser.followers.push(BOT_USER_ID);
+    googleAuthUser.following.push(BOT_USER_ID);
+    await googleAuthUser.save();
+
+
+
+      // Add user to bot's followers/following
+    await User.findByIdAndUpdate(BOT_USER_ID, {
+      $addToSet: {
+        followers: googleAuthUser._id,
+        following: googleAuthUser._id,
+      },
+    });
+
+
+     // ✅ Create chat between user and bot
+    const chat = await Chat.create({
+      members: [googleAuthUser._id, BOT_USER_ID],
+    });
+
+    console.log("chat :"+chat);
+
+
+
+   // ✅ Send welcome message in that chat
+    const message=await Message.create({
+      chatId: chat._id,
+      sender: BOT_USER_ID,
+      receiver: googleAuthUser._id,
+      text: "👋 Welcome to VibeNet! I'm your assistant bot. Feel free to ask anything.",
+    });
+
+    console.log("message::"+message);
+
+
+    
 
 
     const token = generateToken(_id);
