@@ -20,6 +20,8 @@ const EditProfile = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const fileInputRef = useRef(null);
 
+  const token = localStorage.getItem("token");
+
   if (!user) {
     return (
       <div className="container mt-5 text-center">
@@ -34,6 +36,7 @@ const EditProfile = () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+           Authorization: `Bearer ${token}`, 
         },
         body: JSON.stringify({ name, bio }),
       });
@@ -52,33 +55,38 @@ const EditProfile = () => {
     }
   };
 
-  const handleProfilePicUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+const handleProfilePicUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-    try {
-      const formData = new FormData();
-      formData.append("profilePic", file);
+  try {
+    const formData = new FormData();
+    formData.append("profilePic", file);
 
-      const res = await fetch(
-        `${backendUrl}/api/users/${user._id}/uploadProfilePic`,
-        {
-          method: "PUT",
-          body: formData,
-        }
-      );
+    
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Upload failed");
+    const res = await fetch(
+      `${backendUrl}/api/users/${user._id}/uploadProfilePic`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
+        body: formData,
+      }
+    );
 
-      const updatedUser = { ...user, profilePic: data.profilePic };
-      setUser(updatedUser);
-      updateUser(updatedUser);
-      toast.success("Profile picture updated!");
-    } catch (err) {
-      handleError(err);
-    }
-  };
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Upload failed");
+
+    const updatedUser = { ...user, profilePic: data.profilePic };
+    setUser(updatedUser);
+    updateUser(updatedUser);
+    toast.success("Profile picture updated!");
+  } catch (err) {
+    handleError(err);
+  }
+};
 
   const triggerFileInput = () => {
     fileInputRef.current.click();

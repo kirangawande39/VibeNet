@@ -192,6 +192,7 @@ const Profile = () => {
       const res = await axios.post(`${backendUrl}/api/posts/${user.id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+           Authorization: `Bearer ${token}`
         },
       });
       toast.success(res.data.message);
@@ -384,7 +385,7 @@ const Profile = () => {
             ) : (
               <>
                 <button
-                  className={`vibenet-follow-btn ${isFollowing ? "vibenet-following" : ""}`}
+                  className={` ${isFollowing ? "vibenet-following" : ""}`}
                   onClick={() =>
                     isFollowing
                       ? handleUnfollow(profileData._id)

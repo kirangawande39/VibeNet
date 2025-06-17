@@ -5,7 +5,7 @@ const { protect } = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 router.post("/:postId", protect , addComment); // Add comment to a post
-router.get("/:postId", getComments); // Get comments for a post
-router.delete("/:commentId",  deleteComment); // Delete a comment
+router.get("/:postId", protect, getComments); // Get comments for a post
+router.delete("/:commentId", protect, deleteComment); // Delete a comment
 
 module.exports = router;

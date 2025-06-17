@@ -56,12 +56,23 @@ const Search = () => {
         setLoading(true);
         const timeout = setTimeout(async () => {
             try {
-                const res = await axios.get(`${backendUrl}/api/users/search?query=${query}`);
+                const token = localStorage.getItem("token");
+
+                const res = await axios.get(
+                    `${backendUrl}/api/users/search?query=${query}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
                 setResults(res.data.users);
             } catch (err) {
                 handleError(err);
                 setResults([]);
             }
+
             setLoading(false);
         }, 400);
 
@@ -111,34 +122,34 @@ const Search = () => {
                                     alt="dp"
                                     className="profile"
                                 />
-                                <Link  to={`/profile/${user._id}`} className='search-user-link'>
-                                <div className="info d-flex">
-                                    <div>
-                                        <p className="uname">{user.username}</p>
-                                        <p className="fname">{user.name}</p>
+                                <Link to={`/profile/${user._id}`} className='search-user-link'>
+                                    <div className="info d-flex">
+                                        <div>
+                                            <p className="uname">{user.username}</p>
+                                            <p className="fname">{user.name}</p>
+                                        </div>
+                                        <div>
+                                            <p className="followers-list mt-3">
+                                                • Followed by{" "}
+                                                {user.followers && user.followers.length > 0 ? (
+                                                    <>
+                                                        {user.followers.slice(0, 2).map(follower => (
+                                                            <span key={follower._id} className="follower-name">
+                                                                {follower.username}{" "}
+                                                            </span>
+                                                        ))}
+                                                        {user.followers.length > 2 && (
+                                                            <span className="follower-more">
+                                                                +{user.followers.length - 2}
+                                                            </span>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <span>No followers</span>
+                                                )}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="followers-list mt-3">
-                                            • Followed by{" "}
-                                            {user.followers && user.followers.length > 0 ? (
-                                                <>
-                                                    {user.followers.slice(0, 2).map(follower => (
-                                                        <span key={follower._id} className="follower-name">
-                                                            {follower.username}{" "}
-                                                        </span>
-                                                    ))}
-                                                    {user.followers.length > 2 && (
-                                                        <span className="follower-more">
-                                                            +{user.followers.length - 2}
-                                                        </span>
-                                                    )}
-                                                </>
-                                            ) : (
-                                                <span>No followers</span>
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
                                 </Link>
                             </div>
                         ))

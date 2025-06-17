@@ -18,20 +18,28 @@ const CommentBox = ({ postId }) => {
 
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
-  const [loading,setLoading]=useState(true);
+  const [loading, setLoading] = useState(true);
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  // ⏬ Fetch comments on mount
+
   useEffect(() => {
+    if (!postId) return; 
+
     const fetchComments = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${backendUrl}/api/comments/${postId}`);
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(`${backendUrl}/api/comments/${postId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         setComments(res.data.comments);
       } catch (err) {
-         handleError(err);
-      }
-      finally{
+        handleError(err);
+      } finally {
         setLoading(false);
       }
     };
@@ -100,7 +108,7 @@ const CommentBox = ({ postId }) => {
       setComments((prev) => [...prev, commentWithPostId]);  // ✅ Show live with icon
       setNewComment("");
     } catch (err) {
-       handleError(err);
+      handleError(err);
     }
   };
 
@@ -108,10 +116,18 @@ const CommentBox = ({ postId }) => {
   // ❌ Delete comment
   const handleCommentDelete = async (commentId) => {
     try {
-      const res = await axios.delete(`${backendUrl}/api/comments/${commentId}`);
+      const res = await axios.delete(
+        `${backendUrl}/api/comments/${commentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       alert(res.data.message);
 
-      // Locally update UI
+      // ✅ Locally update UI
       setComments((prev) => prev.filter((c) => c._id !== commentId));
 
       // ✅ Emit delete to others
@@ -119,52 +135,54 @@ const CommentBox = ({ postId }) => {
         commentId,
         postId,
       });
+
     } catch (err) {
       handleError(err);
     }
   };
 
 
+
   return (
     <div className="comment-box">
-      
+
       <div className="comments-list">
-        {loading ? 
-        <Spinner/>
-        :
-        comments.slice(0).reverse().map((comment) => (
-          <div key={comment._id} className="comment">
-            <img
-              src={
-                (typeof comment.user?.profilePic === 'string'
-                  ? comment.user?.profilePic
-                  : comment.user?.profilePic?.url)
-                || (typeof user?.profilePic === 'string'
-                  ? user?.profilePic?.url
-                  : "https://cdn-icons-png.flaticon.com/512/149/149071.png")
-              }
+        {loading ?
+          <Spinner />
+          :
+          comments.slice(0).reverse().map((comment) => (
+            <div key={comment._id} className="comment">
+              <img
+                src={
+                  (typeof comment.user?.profilePic === 'string'
+                    ? comment.user?.profilePic
+                    : comment.user?.profilePic?.url)
+                  || (typeof user?.profilePic === 'string'
+                    ? user?.profilePic?.url
+                    : "https://cdn-icons-png.flaticon.com/512/149/149071.png")
+                }
 
-              className="comment-profile-pic"
-            />
-            <div className="comment-content">
-              <div className="comment-header">
-                <strong>{comment.user?.username || user.username}</strong>
-                <span className="comment-time">{dayjs(comment.createdAt).fromNow()}</span>
+                className="comment-profile-pic"
+              />
+              <div className="comment-content">
+                <div className="comment-header">
+                  <strong>{comment.user?.username || user.username}</strong>
+                  <span className="comment-time">{dayjs(comment.createdAt).fromNow()}</span>
 
-                {/* ✅ Show delete icon if logged-in user is the comment owner */}
-                {comment.user?._id === user?.id && (
-                  <div className="comment-delete-btn">
-                    <span onClick={() => handleCommentDelete(comment._id)}>
-                      <MdDeleteForever />
-                    </span>
-                  </div>
-                )}
+                  {/* ✅ Show delete icon if logged-in user is the comment owner */}
+                  {comment.user?._id === user?.id && (
+                    <div className="comment-delete-btn">
+                      <span onClick={() => handleCommentDelete(comment._id)}>
+                        <MdDeleteForever />
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <p className="comment-text">{comment.text}</p>
               </div>
-              <p className="comment-text">{comment.text}</p>
             </div>
-          </div>
-        ))
-        
+          ))
+
         }
 
       </div>

@@ -7,7 +7,7 @@ const upload = multer({ storage:PostImageStorage });  // CloudinaryStorage se mu
 
 const router = express.Router();
 
-router.post("/:id", upload.single('postImage'), createPost); // Image upload with Cloudinary
+router.post("/:id", upload.single('postImage'), protect, createPost); // Image upload with Cloudinary
 router.get("/", getAllPosts);
 router.get("/:id", getPostsByUserId);
 router.delete("/:id", protect, deletePost);

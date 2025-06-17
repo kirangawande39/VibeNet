@@ -15,7 +15,7 @@ router.post("/", protect, storyUploadLimiter , upload.single('story')  , createS
 
 router.get("/",protect, getStories); // Get all stories
 
-router.delete("/:id", deleteStory); // Delete a story
+router.delete("/:id", protect,  deleteStory); // Delete a story
 
 router.put("/:id/seen", protect, seenStory);
 

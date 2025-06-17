@@ -21,20 +21,20 @@ const upload = multer({ storage: profilePicStorage });
 router.get('/suggestions', protect, getSuggestedUsers);
 
 
-router.get("/search", searchUsers);
+router.get("/search", protect, searchUsers);
 
 router.get("/:id", getUserProfile); // Get user profile by ID
 router.put("/:id", updateUserProfile);
 // Update profile
-router.post("/:id/follow", followUser); // Follow a user
-router.post("/:id/unfollow", unfollowUser); // Unfollow a user
+router.post("/:id/follow", protect, followUser); // Follow a user
+router.post("/:id/unfollow",protect, unfollowUser); // Unfollow a user
 
 // PUT /api/users/:id/uploadProfilePic
 
 
 
 
-router.put('/:id/uploadProfilePic', upload.single('profilePic'), uploadProfilePic);
+router.put('/:id/uploadProfilePic', upload.single('profilePic'),protect, uploadProfilePic);
 
 
 
