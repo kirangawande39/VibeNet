@@ -5,12 +5,12 @@ const User = require('../models/User');
 const getUserProfile = async (req, res, next) => {
     try {
 
-        console.log("user profile is here")
+        // console.log("user profile is here")
         const user = await User.findById(req.params.id).populate("followers").populate("following");
 
         // console.log("getUser:" + user)
         if (user) {
-            console.log("data send to frontend ")
+            // console.log("data send to frontend ")
             res.json({ user });
         } else {
             res.status(404).json({ message: "User not found" });
@@ -23,7 +23,7 @@ const getUserProfile = async (req, res, next) => {
 
 // Update User Profile
 const updateUserProfile = async (req, res, next) => {
-    console.log("updateUserProfile is here");
+    // console.log("updateUserProfile is here");
     // console.log("User ID:", req.params.id);
     // console.log("New Bio:", req.body);
 
@@ -99,9 +99,9 @@ const searchUsers = async (req, res, next) => {
 
 const getSuggestedUsers = async (req, res) => {
     try {
-        console.log("Suggestion route is here");
+        // console.log("Suggestion route is here");
 
-        console.log("User ID from token:", req.user.id);
+        // console.log("User ID from token:", req.user.id);
 
         const currentUser = await User.findById(req.user.id).lean();
 
@@ -109,10 +109,10 @@ const getSuggestedUsers = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        console.log("Current User:", currentUser.username);
+        // console.log("Current User:", currentUser.username);
         const following = currentUser.following || [];
 
-        console.log("Following:", following);
+        // console.log("Following:", following);
 
         const pipeline = [
             {
@@ -179,5 +179,49 @@ const getSuggestedUsers = async (req, res) => {
 };
 
 
+const uploadProfilePic = async () => {
+    try {
+        const userId = req.params.id;
+        // console.log(`Received request to update profile pic for user: ${userId}`);
 
-module.exports = { getUserProfile, updateUserProfile, followUser, unfollowUser, searchUsers, getSuggestedUsers };
+        const user = await User.findById(userId);
+        if (!user) {
+            // console.log(`User with id ${userId} not found.`);
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if file is uploaded
+        if (!req.file) {
+            // console.log('No file uploaded.');
+            return res.status(400).json({ message: 'No profile picture file uploaded' });
+        }
+        // console.log('File uploaded:', req.file);
+
+        // Delete old profile picture from Cloudinary if exists
+        if (user.profilePic && user.profilePic.public_id) {
+            // console.log(`Deleting old profile pic with public_id: ${user.profilePic.public_id}`);
+            const deleteResult = await cloudinary.uploader.destroy(user.profilePic.public_id);
+            // console.log('Cloudinary delete result:', deleteResult);
+        }
+
+        // Update user with new profilePic info
+        user.profilePic = {
+            url: req.file.path,          // multer-storage-cloudinary returns secure_url in path
+            public_id: req.file.filename // filename is Cloudinary public_id
+        };
+
+        await user.save();
+        // console.log('User profile pic updated successfully in DB');
+
+        res.json({
+            message: 'Profile picture updated successfully',
+            profilePic: user.profilePic
+        });
+    } catch (error) {
+        console.error('Error uploading profile picture:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+
+module.exports = { getUserProfile, updateUserProfile, followUser, unfollowUser, searchUsers, getSuggestedUsers, uploadProfilePic };

@@ -11,6 +11,9 @@ import {
   FaUserPlus,
 } from "react-icons/fa";
 
+import { useLocation } from "react-router-dom";
+
+
 import "../assets/css/Navbar.css";
 
 const Navbar = ({ totalUnseenCount }) => {
@@ -19,6 +22,11 @@ const Navbar = ({ totalUnseenCount }) => {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef();
+
+  const location = useLocation();
+
+  const hideBottomNav = location.pathname.startsWith("/chat");
+
 
   const handleLogout = () => {
     logout();
@@ -50,7 +58,7 @@ const Navbar = ({ totalUnseenCount }) => {
             VibeNet
           </Link>
 
-       
+
 
           {/* Center Search */}
           <div className="search-box d-none d-sm-flex">
@@ -78,7 +86,7 @@ const Navbar = ({ totalUnseenCount }) => {
                 {menuOpen && (
                   <div className="dropdown-menu-custom">
                     <Link
-                      to={`/users/${user.id}`}
+                      to={`/profile/${user.id}`}
                       className="dropdown-item d-flex align-items-center"
                       onClick={() => setMenuOpen(false)}
                     >
@@ -125,31 +133,33 @@ const Navbar = ({ totalUnseenCount }) => {
       </nav>
 
       {/* Bottom Navigation for Mobile */}
-      <div className="bottom-nav d-md-none shadow-sm ">
-        <Link to="/" className="bottom-icon">
-          <FaHome />
-        </Link>
+      {!hideBottomNav &&
+        <div className="bottom-nav d-md-none shadow-sm ">
+          <Link to="/" className="bottom-icon">
+            <FaHome />
+          </Link>
 
-        <Link to="/search" className="bottom-icon">
-          <FaSearch />
-        </Link>
+          <Link to="/search" className="bottom-icon">
+            <FaSearch />
+          </Link>
 
-        {user && (
-          <>
-            <div className="chat-icon-wrapper">
-              <Link to={`/chat/${user.id}`} className="bottom-icon">
-                <FaCommentDots size={24} />
-                {totalUnseenCount > 0 && (
-                  <span className="unseen-badge">{totalUnseenCount}</span>
-                )}
+          {user && (
+            <>
+              <div className="chat-icon-wrapper">
+                <Link to={`/chat/${user.id}`} className="bottom-icon">
+                  <FaCommentDots size={24} />
+                  {totalUnseenCount > 0 && (
+                    <span className="unseen-badge">{totalUnseenCount}</span>
+                  )}
+                </Link>
+              </div>
+              <Link to={`/profile/${user.id}`} className="bottom-icon">
+                <FaUser />
               </Link>
-            </div>
-            <Link to={`/users/${user.id}`} className="bottom-icon">
-              <FaUser />
-            </Link>
-          </>
-        )}
-      </div>
+            </>
+          )}
+        </div>
+      }
     </>
   );
 };

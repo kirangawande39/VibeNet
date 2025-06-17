@@ -409,7 +409,7 @@ const StoryList = ({ stories }) => {
               Your Story
             </small>
             
-
+            
 
             {currentUserStories.length === 0 && (
               <div
@@ -426,7 +426,7 @@ const StoryList = ({ stories }) => {
               </div>
             )}
           </div>
-
+   
           {/* Other Users' Stories */}
           {otherUsersStories.map(({ user, stories }) => {
             const isSeen = stories.every((s) =>

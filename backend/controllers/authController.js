@@ -49,7 +49,7 @@ const register = async (req, res, next) => {
       members: [registeredUser._id, BOT_USER_ID],
     });
 
-    console.log("chat :: " + chat);
+    // console.log("chat :: " + chat);
 
     // ✅ Send welcome message in that chat
     const message = await Message.create({
@@ -59,7 +59,7 @@ const register = async (req, res, next) => {
       text: "👋 Welcome to VibeNet! I'm your assistant bot. Feel free to ask anything.",
     });
 
-    console.log("message::" + message);
+    // console.log("message::" + message);
 
     // ✅ Final response
     res.status(201).json({
@@ -133,7 +133,7 @@ const googleCallBack = async (req, res, next) => {
         members: [googleAuthUser._id, BOT_USER_ID],
       });
 
-      console.log("chat created:", chat);
+      // console.log("chat created:", chat);
 
       // ✅ Send welcome message
       const message = await Message.create({
@@ -143,7 +143,7 @@ const googleCallBack = async (req, res, next) => {
         text: "👋 Welcome to VibeNet! I'm your assistant bot. Feel free to ask anything.",
       });
 
-      console.log("message sent:", message);
+      // console.log("message sent:", message);
     }
 
     const token = generateToken(_id);

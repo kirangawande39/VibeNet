@@ -4,6 +4,7 @@ import { FaSearch, FaTimesCircle } from "react-icons/fa";
 
 import { handleError } from '../utils/errorHandler';
 import '../assets/css/Search.css';
+import { Link } from 'react-router-dom';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -110,6 +111,7 @@ const Search = () => {
                                     alt="dp"
                                     className="profile"
                                 />
+                                <Link  to={`/profile/${user._id}`} className='search-user-link'>
                                 <div className="info d-flex">
                                     <div>
                                         <p className="uname">{user.username}</p>
@@ -137,6 +139,7 @@ const Search = () => {
                                         </p>
                                     </div>
                                 </div>
+                                </Link>
                             </div>
                         ))
                     )}

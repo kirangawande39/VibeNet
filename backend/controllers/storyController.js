@@ -1,7 +1,7 @@
 const Story = require("../models/Story");
 
 const createStory = async (req, res, next) => {
-  console.log("Create story logic here");
+  // console.log("Create story logic here");
 
   try {
     const file = req.file;
@@ -43,7 +43,7 @@ const createStory = async (req, res, next) => {
 // };
 
 const getStories = async (req, res, next) => {
-  console.log("Get stories logic here");
+  // console.log("Get stories logic here");
 
   try {
     const currentUserId = req.user.id;

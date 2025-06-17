@@ -106,7 +106,7 @@ app.use(errorHandler);
 
 // ⚡️ Socket.io Logic
 io.on("connection", (socket) => {
-  console.log("Socket connected:", socket.id);
+  // console.log("Socket connected:", socket.id);
 
   socket.on("user-online", (userId) => {
     onlineUsers.set(userId, socket.id);
@@ -121,7 +121,7 @@ io.on("connection", (socket) => {
 
   socket.on("join-post", (postId) => {
     socket.join(postId);
-    console.log(`Socket ${socket.id} joined room ${postId}`);
+    // console.log(`Socket ${socket.id} joined room ${postId}`);
   });
 
   socket.on("new-comment", (comment) => {

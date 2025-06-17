@@ -8,8 +8,8 @@ const followUser = async (req, res, next) => {
     const followerId = req.user.id;
     const followingId = req.params.userId;
 
-    console.log("followerId:", followerId);
-    console.log("followingId:", followingId);
+    // console.log("followerId:", followerId);
+    // console.log("followingId:", followingId);
 
     if (followerId === followingId) {
       const error = new Error("You can't follow yourself.");
@@ -72,13 +72,13 @@ const unfollowUser = async (req, res, next) => {
 };
 
 const removeFollower = async (req, res, next) => {
-  console.log("removeFollower route is called");
+  // console.log("removeFollower route is called");
   try {
     const currentUserId = req.user.id;
     const followerId = req.params.followedId;
 
-    console.log("Current User ID:", currentUserId);
-    console.log("Follower ID:", followerId);
+    // console.log("Current User ID:", currentUserId);
+    // console.log("Follower ID:", followerId);
 
     if (currentUserId === followerId) {
       const error = new Error("You can't remove yourself.");
@@ -91,20 +91,20 @@ const removeFollower = async (req, res, next) => {
       { $pull: { followers: new mongoose.Types.ObjectId(followerId) } },
       { new: true }
     );
-    console.log("Updated currentUser followers:", updatedUser?.followers);
+    // console.log("Updated currentUser followers:", updatedUser?.followers);
 
     const updatedFollower = await User.findByIdAndUpdate(
       new mongoose.Types.ObjectId(followerId),
       { $pull: { following: new mongoose.Types.ObjectId(currentUserId) } },
       { new: true }
     );
-    console.log("Updated follower following:", updatedFollower?.following);
+    // console.log("Updated follower following:", updatedFollower?.following);
 
     const deletedFollow = await Follow.findOneAndDelete({
       follower: followerId,
       following: currentUserId,
     });
-    console.log("Deleted follow doc:", deletedFollow);
+    // console.log("Deleted follow doc:", deletedFollow);
 
     res.status(200).json({ message: "Follower removed successfully." });
   } catch (err) {

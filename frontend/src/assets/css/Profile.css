@@ -787,3 +787,147 @@ body.modal-open {
   font-size: 0.875rem;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+.create-post-container {
+  max-width: 500px;
+  margin: 2rem auto;
+}
+
+.insta-card {
+  border-radius: 12px;
+  border: 1px solid #dbdbdb;
+  box-shadow: none;
+}
+
+.insta-card-header {
+  background: white;
+  border-bottom: 1px solid #dbdbdb;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.insta-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #262626;
+}
+
+.insta-subtitle {
+  font-size: 0.875rem;
+  color: #8e8e8e;
+  margin-bottom: 0;
+}
+
+.upload-box {
+  border: 2px dashed #dbdbdb;
+  border-radius: 8px;
+  padding: 2.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-box:hover {
+  border-color: #b2b2b2;
+  background-color: #fafafa;
+}
+
+.invalid-upload {
+  border-color: #ff4d4f;
+}
+
+.upload-icon {
+  font-size: 2.5rem;
+  color: #8e8e8e;
+  margin-bottom: 1rem;
+}
+
+.upload-text {
+  font-size: 1.125rem;
+  color: #262626;
+  margin-bottom: 1.5rem;
+}
+
+.upload-btn {
+  border-radius: 4px;
+  font-weight: 600;
+  padding: 0.375rem 1rem;
+}
+
+.image-preview {
+  position: relative;
+  max-height: 300px;
+  margin-top: 1rem;
+}
+
+.preview-image {
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.remove-image {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  padding: 0.5rem;
+  opacity: 0.8;
+}
+
+.remove-image:hover {
+  opacity: 1;
+}
+
+.caption-box {
+  border: 1px solid #dbdbdb;
+  border-radius: 6px;
+  padding: 0.5rem;
+}
+
+.insta-caption {
+  border: none;
+  resize: none;
+  box-shadow: none;
+  padding: 0.5rem;
+}
+
+.insta-caption:focus {
+  box-shadow: none;
+}
+
+.caption-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.25rem;
+  border-top: 1px solid #efefef;
+  color: #8e8e8e;
+}
+
+.char-count {
+  font-size: 0.75rem;
+}
+
+.insta-btn {
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 600;
+  min-width: 120px;
+}
+
+.error-message {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}

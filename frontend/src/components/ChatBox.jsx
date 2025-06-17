@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import socket from "../socket";
 import { RiDeleteBin2Line } from "react-icons/ri";
+
 import "../assets/css/ChatBox.css"
 import { IoIosSend } from "react-icons/io";
-import { MdInsertPhoto } from "react-icons/md";
+import { MdInsertPhoto,MdArrowBack } from "react-icons/md";
 import { handleError } from '../utils/errorHandler';
 import { ToastContainer, toast } from 'react-toastify';
 import Spinner from "./Spinner";
-const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
+const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) => {
   if (!user || !selectedUser) {
     return <div>Please select a user to start chat</div>;
   }
@@ -336,10 +337,15 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
 
 
   return (
-    <div className="card">
-
+    <div className="card chat-b">
       <div className="card-header d-flex align-items-center bg-light justify-content-between">
         <div className="d-flex align-items-center">
+          <div className="d-md-none mb-2">
+            <button className="btn btn-link" onClick={onBack}>
+             <MdArrowBack size={24} />
+
+            </button>
+          </div>
           <img
             src={selectedUser.profilePic.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
             alt="Profile"
@@ -348,14 +354,19 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
           />
           <strong>{selectedUser.username}</strong>
         </div>
-        <span className={`badge ${isSelectedUserOnline ? "bg-success" : "bg-secondary"}`}>
-          {isSelectedUserOnline ? "Online" : "Offline"}
+        <span className={`badge ${selectedUser?._id === "684db4e39d76770c4d55dd7b" || isSelectedUserOnline ? "bg-success" : "bg-secondary"}`}>
+          {selectedUser?._id === "684db4e39d76770c4d55dd7b"
+            ? "Online"
+            : isSelectedUserOnline
+              ? "Online"
+              : "Offline"}
         </span>
+      
       </div>
 
       <div
         className="card-body chat-box"
-        style={{ height: "300px", overflowY: "auto" }}
+        style={{ height: "400px", overflowY: "auto" }}
       >
         {/* no latest msg avialable  */}
         {/* // console.log("🧾 Messages rendering:", messages) */}
@@ -404,17 +415,25 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
                         )}
                       </div>
 
+
                       {/* 🕒 Time */}
                       <div className="text-muted text-end mt-1" style={{ fontSize: "0.75rem" }}>
                         {time}
+
                       </div>
 
                       {/* ✅ Seen Status (only own message) */}
-                      {isOwn && (
-                        <div className="text-muted text-end" style={{ fontSize: "0.65rem", marginTop: "2px" }}>
+                      {isOwn && selectedUser._id !== "684db4e39d76770c4d55dd7b" && (
+                        <div
+                          className="text-muted text-end"
+                          style={{ fontSize: "0.65rem", marginTop: "2px" }}
+                        >
                           <span style={{ color: msg.seen ? "#34B7F1" : "gray" }}>✔✔</span>
+
                         </div>
                       )}
+
+
                     </div>
 
                     {/* 🖼️ Image Block */}
@@ -502,9 +521,13 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate }) => {
           />
 
           {/* Visible button to trigger file picker */}
-          <button onClick={handleImageButtonClick} className="btn btn-primary " style={{ marginLeft: "5px" }}>
-            <MdInsertPhoto />
-          </button>
+          {
+            selectedUser._id !== "684db4e39d76770c4d55dd7b" &&
+
+            <button onClick={handleImageButtonClick} className="btn btn-primary " style={{ marginLeft: "5px" }}>
+              <MdInsertPhoto />
+            </button>
+          }
 
         </form>
       </div>

@@ -28,7 +28,7 @@ const createPost = async (req, res, next) => {
 // 👉 Get All Posts with Pagination
 const getAllPosts = async (req, res, next) => {
   try {
-    console.log("All posts route hit");
+    // console.log("All posts route hit");
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
@@ -117,7 +117,7 @@ const deletePost = async (req, res, next) => {
 
     if (post.imagePublicId) {
       await cloudinary.uploader.destroy(post.imagePublicId);
-      console.log("Image deleted from Cloudinary:", post.imagePublicId);
+      // console.log("Image deleted from Cloudinary:", post.imagePublicId);
     }
 
     await post.deleteOne();

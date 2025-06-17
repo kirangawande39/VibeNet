@@ -97,11 +97,11 @@ useEffect(() => {
       <SidebarNavbar />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/users/:id" element={<Profile />} />
+        <Route path="/profile/:id" element={<Profile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/chat/:id" element={<Chat />} />
-        <Route path="/users/:id/edit_profile" element={<EditProfile />} />
+        <Route path="/profile/:id/edit_profile" element={<EditProfile />} />
         <Route path="/search" element={<Search />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="*" element={<NotFound />} />

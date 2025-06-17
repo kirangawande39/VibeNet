@@ -14,18 +14,38 @@ import { RiDeleteBin2Line } from "react-icons/ri";
 import { handleError } from '../utils/errorHandler';
 import Spinner from "../components/Spinner";
 import { FiMoreVertical, FiX } from "react-icons/fi";
+import { MdAddBox } from "react-icons/md";
+
+
 
 
 // Start of component
 const Profile = () => {
   const [file, setFile] = useState(null);
-  const [mpost, setMpost] = useState(false);
-  const [mreals, setMreals] = useState(true);
+  const [mpost, setMpost] = useState(true);
+  const [mreals, setMreals] = useState(false);
   const [postText, setPostText] = useState(null);
   const [postImage, setPostImage] = useState(null);
   const [story, setStory] = useState(false);
   const [uploadStory, setUploadedStory] = useState(null);
   const [storyFile, setStoryFile] = useState(null);
+  const [imageSelected, setImageSelected] = useState(false);
+  const [captionText, setCaptionText] = useState("");
+  const [validated, setValidated] = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  const [expandedPostId, setExpandedPostId] = useState(null);
+
+
+
+
+  const validateAndPost = () => {
+    if (!imageSelected || captionText.trim() === "") {
+      setValidated(false);
+      return;
+    }
+    handleCreatePost();
+  };
 
 
   const [unfollowModal, setUnfollowModal] = useState({ show: false, user: null });
@@ -48,6 +68,7 @@ const Profile = () => {
   const { id } = useParams();
 
   const [profileData, setProfileData] = useState(null);
+
   const navigate = useNavigate();
 
   const fileInputRef = useRef();
@@ -60,6 +81,17 @@ const Profile = () => {
   const closeModal = () => {
     setSelectedImage(null);
   };
+
+  useEffect(() => {
+    if (!profileData || !user || !Array.isArray(profileData.followers)) return;
+
+    const isFollowed = profileData.followers.some(
+      (follower) => follower._id?.toString() === user.id?.toString()
+    );
+
+    setIsFollowing(isFollowed);
+  }, [profileData, user]);
+
 
 
 
@@ -90,10 +122,6 @@ const Profile = () => {
   }
 
 
-
-
-
-
   useEffect(() => {
     const fetchProfileData = async () => {
       if (!user) return;
@@ -118,7 +146,7 @@ const Profile = () => {
         // console.log("Posts:", res.data.posts)
         setPosts(res.data.posts);
       } catch (err) {
-        handleError(err);
+        console.error(err);
       }
     };
 
@@ -142,7 +170,7 @@ const Profile = () => {
   }
 
   const handleEdit = () => {
-    navigate(`/users/${user.id}/edit_profile`, {
+    navigate(`/profile/${user.id}/edit_profile`, {
       state: { profileData, posts },
     });
   };
@@ -151,7 +179,7 @@ const Profile = () => {
     const selectedPost = e.target.files[0];
     if (selectedPost) {
       setPostImage(selectedPost);
-      alert(`File selected: ${selectedPost.name}`);
+      toast.success(`post selected`);
     }
   };
 
@@ -237,7 +265,7 @@ const Profile = () => {
       if (err.response && err.response.status === 429) {
         toast.error(err.response.data || "Too many requests, try again later.");
       } else {
-        handleError(err); 
+        handleError(err);
       }
     }
   };
@@ -251,6 +279,8 @@ const Profile = () => {
 
 
   const handleRemove = async (followerId) => {
+
+
     try {
       const res = await axios.put(
         `${backendUrl}/api/follow/remove-follower/${followerId}`,
@@ -260,6 +290,7 @@ const Profile = () => {
         }
       );
       alert(res.data.message)
+
       setProfileData((prev) => ({
         ...prev,
         followers: prev.followers.filter(f => f._id !== followerId)
@@ -273,6 +304,26 @@ const Profile = () => {
   };
 
 
+  const handleFollow = async (userIdTofollow) => {
+
+    try {
+
+      const res = await axios.post(
+        `${backendUrl}/api/follow/${userIdTofollow}/follow`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+
+      // setProfileData(prev => ({
+      //     ...prev,
+      //     following: prev.following.filter(user => user._id !== userIdToUnfollow)
+      //   }));
+      setIsFollowing(true);
+    } catch (err) {
+      toast.error("Failed to follow user");
+    }
+  };
 
 
 
@@ -286,10 +337,12 @@ const Profile = () => {
         }
       );
 
-      setProfileData(prev => ({
-        ...prev,
-        following: prev.following.filter(user => user._id !== userIdToUnfollow)
-      }));
+      // setProfileData(prev => ({
+      //   ...prev,
+      //   following: prev.following.filter(user => user._id !== userIdToUnfollow)
+      // }));
+      setIsFollowing(false);
+
 
       // Close modal
       setUnfollowModal({ show: false, user: null });
@@ -299,7 +352,10 @@ const Profile = () => {
     }
   };
 
+  const isOwnProfile = String(profileData._id) === String(user.id);
 
+  // console.log("profile user id:", profileData._id);
+  // console.log("logged in user id:", user.id);
 
   return (
     <div className="profile-container">
@@ -320,10 +376,28 @@ const Profile = () => {
           <div className="ms-4">
             <h3 className="username">{profileData.username}</h3>
             <p className="bio">{profileData.bio || "No bio available"}</p>
-            <button className="btn btn-outline-primary btn-sm" onClick={handleEdit}>
-              Edit Profile
-            </button>
+
+            {isOwnProfile ? (
+              <button className="btn btn-outline-primary btn-sm" onClick={handleEdit}>
+                Edit Profile
+              </button>
+            ) : (
+              <>
+                <button
+                  className={`vibenet-follow-btn ${isFollowing ? "vibenet-following" : ""}`}
+                  onClick={() =>
+                    isFollowing
+                      ? handleUnfollow(profileData._id)
+                      : handleFollow(profileData._id)
+                  }
+                >
+                  {isFollowing ? "Following" : "Follow"}
+                </button>
+
+              </>
+            )}
           </div>
+
         </div>
       </div>
       <div className="text-end mt-4 mb-5">
@@ -386,13 +460,16 @@ const Profile = () => {
                           <small>{follower.name || ""}</small>
                         </div>
                       </div>
-                      <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => setRemoveModal({ show: true, follower })}
-                      >
-                        Remove
-                      </button>
 
+                      {/* ✅ Show Remove button only if it's your own profile */}
+                      {isOwnProfile && (
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => setRemoveModal({ show: true, follower })}
+                        >
+                          Remove
+                        </button>
+                      )}
                     </li>
                   ))
               ) : (
@@ -402,18 +479,18 @@ const Profile = () => {
 
             <button className="story-close-btn" onClick={() => setShowFollowers(false)}>×</button>
           </div>
+
+          {/* ✅ Confirmation Modal */}
           {removeModal.show && (
             <div
               className="modal-backdrop"
               onClick={() => setRemoveModal({ show: false, follower: null })}
             >
               <div className="modal-content-s" onClick={(e) => e.stopPropagation()}>
-                {/* Header with Profile Info */}
                 <div className="d-flex align-items-center mb-3">
                   <img
                     src={
                       removeModal.follower?.profilePic?.url ||
-
                       "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
                     }
                     alt="profile"
@@ -431,12 +508,10 @@ const Profile = () => {
                   </div>
                 </div>
 
-                {/* Confirmation Text */}
                 <p className="mb-3">
                   Are you sure you want to remove this follower?
                 </p>
 
-                {/* Action Buttons */}
                 <div className="d-flex justify-content-end gap-2">
                   <button
                     className="btn btn-sm btn-outline-secondary"
@@ -444,7 +519,9 @@ const Profile = () => {
                   >
                     Cancel
                   </button>
-                  {removeModal?.follower?._id && (
+
+                  {/* ✅ Remove only allowed if isOwnProfile */}
+                  {isOwnProfile && removeModal?.follower?._id && (
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleRemove(removeModal.follower._id)}
@@ -456,12 +533,9 @@ const Profile = () => {
               </div>
             </div>
           )}
-
-
-
-
         </div>
       )}
+
 
 
       {showFollowing && (
@@ -504,13 +578,16 @@ const Profile = () => {
                           <small>{followed.name || ""}</small>
                         </div>
                       </div>
-                      <button
-                        className="btn btn-sm btn-outline-primary"
-                        onClick={() => setUnfollowModal({ show: true, user: followed })}
-                      >
-                        Following
-                      </button>
 
+                      {/* ✅ Show "Following" button only if it's your own profile */}
+                      {isOwnProfile && (
+                        <button
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={() => setUnfollowModal({ show: true, user: followed })}
+                        >
+                          Following
+                        </button>
+                      )}
                     </li>
                   ))
               ) : (
@@ -521,7 +598,8 @@ const Profile = () => {
             <button className="story-close-btn" onClick={() => setShowFollowing(false)}>×</button>
           </div>
 
-          {unfollowModal.show && (
+          {/* ✅ Confirmation Modal */}
+          {unfollowModal.show && isOwnProfile && (
             <div className="modal-backdrop" onClick={() => setUnfollowModal({ show: false, user: null })}>
               <div className="modal-content-s" onClick={(e) => e.stopPropagation()}>
                 <div className="d-flex align-items-center mb-3">
@@ -556,7 +634,6 @@ const Profile = () => {
               </div>
             </div>
           )}
-
         </div>
       )}
 
@@ -564,18 +641,29 @@ const Profile = () => {
 
 
       {/* Story upload button */}
-      <div>
-        <h3 className="story-btn" onClick={handleStoryClick}>
-          <FaPlus />
-        </h3>
-      </div>
+      {isOwnProfile && (
+        <div>
+          <h3 className="story-btn" onClick={handleStoryClick}>
+            <FaPlus />
+          </h3>
+        </div>
+      )}
+
 
       {/* Upload Story */}
 
-      <div className="my-3">
-        <input type="file" accept="image/*,video/*" ref={fileInputRef} onChange={handleUpload} style={{ display: "none" }} />
-        {/* <button className="btn btn-success ms-2" onClick={handleUpload}>Upload Story</button> */}
-      </div>
+      {isOwnProfile && (
+        <div className="my-3">
+          <input
+            type="file"
+            accept="image/*,video/*"
+            ref={fileInputRef}
+            onChange={handleUpload}
+            style={{ display: "none" }}
+          />
+          {/* <button className="btn btn-success ms-2" onClick={handleUpload}>Upload Story</button> */}
+        </div>
+      )}
 
 
       {/* Story Modal */}
@@ -607,14 +695,28 @@ const Profile = () => {
 
 
       {/* Media Switcher */}
-      <div className="media-switcher my-4 d-flex justify-content-center gap-3">
-        <button className={`btn ${mpost ? "btn-dark" : "btn-outline-dark"}`} onClick={() => { setMpost(true); setMreals(false); }}>
-          <BsFillPostcardHeartFill /> Posts
-        </button>
-        <button className={`btn ${mreals ? "btn-dark" : "btn-outline-dark"}`} onClick={() => { setMpost(false); setMreals(true); }}>
-          Create Post
-        </button>
-      </div>
+      {isOwnProfile && (
+        <div className="media-switcher my-4 d-flex justify-content-center gap-3">
+          <button
+            className={`btn ${mpost ? "btn-dark" : "btn-outline-dark"}`}
+            onClick={() => {
+              setMpost(true);
+              setMreals(false);
+            }}
+          >
+            <BsFillPostcardHeartFill /> your posts
+          </button>
+          <button
+            className={`btn ${mreals ? "btn-dark" : "btn-outline-dark"}`}
+            onClick={() => {
+              setMpost(false);
+              setMreals(true);
+            }}
+          >
+            <MdAddBox size={28} /> post
+          </button>
+        </div>
+      )}
 
 
 
@@ -635,9 +737,30 @@ const Profile = () => {
                         >
                           <img src={post.image} alt="Post" />
                         </div>
-                        <p className="post-caption">{post.text}</p>
+                        <p className="post-caption">
+                          {post.text.length > 100 ? (
+                            <>
+                              {expandedPostId === post._id
+                                ? post.text
+                                : post.text.slice(0, 10) + "... "}
+                              <span
+                                onClick={() =>
+                                  setExpandedPostId(
+                                    expandedPostId === post._id ? null : post._id
+                                  )
+                                }
+                                style={{ color: "blue", cursor: "pointer" }}
+                              >
+                                {expandedPostId === post._id ? "    less" : "more"}
+                              </span>
+                            </>
+                          ) : (
+                            post.text
+                          )}
+                        </p>
 
-                        {post.user === id && (
+
+                        {isOwnProfile && (
                           <div className="menu-container">
                             <button
                               onClick={(e) => {
@@ -670,7 +793,10 @@ const Profile = () => {
                 {/* Full Image View Modal */}
                 {selectedImage && (
                   <div className="image-modal">
-                    <div className="modal-overlay" onClick={() => setSelectedImage(null)}></div>
+                    <div
+                      className="modal-overlay"
+                      onClick={() => setSelectedImage(null)}
+                    ></div>
                     <div className="modal-content">
                       <button
                         className="close-btn"
@@ -683,9 +809,7 @@ const Profile = () => {
                         alt="Selected Post"
                         className="full-image"
                       />
-                      <div className="image-caption">
-                        {selectedImage.text}
-                      </div>
+                      <div className="image-caption">{selectedImage.text}</div>
                     </div>
                   </div>
                 )}
@@ -693,69 +817,139 @@ const Profile = () => {
             ) : (
               <div className="empty-state">
                 <p className="empty-message">No posts available</p>
-                <button
-                  className="create-first-btn"
-                  onClick={() => setMpost(false)}
-                >
-                  Create First Post
-                </button>
+                {isOwnProfile && (
+                  <button
+                    className="create-first-btn"
+                    onClick={() => setMpost(false)}
+                  >
+                    Create First Post
+                  </button>
+                )}
               </div>
             )}
           </div>
         ) : (
-          <div className="container mt-5">
-            <div className="card shadow-lg border-0 rounded-4 mx-auto" style={{ maxWidth: '500px' }}>
-              <div className="card-body p-4">
-                <h2 className="card-title text-center mb-2 fw-bold text-dark">Create Post</h2>
-                <p className="text-center text-muted mb-4">Share your thoughts and add a photo</p>
-
-                <div className="mb-3 text-center">
-                  <label htmlFor="postImage" className="form-label d-block fw-semibold mb-2">Upload Image</label>
-                  <input
-                    type="file"
-                    className="form-control"
-                    id="postImage"
-                    accept="image/*"
-                    onChange={handlePostImage}
-                  />
+          isOwnProfile && (
+            <div className="create-post-container">
+              <div className="card insta-card">
+                <div className="card-header insta-card-header">
+                  <h2 className="insta-title">Create New Post</h2>
+                  <p className="insta-subtitle">
+                    Share photos and videos with your friends
+                  </p>
                 </div>
 
-                <div className="mb-3">
-                  <label htmlFor="postText" className="form-label fw-semibold">Caption</label>
-                  <textarea
-                    className="form-control"
-                    id="postText"
-                    rows="4"
-                    placeholder="Write something amazing..."
-                    onChange={(e) => setPostText(e.target.value)}
-                  ></textarea>
-                </div>
+                <div className="card-body">
+                  {/* Drag & Drop Image Upload */}
+                  <div className="image-upload-area text-center mb-4">
+                    <div
+                      className={`upload-box ${!validated && !imageSelected ? "invalid-upload" : ""
+                        }`}
+                    >
+                      <i className="bi bi-images upload-icon"></i>
+                      <p className="upload-text">Drag photo here</p>
+                      <label
+                        htmlFor="postImage"
+                        className="upload-btn btn btn-sm btn-primary"
+                      >
+                        Select from device
+                      </label>
+                      <input
+                        type="file"
+                        id="postImage"
+                        accept="image/*"
+                        className="d-none"
+                        onChange={(e) => {
+                          handlePostImage(e);
+                          setImageSelected(true);
+                        }}
+                      />
 
-                <div className="d-flex justify-content-between mt-4">
-                  <button
-                    className="btn btn-outline-secondary w-45 rounded-pill"
-                    onClick={() => setMpost(true)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="btn btn-primary w-45 rounded-pill"
-                    onClick={handleCreatePost}
-                  >
-                    Post
-                  </button>
+                      {/* Image Preview */}
+                      {postImage && (
+                        <div className="image-preview mt-3">
+                          <img
+                            src={URL.createObjectURL(postImage)}
+                            alt="Preview"
+                            className="preview-image img-fluid"
+                          />
+                          <button
+                            className="remove-image btn-close"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPostImage(null);
+                              setImageSelected(false);
+                            }}
+                          ></button>
+                        </div>
+                      )}
+                    </div>
+                    {!validated && !imageSelected && (
+                      <div className="error-message text-danger small mt-2">
+                        Please select an image to continue
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Caption Field */}
+                  <div className="mb-4">
+                    <div
+                      className={`caption-box ${!validated && captionText.trim() === "" ? "is-invalid" : ""
+                        }`}
+                    >
+                      <textarea
+                        className="form-control insta-caption"
+                        rows="4"
+                        placeholder="Write a caption..."
+                        value={captionText}
+                        onChange={(e) => {
+                          setPostText(e.target.value);
+                          setCaptionText(e.target.value);
+                        }}
+                      ></textarea>
+                      <div className="caption-footer">
+                        <i className="bi bi-emoji-smile"></i>
+                        <span className="char-count">
+                          {captionText.length}/2,200
+                        </span>
+                      </div>
+                    </div>
+                    {!validated && captionText.trim() === "" && (
+                      <div className="error-message text-danger small mt-2">
+                        Caption is required
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="d-flex justify-content-between">
+                    <button
+                      className="btn btn-outline-secondary insta-btn"
+                      onClick={() => setMpost(true)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="btn btn-primary insta-btn"
+                      onClick={validateAndPost}
+                      disabled={!imageSelected || captionText.trim() === ""}
+                    >
+                      Share Post
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-
-
+          )
         )}
 
-        {/* Image Modal */}
+        {/* Image Modal (backup safety) */}
         {selectedImage && (
           <div className="image-modal">
-            <div className="modal-overlay" onClick={() => setSelectedImage(null)}></div>
+            <div
+              className="modal-overlay"
+              onClick={() => setSelectedImage(null)}
+            ></div>
             <div className="modal-content">
               <button
                 className="close-btn"
@@ -768,69 +962,71 @@ const Profile = () => {
                 alt="Selected Post"
                 className="full-image"
               />
-              <div className="image-caption">
-                {selectedImage.text}
-              </div>
+              <div className="image-caption">{selectedImage.text}</div>
             </div>
           </div>
         )}
       </div>
 
+
       {/* Suggestion Boxes */}
-      <div className="suggestion-section mt-5 px-3">
-        <h4 className="mb-4 fw-bold text-center">Complete your profile</h4>
-        <div className="row justify-content-center g-3">
+      {isOwnProfile && (
+        <div className="suggestion-section mt-5 px-3">
+          <h4 className="mb-4 fw-bold text-center">Complete your profile</h4>
+          <div className="row justify-content-center g-3">
 
-          {/* Upload profile picture */}
-          <div className="col-md-4 col-sm-6">
-            <div className="suggestion-box text-center p-4 rounded-4 shadow-sm border">
-              <div className="icon-wrapper mb-3">
-                <FaUserCircle size={48} className="text-primary" />
+            {/* Upload profile picture */}
+            <div className="col-md-4 col-sm-6">
+              <div className="suggestion-box text-center p-4 rounded-4 shadow-sm border">
+                <div className="icon-wrapper mb-3">
+                  <FaUserCircle size={48} className="text-primary" />
+                </div>
+                <h6 className="fw-semibold mb-3">Upload Profile Picture</h6>
+                <button
+                  className="btn btn-sm btn-outline-primary rounded-pill px-4"
+                  onClick={handleEdit}
+                >
+                  Upload
+                </button>
               </div>
-              <h6 className="fw-semibold mb-3">Upload Profile Picture</h6>
-              <button
-                className="btn btn-sm btn-outline-primary rounded-pill px-4"
-                onClick={handleEdit}
-              >
-                Upload
-              </button>
             </div>
-          </div>
 
-          {/* Add Bio */}
-          <div className="col-md-4 col-sm-6">
-            <div className="suggestion-box text-center p-4 rounded-4 shadow-sm border">
-              <div className="icon-wrapper mb-3">
-                <FaInfoCircle size={48} className="text-info" />
+            {/* Add Bio */}
+            <div className="col-md-4 col-sm-6">
+              <div className="suggestion-box text-center p-4 rounded-4 shadow-sm border">
+                <div className="icon-wrapper mb-3">
+                  <FaInfoCircle size={48} className="text-info" />
+                </div>
+                <h6 className="fw-semibold mb-3">Add a Bio</h6>
+                <button
+                  className="btn btn-sm btn-outline-info rounded-pill px-4"
+                  onClick={handleEdit}
+                >
+                  Add Bio
+                </button>
               </div>
-              <h6 className="fw-semibold mb-3">Add a Bio</h6>
-              <button
-                className="btn btn-sm btn-outline-info rounded-pill px-4"
-                onClick={handleEdit}
-              >
-                Add Bio
-              </button>
             </div>
-          </div>
 
-          {/* Edit Profile */}
-          <div className="col-md-4 col-sm-6">
-            <div className="suggestion-box text-center p-4 rounded-4 shadow-sm border">
-              <div className="icon-wrapper mb-3">
-                <FaEdit size={48} className="text-success" />
+            {/* Edit Profile */}
+            <div className="col-md-4 col-sm-6">
+              <div className="suggestion-box text-center p-4 rounded-4 shadow-sm border">
+                <div className="icon-wrapper mb-3">
+                  <FaEdit size={48} className="text-success" />
+                </div>
+                <h6 className="fw-semibold mb-3">Edit Profile</h6>
+                <button
+                  className="btn btn-sm btn-outline-success rounded-pill px-4"
+                  onClick={handleEdit}
+                >
+                  Edit
+                </button>
               </div>
-              <h6 className="fw-semibold mb-3">Edit Profile</h6>
-              <button
-                className="btn btn-sm btn-outline-success rounded-pill px-4"
-                onClick={handleEdit}
-              >
-                Edit
-              </button>
             </div>
-          </div>
 
+          </div>
         </div>
-      </div>
+      )}
+
 
     </div>
   );

@@ -43,7 +43,7 @@ const SidebarNavbar = () => {
           <Link to="/search" className="nav-link mb-3">
             <FaSearch className="me-2" /> Search
           </Link>
-          <Link to={`/users/${user.id}`} className="nav-link mb-3">
+          <Link to={`/profile/${user.id}`} className="nav-link mb-3">
             <FaUser className="me-2" /> Profile
           </Link>
           <Link to={`/chat/${user.id}`} className="nav-link mb-3">

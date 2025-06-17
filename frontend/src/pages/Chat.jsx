@@ -40,6 +40,9 @@ const Chat = () => {
     ],
   };
 
+  
+
+
   const updateLastMessage = (chatId, newMessage) => {
     setChats((prev) =>
       prev.map((chat) =>
@@ -165,6 +168,7 @@ const Chat = () => {
   return (
     <div className="container chat-app mt-4">
       <div className="row">
+         
         {/* Follower List */}
         <div className={`col-md-4 ${isMobile && selectedUser ? "d-none" : ""}`}>
           <div className="list-group">
@@ -193,6 +197,7 @@ const Chat = () => {
                       />
                       <div>
                         <div>{follower.username}</div>
+                       
                         <small className="text-muted">
                           {isOnline ? (
                             <span className="text-success">Online</span>
@@ -222,13 +227,7 @@ const Chat = () => {
         <div className={`col-md-8 ${isMobile && !selectedUser ? "d-none" : ""}`}>
           {selectedUser ? (
             <>
-              {isMobile && (
-                <div className="mb-2">
-                  <button className="btn btn-link" onClick={handleBack}>
-                    ← Back
-                  </button>
-                </div>
-              )}
+           
               <ChatBox
                 messages={messages}
                 onSendMessage={handleSendMessage}
@@ -236,6 +235,7 @@ const Chat = () => {
                 selectedUser={selectedUser}
                 localUser={localUser}
                 onLastMessageUpdate={handleLastMessageUpdate}
+                onBack={handleBack} 
               />
             </>
           ) : (

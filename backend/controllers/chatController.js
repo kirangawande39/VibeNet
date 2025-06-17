@@ -31,7 +31,7 @@ const getUserChats = async (req, res, next) => {
       members: userId,
       lastMessage: { $ne: "" }
     }).populate("members", "name profilePic");
-     console.log("chsts"+chats)
+     // console.log("chsts"+chats)
     res.status(200).json(chats);
   } catch (err) {
     next(err);

@@ -10,7 +10,7 @@ const BOT_USER_ID = process.env.BOT_USER_ID;
 
 
 const sendMessage = async (req, res, next) => {
-  console.log("✅ send message route is here");
+  // console.log("✅ send message route is here");
 
   const { chatId, text } = req.body;
   const sender = req.user.id;
@@ -20,14 +20,14 @@ const sendMessage = async (req, res, next) => {
     // Step 1: Save user message
     const message = new Message({ chatId, sender, text });
     const savedMessage = await message.save();
-    console.log("✅ Message saved:", savedMessage);
+    // console.log("✅ Message saved:", savedMessage);
 
     // Step 2: Update chat last message
     await Chat.findByIdAndUpdate(chatId, { lastMessage: text });
 
     // Step 3: Emit user message
     if (req.io) {
-      console.log("📡 Emitting receive-message from backend (user)");
+      // console.log("📡 Emitting receive-message from backend (user)");
       req.io.to(chatId).emit("receive-message", {
         ...savedMessage._doc,
         sender: {
@@ -66,7 +66,7 @@ const sendMessage = async (req, res, next) => {
 
       // Step 8: Emit bot reply
       if (req.io) {
-        console.log("📡 Emitting bot receive-message from backend");
+        // console.log("📡 Emitting bot receive-message from backend");
         req.io.to(chatId).emit("receive-message", {
           ...savedBotMessage._doc,
           sender: {
@@ -211,7 +211,7 @@ const getUnseenMessageCounts = async (req, res, next) => {
       }
     ]);
 
-    console.log("Unseen Counts:", unseenCounts);
+    // console.log("Unseen Counts:", unseenCounts);
     res.status(200).json({ success: true, data: unseenCounts });
   } catch (err) {
     console.error("Aggregation error:", err);

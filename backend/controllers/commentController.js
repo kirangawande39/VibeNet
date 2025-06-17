@@ -4,7 +4,7 @@ const Post = require("../models/Post");
 // Add a Comment
 const addComment = async (req, res, next) => {
   try {
-    console.log("Comment route is here");
+    // console.log("Comment route is here");
 
     // Step 1: Create the comment
     let comment = await Comment.create({
@@ -31,7 +31,7 @@ const addComment = async (req, res, next) => {
 // Get Comments
 const getComments = async (req, res, next) => {
   try {
-    console.log("All comments is here" + req.params.postId);
+    // console.log("All comments is here" + req.params.postId);
     const comments = await Comment.find({ post: req.params.postId }).populate("user");
     res.json({ comments });
   } catch (error) {
@@ -41,8 +41,8 @@ const getComments = async (req, res, next) => {
 
 // Delete Comment
 const deleteComment = async (req, res, next) => {
-  console.log("Delete comment logic here");
-  console.log("CommentId:" + req.params.commentId);
+  // console.log("Delete comment logic here");
+  // console.log("CommentId:" + req.params.commentId);
   const commentId = req.params.commentId;
 
   try {
@@ -55,7 +55,7 @@ const deleteComment = async (req, res, next) => {
     const postId = comment.post;
 
     const comments = await Comment.findByIdAndDelete(commentId);
-    console.log("deleted comment:" + comments);
+    // console.log("deleted comment:" + comments);
 
     await Post.findByIdAndUpdate(postId, {
       $pull: { comments: commentId },

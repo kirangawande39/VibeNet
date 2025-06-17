@@ -181,7 +181,7 @@ const Home = () => {
             <div className="vibenet-suggestion-list-scroll">
               {(showAll ? suggestions : suggestions.slice(0, 10)).map((sugg) => (
                 <div className="vibenet-suggestion-card" key={sugg._id}>
-                  <Link to={`/user/${sugg._id}`} className="vibenet-suggestion-link">
+                  <Link to={`/profile/${sugg._id}`} className="vibenet-suggestion-link">
                     <img
                       src={
                         sugg.profilePic?.url ||
@@ -288,7 +288,7 @@ const Home = () => {
               <>
                 {(showAll ? suggestions : suggestions.slice(0, 5)).map((sugg) => (
                   <div className="vibenet-suggestion-card" key={sugg._id}>
-                    <Link to={`/user/${sugg._id}`} className="vibenet-suggestion-link">
+                    <Link to={`/profile/${sugg._id}`} className="vibenet-suggestion-link">
                       <img
                         src={
                           sugg.profilePic?.url ||
