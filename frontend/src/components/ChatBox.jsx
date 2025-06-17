@@ -354,8 +354,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
           />
           <strong>{selectedUser.username}</strong>
         </div>
-        <span className={`badge ${selectedUser?._id === "684db4e39d76770c4d55dd7b" || isSelectedUserOnline ? "bg-success" : "bg-secondary"}`}>
-          {selectedUser?._id === "684db4e39d76770c4d55dd7b"
+        <span className={`badge ${selectedUser?._id === "684f268c7dad0bf1b1dfd4f8" || isSelectedUserOnline ? "bg-success" : "bg-secondary"}`}>
+          {selectedUser?._id === "684f268c7dad0bf1b1dfd4f8"
             ? "Online"
             : isSelectedUserOnline
               ? "Online"
@@ -423,7 +423,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
                       </div>
 
                       {/* ✅ Seen Status (only own message) */}
-                      {isOwn && selectedUser._id !== "684db4e39d76770c4d55dd7b" && (
+                      {isOwn && selectedUser._id !== "684f268c7dad0bf1b1dfd4f8" && (
                         <div
                           className="text-muted text-end"
                           style={{ fontSize: "0.65rem", marginTop: "2px" }}
@@ -522,7 +522,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
 
           {/* Visible button to trigger file picker */}
           {
-            selectedUser._id !== "684db4e39d76770c4d55dd7b" &&
+            selectedUser._id !== "684f268c7dad0bf1b1dfd4f8" &&
 
             <button onClick={handleImageButtonClick} className="btn btn-primary " style={{ marginLeft: "5px" }}>
               <MdInsertPhoto />
