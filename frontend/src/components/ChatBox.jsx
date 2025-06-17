@@ -508,8 +508,9 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
             value={newMessage}
             onChange={handleTyping}
           />
-          <button type="submit" className="btn btn-primary">
-            <IoIosSend />
+
+          <button type="submit" className="btn btn-primary d-none">
+          
           </button>
 
           <input
