@@ -55,6 +55,7 @@ app.use(cors({
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
 }));
+
 app.use("/uploads", express.static("uploads"));
 
 const store = MongoStore.create({
@@ -62,6 +63,8 @@ const store = MongoStore.create({
   crypto: { secret: process.env.SECRET },
   touchAfter: 24 * 3600,
 });
+
+
 app.use(session({
   store,
   secret: process.env.SECRET || "defaultsecret",
