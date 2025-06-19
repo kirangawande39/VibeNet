@@ -5,11 +5,11 @@ import { RiDeleteBin2Line } from "react-icons/ri";
 
 import "../assets/css/ChatBox.css"
 import { IoIosSend } from "react-icons/io";
-import { MdInsertPhoto,MdArrowBack } from "react-icons/md";
+import { MdInsertPhoto, MdArrowBack } from "react-icons/md";
 import { handleError } from '../utils/errorHandler';
 import { ToastContainer, toast } from 'react-toastify';
 import Spinner from "./Spinner";
-const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) => {
+const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack }) => {
   if (!user || !selectedUser) {
     return <div>Please select a user to start chat</div>;
   }
@@ -70,7 +70,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
         receiverId: selectedUser._id,
       });
 
-      alert("Image uploaded successfully");
+      toast.success("Image uploaded successfully");
     } catch (err) {
       handleError(err);
     }
@@ -167,8 +167,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
 
   useEffect(() => {
     const handleReceive = (msg) => {
-      // console.log("📥 Message received via socket:", msg);
-      // console.log("💬 Current Chat ID:", chatId);
+      console.log("📥 Message received via socket:", msg);
+      console.log("💬 Current Chat ID:", chatId);
 
       if (!msg.sender || !msg.sender._id) {
         msg.sender = { _id: msg.senderId };
@@ -176,12 +176,17 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
 
       const incomingChatId = msg.chatId?._id || msg.chatId;
 
-      // console.log("📊 Compare:", incomingChatId === chatId);
-
       if (incomingChatId === chatId) {
-        setMessages((prev) => [...prev, msg]);
+        setMessages((prev) => {
+          // ✅ Check if this message already exists
+          const exists = prev.some((m) => m._id === msg._id);
+          if (!exists && msg._id) {
+            return [...prev, msg];
+          }
+          return prev;
+        });
 
-        // Optional scroll
+        // ✅ Scroll to bottom (optional)
         setTimeout(() => {
           chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
         }, 100);
@@ -191,6 +196,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
     socket.on("receive-message", handleReceive);
     return () => socket.off("receive-message", handleReceive);
   }, [chatId]);
+
 
 
 
@@ -342,7 +348,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
         <div className="d-flex align-items-center">
           <div className="d-md-none mb-2">
             <button className="btn btn-link" onClick={onBack}>
-             <MdArrowBack size={24} />
+              <MdArrowBack size={24} />
 
             </button>
           </div>
@@ -361,7 +367,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
               ? "Online"
               : "Offline"}
         </span>
-      
+
       </div>
 
       <div
@@ -381,11 +387,12 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
               minute: "2-digit",
             });
             // latest msg is here  
-            // console.log("🧾 Rendering message:", msg.text, "from", msg.sender?.name || msg.sender?._id);
+            console.log("🧾 Rendering message:", msg?.sender?.profilePic?.url, "from", msg.sender?.name || msg.sender?._id);
 
             return (
               <div
                 key={msg._id || index}
+
                 className={`d-flex flex-column mb-3 ${isOwn ? "align-items-end" : "align-items-start"}`}
                 onMouseDown={() => onMessageMouseDown(msg._id)}
                 onMouseUp={onMessageMouseUpOrLeave}
@@ -398,8 +405,9 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
                   <img
                     src={
                       isOwn
-                        ? user.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
-                        : msg.sender?.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
+                        ?
+                        user?.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
+                        : selectedUser.profilePic.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
                     }
                     alt="Profile"
                     className="rounded-circle me-2 ms-2"
@@ -408,33 +416,37 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
 
                   <div style={{ maxWidth: "60%" }}>
                     {/* 📝 Text Message Box */}
-                    <div className={`p-2 rounded ${isOwn ? "sender-message" : "receiver-message"}`}>
-                      <div>
-                        {msg.text?.trim() ? msg.text : (
-                          <span className="text-muted"><i>[No text]</i></span>
-                        )}
-                      </div>
 
+                    {msg.text &&
 
-                      {/* 🕒 Time */}
-                      <div className="text-muted text-end mt-1" style={{ fontSize: "0.75rem" }}>
-                        {time}
+                      <div className={`p-2 rounded ${isOwn ? "sender-message" : "receiver-message"}`}>
 
-                      </div>
-
-                      {/* ✅ Seen Status (only own message) */}
-                      {isOwn && selectedUser._id !== "684f268c7dad0bf1b1dfd4f8" && (
-                        <div
-                          className="text-muted text-end"
-                          style={{ fontSize: "0.65rem", marginTop: "2px" }}
-                        >
-                          <span style={{ color: msg.seen ? "#34B7F1" : "gray" }}>✔✔</span>
-
+                        <div>
+                          {msg.text}
                         </div>
-                      )}
 
 
-                    </div>
+                        {/* 🕒 Time */}
+                        <div className="text-muted text-end mt-1" style={{ fontSize: "0.75rem" }}>
+                          {time}
+                        </div>
+
+                        {/* ✅ Seen Status (only own message) */}
+                        {isOwn && selectedUser._id !== "684f268c7dad0bf1b1dfd4f8" && (
+                          <div
+                            className="text-muted text-end"
+                            style={{ fontSize: "0.65rem", marginTop: "2px" }}
+                          >
+                            <span style={{ color: msg.seen ? "#34B7F1" : "gray" }}>✔✔</span>
+
+                          </div>
+                        )}
+
+
+                      </div>
+                    }
+
+
 
                     {/* 🖼️ Image Block */}
                     {msg.image?.url && (
@@ -510,7 +522,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
           />
 
           <button type="submit" className="btn btn-primary d-none">
-          
+
           </button>
 
           <input
@@ -537,4 +549,4 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate ,onBack}) 
 };
 
 export default ChatBox;
-684f268c7dad0bf1b1dfd4f8
+
