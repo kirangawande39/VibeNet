@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import axios from "axios";
 import PostCard from "../components/PostCard";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -10,9 +10,15 @@ import { useNavigate, Link } from "react-router-dom";
 import { handleError } from '../utils/errorHandler';
 import { toast } from 'react-toastify';
 import SidebarNavbar from "../components/SidebarNavbar";
+import "../assets/css/StoryList.css";
+
+import StoryViewer from "../components/StoryViewer"
+
+
+const isVideo = (url) => url?.match(/\.(mp4|webm|ogg)$/i);
 
 const Home = () => {
-  const { user } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
   const [stories, setStories] = useState([]);
   const [posts, setPost] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +27,8 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  const currentUser = user || updateUser;
+  const currentUserId = currentUser?._id || currentUser?.id;
 
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -35,7 +43,45 @@ const Home = () => {
 
   const storyUserIds = stories.map(story => story.user._id);
 
-  console.log("storyUserIds", storyUserIds);  // unique bana lena
+  // console.log("storyUserIds", storyUserIds);
+
+
+
+  // story list 
+  const [index, setIndex] = useState(null); // { userId, storyIndex } or null
+  const [progress, setProgress] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [seenStories, setSeenStories] = useState(new Set());
+  const [showViewers, setShowViewers] = useState(false);
+
+  const [likedMap, setLikedMap] = useState({});
+  const [isUserInteracting, setIsUserInteracting] = useState(false);
+
+  const videoRef = useRef(null);
+  const progressInterval = useRef(null);
+  const nextTimeout = useRef(null);
+  const seenSet = useRef(new Set());
+  const storyListRef = useRef(null);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   useEffect(() => {
@@ -166,6 +212,292 @@ const Home = () => {
     }
   }, [user]);
 
+
+  //story viewer model 
+
+  useEffect(() => {
+    const initialMap = {};
+
+    stories.forEach((story) => {
+      const likedByUser = story.likedBy.some(
+        (entry) => entry.user === currentUserId
+      );
+      initialMap[story._id] = likedByUser;
+    });
+
+    setLikedMap(initialMap);
+  }, [stories]);
+
+
+  // Group stories by user
+  const storiesByUser = stories.reduce((acc, story) => {
+    const uid = story.user._id;
+    if (!acc[uid]) acc[uid] = [];
+    acc[uid].push(story);
+    return acc;
+  }, {});
+
+  const currentUserStories = currentUserId
+    ? storiesByUser[currentUserId] || []
+    : [];
+
+
+
+  const otherUsersStories = Object.keys(storiesByUser)
+    .filter((uid) => uid !== currentUserId)
+    .map((uid) => ({
+      user: storiesByUser[uid][0].user,
+      stories: storiesByUser[uid],
+    }));
+
+
+  const openStory = (userId, storyIndex = 0) => {
+    clearInterval(progressInterval.current);
+    clearTimeout(nextTimeout.current);
+
+    setIndex({ userId, storyIndex });
+    setProgress(0);
+    setIsPlaying(true);
+    setShowViewers(false);
+    setIsUserInteracting(false);
+  };
+
+  const closeStory = (e) => {
+    if (e) e.stopPropagation();
+    setIndex(null);
+    setProgress(0);
+    setIsPlaying(false);
+    clearInterval(progressInterval.current);
+    clearTimeout(nextTimeout.current);
+    setIsUserInteracting(false);
+  };
+
+  const togglePause = () => {
+    if (!videoRef.current) return;
+
+    if (isPlaying) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+
+
+  const currentUserIdInModal = index?.userId;
+  const currentStoryIndex = index?.storyIndex || 0;
+  const currentStoriesInModal = currentUserIdInModal
+    ? storiesByUser[currentUserIdInModal] || []
+    : [];
+  const currentStory = currentStoriesInModal
+    ? currentStoriesInModal[currentStoryIndex]
+    : null;
+
+  const goNext = () => {
+    if (!index || isUserInteracting) return;
+    if (!currentStoriesInModal) return;
+
+    if (currentStoryIndex < currentStoriesInModal.length - 1) {
+      setIndex({ userId: currentUserIdInModal, storyIndex: currentStoryIndex + 1 });
+      setProgress(0);
+      setIsPlaying(true);
+    } else {
+      const userIds = Object.keys(storiesByUser);
+      const currentUserPos = userIds.indexOf(currentUserIdInModal);
+      if (currentUserPos < userIds.length - 1) {
+        const nextUserId = userIds[currentUserPos + 1];
+        setIndex({ userId: nextUserId, storyIndex: 0 });
+        setProgress(0);
+        setIsPlaying(true);
+      } else {
+        closeStory();
+      }
+    }
+  };
+
+  const goPrev = () => {
+    if (!index) return;
+    if (!currentStoriesInModal) return;
+
+    if (currentStoryIndex > 0) {
+      setIndex({ userId: currentUserIdInModal, storyIndex: currentStoryIndex - 1 });
+      setProgress(0);
+      setIsPlaying(true);
+    } else {
+      const userIds = Object.keys(storiesByUser);
+      const currentUserPos = userIds.indexOf(currentUserIdInModal);
+      if (currentUserPos > 0) {
+        const prevUserId = userIds[currentUserPos - 1];
+        const prevUserStories = storiesByUser[prevUserId];
+        setIndex({
+          userId: prevUserId,
+          storyIndex: prevUserStories.length - 1,
+        });
+        setProgress(0);
+        setIsPlaying(true);
+      }
+    }
+  };
+
+
+
+
+  useEffect(() => {
+    if (!currentStory || seenSet.current.has(currentStory._id)) return;
+    seenSet.current.add(currentStory._id);
+
+    const markAsSeen = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        if (!token) return;
+        await axios.put(
+          `${backendUrl}/api/stories/${currentStory._id}/seen`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setSeenStories((prev) => new Set(prev).add(currentStory._id));
+      } catch (err) {
+        console.error("Error marking story as seen:", err);
+      }
+    };
+    markAsSeen();
+  }, [currentStory]);
+
+  const handleVideoTimeUpdate = (e) => {
+    e.stopPropagation();
+    const video = videoRef.current;
+    if (video && video.duration) {
+      const percent = (video.currentTime / video.duration) * 100;
+      setProgress(percent);
+    }
+  };
+
+  useEffect(() => {
+    if (!index || !isVideo(currentStory?.mediaUrl)) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.currentTime = 0;
+    video.play().catch(console.error);
+
+    const onEnded = () => {
+      goNext();
+    };
+
+    video.addEventListener("timeupdate", handleVideoTimeUpdate);
+    video.addEventListener("ended", onEnded);
+
+    return () => {
+      video.removeEventListener("timeupdate", handleVideoTimeUpdate);
+      video.removeEventListener("ended", onEnded);
+    };
+  }, [index, currentStory, isUserInteracting]);
+
+  useEffect(() => {
+    if (!index || isVideo(currentStory?.mediaUrl)) return;
+
+    clearInterval(progressInterval.current);
+    clearTimeout(nextTimeout.current);
+    setProgress(0);
+
+    if (isPlaying) {
+      progressInterval.current = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(progressInterval.current);
+            nextTimeout.current = setTimeout(() => {
+              goNext();
+            }, 300);
+            return 100;
+          }
+          return prev + 2;
+        });
+      }, 100);
+    }
+
+    return () => {
+      clearInterval(progressInterval.current);
+      clearTimeout(nextTimeout.current);
+    };
+  }, [index, currentStory, isPlaying, isUserInteracting]);
+
+  const handleOverlayClick = (e) => {
+    if (e.target.closest(".modal-content")) return;
+    const x = e.clientX;
+    const w = window.innerWidth;
+    if (x < w / 3) goPrev();
+    else if (x > (w / 3) * 2) goNext();
+  };
+
+  const toggleLike = async (e) => {
+    e.stopPropagation();
+    if (!currentStory) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    setIsUserInteracting(true);
+    setTimeout(() => setIsUserInteracting(false), 1000);
+
+    try {
+      if (likedMap[currentStory._id]) {
+        await axios.put(
+          `${backendUrl}/api/stories/${currentStory._id}/unlike`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setLikedMap((prev) => ({ ...prev, [currentStory._id]: false }));
+      } else {
+        await axios.put(
+          `${backendUrl}/api/stories/${currentStory._id}/like`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setLikedMap((prev) => ({ ...prev, [currentStory._id]: true }));
+      }
+    } catch (error) {
+      console.error("Error liking/unliking story:", error);
+    }
+  };
+
+  const handleStoryShare = (e) => {
+    e.stopPropagation();
+    setIsUserInteracting(true);
+    setTimeout(() => setIsUserInteracting(false), 800);
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: "Check out this story",
+          url: window.location.href,
+        })
+        .catch(console.error);
+    } else {
+      alert("Story shared!");
+    }
+  };
+
+  const handleViews = (e) => {
+    e.stopPropagation();
+    setShowViewers(true);
+    setIsUserInteracting(true);
+    setTimeout(() => setIsUserInteracting(false), 800);
+  };
+
+  const hasSeenAllStoriesCurrentUser = currentUserStories.length > 0 &&
+    currentUserStories.every(story =>
+      story.seenBy.some(entry =>
+        (typeof entry.user === 'object' ? entry.user._id : entry.user) === currentUserId
+      )
+    );
+
+
+
+
+
+
   if (!user) {
     return (
       <div className="text-center mt-5">
@@ -215,13 +547,39 @@ const Home = () => {
             </div>
             <button className="vibenet-close-suggestion" onClick={() => setShowSuggestionModal(false)}>Close</button>
           </div>
+
+
         </div>
+
       )}
+
+      <StoryViewer
+        currentStory={currentStory}
+        currentStoryIndex={currentStoryIndex}
+        currentStoriesInModal={currentStoriesInModal}
+        closeStory={closeStory}
+        goNext={goNext}
+        goPrev={goPrev}
+        handleOverlayClick={handleOverlayClick}
+        togglePause={togglePause}
+        isPlaying={isPlaying}
+        videoRef={videoRef}
+        handleVideoTimeUpdate={handleVideoTimeUpdate}
+        likedMap={likedMap}
+        toggleLike={toggleLike}
+        handleStoryShare={handleStoryShare}
+        currentUserId={currentUserId}
+        handleViews={handleViews}
+        showViewers={showViewers}
+        setShowViewers={setShowViewers}
+      />
 
       <div className="vibenet-main">
         <div className="vibenet-feed">
           <div className="vibenet-stories">
-            <StoryList stories={stories} />
+            <StoryList stories={stories} hasSeenAllStoriesCurrentUser={hasSeenAllStoriesCurrentUser} currentUserStories={currentUserStories} currentUser={currentUser} otherUsersStories={otherUsersStories} currentUserId={currentUserId} isVideo={isVideo} openStory={openStory}
+
+            />
           </div>
 
           {isMobile && !showSuggestionModal && (
@@ -241,7 +599,7 @@ const Home = () => {
             ) : posts.length > 0 ? (
               <>
                 {posts.map((post) => (
-                  <PostCard key={post._id} post={post} storyUserIds={storyUserIds} />
+                  <PostCard key={post._id} post={post} storyUserIds={storyUserIds} openStory={openStory} />
                 ))}
                 {loadingMore && (
                   <div className="text-center my-3">
@@ -257,23 +615,32 @@ const Home = () => {
 
         <div className="vibenet-sidebar">
           <div className="vibenet-user-card">
-            <Link to={`/profile/${user._id}`}>
-              <img
-                src={
-                  user.profilePic?.url ||
-                  "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
-                }
-                alt={user.username}
-                className="vibenet-user-avatar"
-              />
-            </Link>
+
+            <img
+  src={
+    user?.profilePic?.url ||
+    "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
+  }
+  alt={user.username}
+  className="vibenet-user-avatar rounded-circle"
+  onClick={(e) => {
+    if (storyUserIds.includes(user._id)) {
+      e.preventDefault(); // 🛑 stop link navigation
+      openStory(user._id); // ✅ open story modal
+    }
+  }}
+/>
+
+
             <div className="vibenet-user-info">
               <Link to={`/profile/${user._id}`} className="vibenet-username">
                 {user.username}
+
               </Link>
               <span className="vibenet-name">{user.name}</span>
             </div>
           </div>
+
 
           <div className="vibenet-suggestions">
             <div className="vibenet-suggestions-header">
@@ -287,6 +654,8 @@ const Home = () => {
                 </button>
               )}
             </div>
+
+
 
             {suggestions.length === 0 ? (
               <p className="vibenet-no-suggestions">No suggestions found</p>
@@ -327,6 +696,9 @@ const Home = () => {
               </>
             )}
           </div>
+
+
+
 
 
 

@@ -1,6 +1,6 @@
 const express = require("express");
 const { register, login, googleAuth, checkEmail, forgotPassword, resetPassword, googleCallBack } = require("../controllers/authController");
-const {registerLimiter, loginLimiter, forgotPasswordLimiter} = require("../middlewares/rateLimit");
+const { registerLimiter, loginLimiter, forgotPasswordLimiter } = require("../middlewares/rateLimit");
 const passport = require("passport");
 const User = require("../models/User")
 
@@ -37,20 +37,32 @@ const router = express.Router();
 
 router.post("/register", registerLimiter, register);
 
-router.post("/login",loginLimiter,
-  passport.authenticate("local", {
-    failureRedirect: "/login",
-    failureFlash: true,
-  }),
-  login
-);
+router.post("/login", loginLimiter, (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) return next(err);
+    if (!user) {
+      // ❌ login failed
+      return res.status(401).json({
+        success: false,
+        message: info.message || "Invalid email or password"
+      });
+    }
+
+    // ✅ login success
+    req.logIn(user, (err) => {
+      if (err) return next(err);
+      next(); 
+    });
+  })(req, res, next);
+}, login); 
+
 
 // POST /api/auth/check-email
 router.post("/check-email", checkEmail);
 
-router.post("/forgot-password",forgotPasswordLimiter, forgotPassword);
+router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
 
-router.post("/reset-password",  resetPassword);
+router.post("/reset-password", resetPassword);
 
 
 

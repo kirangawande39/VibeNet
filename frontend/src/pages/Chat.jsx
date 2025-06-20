@@ -29,6 +29,12 @@ const Chat = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const { id } = useParams();
 
+
+
+  const CHATBOT_ID = "684f268c7dad0bf1b1dfd4f8";
+
+
+
   const dummyMessages = {
     user1: [
       { id: 1, sender: "user1", text: "Hey!" },
@@ -40,7 +46,25 @@ const Chat = () => {
     ],
   };
 
-  
+  const sortedFollowers = [...(user?.followers || [])].sort((a, b) => {
+    const isAChatBot = a._id === CHATBOT_ID;
+    const isBChatBot = b._id === CHATBOT_ID;
+
+    if (isAChatBot) return -1; // A is chatbot, goes first
+    if (isBChatBot) return 1;  // B is chatbot, goes after A
+
+    const isAOnline = onlineUsers.includes(a._id);
+    const isBOnline = onlineUsers.includes(b._id);
+
+    if (isAOnline && !isBOnline) return -1;
+    if (!isAOnline && isBOnline) return 1;
+
+    const aLast = new Date(lastSeen[a._id] || 0).getTime();
+    const bLast = new Date(lastSeen[b._id] || 0).getTime();
+
+    return bLast - aLast;
+  });
+
 
 
   const updateLastMessage = (chatId, newMessage) => {
@@ -147,15 +171,20 @@ const Chat = () => {
   };
 
   const formatLastSeen = (timestamp) => {
-    const timeDiff = Date.now() - new Date(timestamp).getTime();
-    const minutes = Math.floor(timeDiff / 60000);
+    const diff = Date.now() - new Date(timestamp).getTime();
+    const minutes = Math.floor(diff / 60000);
+
     if (minutes < 1) return "just now";
+    if (minutes < 5) return "a few moments ago";
     if (minutes < 60) return `${minutes} min ago`;
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
     const days = Math.floor(hours / 24);
-    return `${days} day${days > 1 ? "s" : ""} ago`;
+    if (days === 1) return "yesterday";
+    if (days <= 3) return `${days} days ago`;
+    return "a while ago";
   };
+
 
   if (loading || statusLoading) {
     return (
@@ -168,14 +197,16 @@ const Chat = () => {
   return (
     <div className="container chat-app mt-4">
       <div className="row">
-         
+
         {/* Follower List */}
         <div className={`col-md-4 ${isMobile && selectedUser ? "d-none" : ""}`}>
           <div className="list-group">
             {localUser && localUser.followers?.length > 0 ? (
-              user.followers?.map((follower, index) => {
-                const isOnline = onlineUsers.includes(follower._id);
+              sortedFollowers.map((follower, index) => {
+                const isChatBot = follower._id === CHATBOT_ID;
+                const isOnline = isChatBot || onlineUsers.includes(follower._id); // chatbot हमेशा online
                 const lastSeenTime = lastSeen[follower._id];
+
 
                 return (
                   <button
@@ -197,7 +228,6 @@ const Chat = () => {
                       />
                       <div>
                         <div>{follower.username}</div>
-                       
                         <small className="text-muted">
                           {isOnline ? (
                             <span className="text-success">Online</span>
@@ -227,7 +257,7 @@ const Chat = () => {
         <div className={`col-md-8 ${isMobile && !selectedUser ? "d-none" : ""}`}>
           {selectedUser ? (
             <>
-           
+
               <ChatBox
                 messages={messages}
                 onSendMessage={handleSendMessage}
@@ -235,7 +265,7 @@ const Chat = () => {
                 selectedUser={selectedUser}
                 localUser={localUser}
                 onLastMessageUpdate={handleLastMessageUpdate}
-                onBack={handleBack} 
+                onBack={handleBack}
               />
             </>
           ) : (
