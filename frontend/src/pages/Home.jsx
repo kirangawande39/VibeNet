@@ -22,6 +22,7 @@ const Home = () => {
   const [loadingMore, setLoadingMore] = useState(false);
 
 
+
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
 
@@ -31,6 +32,11 @@ const Home = () => {
 
   const isMobile = window.innerWidth < 768;
   const isNewUser = user?.followers?.length === 0 && user?.following?.length === 0;
+
+  const storyUserIds = stories.map(story => story.user._id);
+
+  console.log("storyUserIds", storyUserIds);  // unique bana lena
+
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -235,7 +241,7 @@ const Home = () => {
             ) : posts.length > 0 ? (
               <>
                 {posts.map((post) => (
-                  <PostCard key={post._id} post={post} />
+                  <PostCard key={post._id} post={post} storyUserIds={storyUserIds} />
                 ))}
                 {loadingMore && (
                   <div className="text-center my-3">
@@ -322,7 +328,7 @@ const Home = () => {
             )}
           </div>
 
-         
+
 
 
 

@@ -11,7 +11,7 @@ import { handleError } from '../utils/errorHandler';
 dayjs.extend(relativeTime);
 import { ToastContainer, toast } from 'react-toastify';
 import { Link } from "react-router-dom";
-const PostCard = ({ post }) => {
+const PostCard = ({ post, storyUserIds }) => {
   const [liked, setLiked] = useState(false);
   const [totalLikes, setTotalLikes] = useState(post.likes.length);
   const { user } = useContext(AuthContext);
@@ -130,6 +130,10 @@ const PostCard = ({ post }) => {
     }
   };
 
+   const openStoryModal = (userId) => {
+   toast.info("working!");
+  };
+
   return (
     <div className="card " style={{ position: "relative" }}>
 
@@ -156,12 +160,19 @@ const PostCard = ({ post }) => {
       {/* Post Header */}
       <div className="card-header d-flex align-items-center bg-white">
         <img
-          src={post.user?.profilePic.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
+          src={post.user?.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
           alt="profile"
-          className="rounded-circle me-2"
+          className={`rounded-circle me-2 ${storyUserIds.includes(post.user._id) ? "border border-danger border-3" : ""}`}
           width="40"
           height="40"
+          style={{ objectFit: "cover" }}
+          onClick={() => {
+            if (storyUserIds.includes(post.user._id)) {
+              openStoryModal(post.user._id); // agar modal open logic hai to
+            }
+          }}
         />
+
         <Link
           to={`/profile/${post?.user?._id}`}
           className="text-decoration-none text-dark fw-bold"

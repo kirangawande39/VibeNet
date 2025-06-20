@@ -15,6 +15,7 @@ import { IoEyeSharp } from "react-icons/io5";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import { format } from "timeago.js";
+import StoryViewer from "./StoryViewer";
 
 const isVideo = (url) => url?.match(/\.(mp4|webm|ogg)$/i);
 
@@ -22,6 +23,9 @@ const StoryList = ({ stories }) => {
   const { user } = useContext(AuthContext);
   const currentUser = user || updateUser;
   const currentUserId = currentUser?._id || currentUser?.id;
+
+
+  // unique bana lena
 
   const token = localStorage.getItem("token");
   // console.log("Token : ", token)
@@ -408,8 +412,8 @@ const StoryList = ({ stories }) => {
             <small className="d-block mt-1 text-truncate" style={{ maxWidth: "90px" }}>
               Your Story
             </small>
-            
-            
+
+
 
             {currentUserStories.length === 0 && (
               <div
@@ -426,7 +430,7 @@ const StoryList = ({ stories }) => {
               </div>
             )}
           </div>
-   
+
           {/* Other Users' Stories */}
           {otherUsersStories.map(({ user, stories }) => {
             const isSeen = stories.every((s) =>
@@ -472,7 +476,9 @@ const StoryList = ({ stories }) => {
                 </div>
                 <small className="d-block mt-1 text-truncate" style={{ maxWidth: "90px" }}>
                   {user.username}
+            
                 </small>
+                  
               </div>
             );
           })}
@@ -481,244 +487,26 @@ const StoryList = ({ stories }) => {
       </div>
 
       {/* Story Modal */}
-      {currentStory && (
-        <div
-          className="modal show d-block"
-          tabIndex="-1"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }}
-          onClick={handleOverlayClick}
-        >
-          <div className="modal-dialog modal-dialog-centered modal-xl">
-            <div className="modal-content bg-dark border-0">
-              {/* Progress Bars */}
-              <div className="d-flex px-3 pt-3">
-                {currentStoriesInModal?.map((_, i) => (
-                  <div key={i} className="flex-fill mx-1">
-                    <div className="progress bg-secondary" style={{ height: "4px" }}>
-                      <div
-                        className={`progress-bar ${i < currentStoryIndex ? "bg-white" : ""}`}
-                        role="progressbar"
-                        style={{
-                          width:
-                            i === currentStoryIndex
-                              ? `${progress}%`
-                              : i < currentStoryIndex
-                                ? "100%"
-                                : "0%",
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="modal-body p-0 position-relative">
-                {/* Header */}
-                <div className="d-flex justify-content-between align-items-center p-2">
-                  <div className="d-flex align-items-center">
-                    <img
-                      src={
-                        currentStory.user.profilePic?.url ||
-                      
-                        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
-                      }
-                      alt={currentStory.user.username}
-                      className="rounded-circle"
-                      style={{ width: "40px", height: "40px", objectFit: "cover" }}
-                    />
-                    <span className="ms-2 text-white fw-semibold">
-                      {currentStory.user.username}
-                    </span>
-                    <span className="ms-2 text-secondary small">
-                      {format(currentStory.createdAt)}
-                    </span>
-                  </div>
-                  <button
-                    className="btn btn-sm btn-outline-light"
-                    onClick={closeStory}
-                    aria-label="Close Story Modal"
-                  >
-                    <FaTimes />
-                  </button>
-                </div>
-
-                {/* Story Media */}
-                <div
-                  className="fullscreen-story position-relative"
-                  onClick={togglePause}
-                  style={{ maxHeight: "70vh", overflow: "hidden" }}
-                >
-                  {isVideo(currentStory.mediaUrl) ? (
-                    <video
-                      ref={videoRef}
-                      src={currentStory.mediaUrl}
-                      playsInline
-                      muted={false}
-                      controls={false}
-                      onTimeUpdate={handleVideoTimeUpdate}
-                      onEnded={goNext}
-                      style={{ width: "100%", height: "auto", maxHeight: "70vh", objectFit: "contain" }}
-                    />
-                  ) : (
-                    <img
-                      src={currentStory.mediaUrl}
-                      alt="story"
-                      style={{ width: "100%", height: "auto", maxHeight: "70vh", objectFit: "contain" }}
-                    />
-                  )}
-
-                  {/* Play Icon when paused */}
-                  {isVideo(currentStory.mediaUrl) && !isPlaying && (
-                    <div
-                      className="position-absolute top-50 start-50 translate-middle"
-                      style={{ cursor: "pointer" }}
-                      onClick={togglePause}   // click pe play karega
-                    >
-                      <FaPlay size={48} color="white" />
-                    </div>
-                  )}
-
-
-                  {/* Navigation Buttons */}
-                  <button
-                    className="position-absolute top-50 start-0 translate-middle-y btn btn-link text-white p-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      goPrev();
-                    }}
-                    aria-label="Previous Story"
-                  >
-                    <GrFormPrevious size={30} />
-                  </button>
-                  <button
-                    className="position-absolute top-50 end-0 translate-middle-y btn btn-link text-white p-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      goNext();
-                    }}
-                    aria-label="Next Story"
-                  >
-                    <GrFormNext size={30} />
-                  </button>
-                </div>
-
-                {/* Footer Actions */}
-                <div
-                  className="d-flex justify-content-between align-items-center px-3 py-2 border-top"
-                  style={{ backgroundColor: "black" }}
-                >
-                  {/* Like & Share */}
-                  <div className="d-flex align-items-center">
-                    {/* Like Button */}
-                    <button
-                      className="btn btn-link text-white me-3 p-0 d-flex align-items-center"
-                      type="button"
-                      onClick={toggleLike}
-                    >
-                      <FaHeart
-                        size={28}
-                        color={likedMap?.[currentStory?._id] ? "red" : "white"}
-                        className="me-1"
-                      />
-                      {/* <span>{likedMap?.[currentStory?._id] ? "Liked" : "Like"}</span> */}
-                    </button>
-
-                    {/* Share Button */}
-                    <button
-                      className="btn btn-link text-white p-0 d-flex align-items-center"
-                      type="button"
-                      onClick={handleStoryShare}
-                    >
-                      <FaShare re size={24} className="me-1" />
-
-                    </button>
-                  </div>
-
-                  {/* View Count (Only for Owner) */}
-                  {currentUserId === currentStory?.user?._id && (
-                    <div
-                      className="d-flex align-items-center text-white"
-                      style={{ cursor: "pointer" }}
-                      onClick={handleViews}
-                    >
-                      <span className="me-1">{currentStory?.seenBy?.length || 0}</span>
-                      <IoEyeSharp size={20} />
-                    </div>
-                  )}
-                </div>
-
-                {/* Viewers Modal */}
-                {showViewers && (
-                  <div
-                    className="position-absolute top-0 end-0 p-3"
-                    style={{ width: "300px", zIndex: 1055 }}
-                  >
-                    <div className="bg-light rounded p-2 shadow">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h6 className="mb-0">Viewed by</h6>
-                        <button
-                          className="btn btn-sm btn-outline-secondary"
-                          onClick={() => setShowViewers(false)}
-                          aria-label="Close viewers list"
-                        >
-                          &times;
-                        </button>
-                      </div>
-                      <ul className="list-unstyled mb-0" style={{ maxHeight: "300px", overflowY: "auto" }}>
-                        {currentStory?.seenBy?.length > 0 ? (
-                          currentStory.seenBy
-                            .slice()
-                            .sort((a, b) => new Date(b.viewedAt) - new Date(a.viewedAt))
-                            .map((entry) => {
-                              // Check if this user is in likedBy list by comparing user ids
-                              const userLiked = currentStory.likedBy?.some(
-                                (likedEntry) => likedEntry.user === entry.user._id
-                              );
-
-                              return (
-                                <li
-                                  key={entry.user._id}
-                                  className="d-flex align-items-center justify-content-between mb-2"
-                                >
-                                  <div className="d-flex align-items-center">
-                                    <img
-                                      src={
-                                        entry.user?.profilePic?.url ||
-                                        entry.user?.profilePic ||
-                                        "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                                      }
-                                      alt={entry.user?.username}
-                                      className="rounded-circle me-2"
-                                      style={{ width: "30px", height: "30px", objectFit: "cover" }}
-                                    />
-                                    <div>
-                                      <div>{entry.user.username}</div>
-                                      {entry.viewedAt && (
-                                        <small className="text-muted">{format(entry.viewedAt)}</small>
-                                      )}
-                                    </div>
-                                  </div>
-
-                                  {/* Show red heart if user liked the story */}
-                                  {userLiked && <FaHeart size={18} color="red" />}
-                                </li>
-                              );
-                            })
-                        ) : (
-                          <li className="text-center text-muted">No views yet.</li>
-                        )}
-                      </ul>
-                    </div>
-                  </div>
-                )}
-
-
-
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <StoryViewer
+        currentStory={currentStory}
+        currentStoryIndex={currentStoryIndex}
+        currentStoriesInModal={currentStoriesInModal}
+        closeStory={closeStory}
+        goNext={goNext}
+        goPrev={goPrev}
+        handleOverlayClick={handleOverlayClick}
+        togglePause={togglePause}
+        isPlaying={isPlaying}
+        videoRef={videoRef}
+        handleVideoTimeUpdate={handleVideoTimeUpdate}
+        likedMap={likedMap}
+        toggleLike={toggleLike}
+        handleStoryShare={handleStoryShare}
+        currentUserId={currentUserId}
+        handleViews={handleViews}
+        showViewers={showViewers}
+        setShowViewers={setShowViewers}
+      />
     </>
 
   );
