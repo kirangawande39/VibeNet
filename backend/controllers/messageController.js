@@ -71,7 +71,7 @@ const sendMessage = async (req, res, next) => {
           ...savedBotMessage._doc,
           sender: {
             _id: BOT_USER_ID,
-            name: "ChatBot",
+            name: "VibeBot",
             profilePic: {
               url: "https://png.pngtree.com/png-clipart/20230401/original/pngtree-smart-chatbot-cartoon-clipart-png-image_9015126.png"
             }

@@ -8,7 +8,7 @@ import {
 
 
 
-const StoryList = ({ stories,hasSeenAllStoriesCurrentUser ,currentUserStories ,currentUser,otherUsersStories ,currentUserId ,isVideo ,openStory   }) => {
+const StoryList = ({ stories,hasSeenAllStoriesCurrentUser ,currentUserStories ,currentUser,otherUsersStories ,currentUserId ,isVideo ,openStory ,isSeen  }) => {
 
   if (!stories?.length) return null;
 
@@ -89,13 +89,7 @@ const StoryList = ({ stories,hasSeenAllStoriesCurrentUser ,currentUserStories ,c
 
           {/* Other Users' Stories */}
           {otherUsersStories.map(({ user, stories }) => {
-            const isSeen = stories.every((s) =>
-              s.seenBy.some((entry) => {
-                const seenUserId = typeof entry.user === 'string' ? entry.user : entry.user?._id;
-                return seenUserId === currentUserId;
-              })
-            );
-
+           
             return (
               <div
                 key={user._id}
@@ -104,7 +98,7 @@ const StoryList = ({ stories,hasSeenAllStoriesCurrentUser ,currentUserStories ,c
                 style={{ cursor: "pointer", minWidth: "80px", maxWidth: "90px" }}
               >
                 <div
-                  className={`rounded-circle border border-2 ${isSeen ? "border-secondary" : "border-primary"}`}
+                  className={`rounded-circle border border-3 ${isSeen ? "border-secondary" : "border-primary"}`}
                   style={{
                     width: "70px",
                     height: "70px",

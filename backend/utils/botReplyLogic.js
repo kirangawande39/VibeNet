@@ -110,7 +110,7 @@ const responses = {
 
 // Intent detection patterns
 const intents = [
-  { name: 'greeting', patterns: ['hello', 'hi', 'hey', 'namaste', 'नमस्ते', 'नमस्कार', 'kya haal hai', 'kaise ho', 'what’s up', 'howdy'], responseKeys: ['greeting'] },
+  { name: 'greeting', patterns: ['hello', 'hi','ok','hey', 'namaste', 'नमस्ते', 'नमस्कार', 'kya haal hai', 'kaise ho', 'what’s up', 'howdy'], responseKeys: ['greeting'] },
 
   { name: 'help', patterns: ['help', 'madad', 'सहाय्य', 'मदत', 'सहायता', 'batao', 'guide kar', 'kaise kare', 'need assistance', 'can you help'], responseKeys: ['help'] },
 
@@ -124,7 +124,7 @@ const intents = [
 
   { name: 'thanks', patterns: ['thanks', 'shukriya', 'dhanyavad', 'धन्यवाद', 'आभार', 'thank you', 'thanx', 'appreciate it'], responseKeys: ['thanks'] },
 
-  { name: 'goodbye', patterns: ['bye', 'alvida', 'nighato', 'goodbye', 'बाय', 'अलविदा', 'निरोप', 'chal fir milte', 'see you later'], responseKeys: ['goodbye'] },
+  { name: 'goodbye', patterns: ['bye', 'alvida', 'by', 'nighato', 'goodbye', 'बाय', 'अलविदा', 'निरोप', 'chal fir milte', 'see you later'], responseKeys: ['goodbye'] },
 
   { name: 'postHelp', patterns: ['how to post', 'how to create post', 'post kaise kare', 'पोस्ट कशी करायची', 'post banana hai', 'bhai post daalni hai', 'how do I post'], responseKeys: ['postHelp'] },
 
@@ -250,6 +250,8 @@ function detectLanguage(text) {
   if (hindiRegex.test(text)) return 'hi';
   return 'en';
 }
+
+
 
 // Find matching intent
 function matchIntent(text) {

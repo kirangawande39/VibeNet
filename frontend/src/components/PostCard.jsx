@@ -132,9 +132,7 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
 
 
   return (
-    <div className="card " style={{ position: "relative" }}>
-
-
+    <div className="card ">
 
       {/* Audio element for like sound */}
       <audio
@@ -157,8 +155,8 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
       {/* Post Header */}
       <div className="card-header d-flex align-items-center bg-white">
         <img
-          src={post.user?.profilePic?.url || "default.jpg"}
-          className={`rounded-circle me-2 ${storyUserIds.includes(post.user._id) ? "border border-danger border-3" : ""}`}
+          src={post.user?.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
+          className={`rounded-circle me-2 ${storyUserIds.includes(post?.user?._id) ? "border border-danger border-2" : ""}`}
           width="40"
           height="40"
           style={{ objectFit: "cover", cursor: "pointer" }}
@@ -183,9 +181,9 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
         ) : (
           <div className="follow-btn">
             {isFollowing ? (
-              <spam onClick={handleUnfollow}>Unfollow</spam>
+              <span onClick={handleUnfollow}>Unfollow</span>
             ) : (
-              <spam onClick={handleFollow}>Follow</spam>
+              <span onClick={handleFollow}>Follow</span>
             )}
           </div>
         )}

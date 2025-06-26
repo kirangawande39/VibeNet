@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import SidebarNavbar from "../components/SidebarNavbar";
 import "../assets/css/StoryList.css";
 
+
 import StoryViewer from "../components/StoryViewer"
 
 
@@ -27,12 +28,12 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
+
   const currentUser = user || updateUser;
   const currentUserId = currentUser?._id || currentUser?.id;
-
-
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
+
 
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
@@ -64,24 +65,12 @@ const Home = () => {
   const storyListRef = useRef(null);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  const isSeen = stories.every((s) =>
+    s.seenBy.some((entry) => {
+      const seenUserId = typeof entry.user === 'string' ? entry.user : entry.user?._id;
+      return seenUserId === currentUserId;
+    })
+  );
 
 
   useEffect(() => {
@@ -578,8 +567,7 @@ const Home = () => {
         <div className="vibenet-feed">
           <div className="vibenet-stories">
             <StoryList stories={stories} hasSeenAllStoriesCurrentUser={hasSeenAllStoriesCurrentUser} currentUserStories={currentUserStories} currentUser={currentUser} otherUsersStories={otherUsersStories} currentUserId={currentUserId} isVideo={isVideo} openStory={openStory}
-
-            />
+            isSeen={isSeen} />
           </div>
 
           {isMobile && !showSuggestionModal && (
@@ -598,8 +586,8 @@ const Home = () => {
               </div>
             ) : posts.length > 0 ? (
               <>
-                {posts.map((post) => (
-                  <PostCard key={post._id} post={post} storyUserIds={storyUserIds} openStory={openStory} />
+                {posts.map((post,index) => (
+                  <PostCard key={post._id} post={post} storyUserIds={storyUserIds} openStory={openStory}   isSeen={isSeen} />
                 ))}
                 {loadingMore && (
                   <div className="text-center my-3">
@@ -617,19 +605,19 @@ const Home = () => {
           <div className="vibenet-user-card">
 
             <img
-  src={
-    user?.profilePic?.url ||
-    "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
-  }
-  alt={user.username}
-  className="vibenet-user-avatar rounded-circle"
-  onClick={(e) => {
-    if (storyUserIds.includes(user._id)) {
-      e.preventDefault(); // 🛑 stop link navigation
-      openStory(user._id); // ✅ open story modal
-    }
-  }}
-/>
+              src={
+                user?.profilePic?.url ||
+                "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
+              }
+              alt={user.username}
+              className="vibenet-user-avatar rounded-circle"
+              onClick={(e) => {
+                if (storyUserIds.includes(user._id)) {
+                  e.preventDefault();
+                  openStory(user._id);
+                }
+              }}
+            />
 
 
             <div className="vibenet-user-info">
@@ -654,8 +642,6 @@ const Home = () => {
                 </button>
               )}
             </div>
-
-
 
             {suggestions.length === 0 ? (
               <p className="vibenet-no-suggestions">No suggestions found</p>
@@ -697,14 +683,6 @@ const Home = () => {
             )}
           </div>
 
-
-
-
-
-
-
-
-
           <div className="vibenet-footer">
             <div className="vibenet-footer-links">
               <a href="#">About</a>
@@ -718,7 +696,7 @@ const Home = () => {
               <a href="#">Language</a>
             </div>
             <div className="vibenet-copyright">
-              © {new Date().getFullYear()} vibenet CLONE
+              © {new Date().getFullYear()} VibeNet CLONE
             </div>
           </div>
         </div>

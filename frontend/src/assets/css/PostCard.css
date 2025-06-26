@@ -5,6 +5,10 @@
     transition: color 0.3s ease;
 }
 
+.card{
+ 
+}
+
 
 .like {
     font-size: 30px;
@@ -18,14 +22,14 @@
     transform: scale(1.2);
 }
 
-.follow-btn spam{
+.follow-btn span{
     margin-left: 10px;
     color: #0095f6;
     font-weight: 600;
     cursor: pointer;
 }
 
-.follow-btn spam:hover{
+.follow-btn span:hover{
     color: rgb(41, 40, 40);
 }
 

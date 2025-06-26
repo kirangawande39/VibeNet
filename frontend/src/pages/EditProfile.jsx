@@ -196,9 +196,9 @@ const handleProfilePicUpload = async (e) => {
             <h4 className="mb-4 fw-semibold">Your Posts</h4>
 
             {posts && posts.length > 0 ? (
-              <div className="masonry-grid ">
+              <div className="masonry-grid" >
                 {posts.map((post) => (
-                  <div key={post.id} className="masonry-item">
+                  <div key={post._id} className="masonry-item">
                     <div className="card border-0 shadow-sm mb-5">
                       <img
                         src={post.image}

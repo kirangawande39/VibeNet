@@ -167,8 +167,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
 
   useEffect(() => {
     const handleReceive = (msg) => {
-      console.log("📥 Message received via socket:", msg);
-      console.log("💬 Current Chat ID:", chatId);
+      // console.log("📥 Message received via socket:", msg);
+      // console.log("💬 Current Chat ID:", chatId)
 
       if (!msg.sender || !msg.sender._id) {
         msg.sender = { _id: msg.senderId };
@@ -387,7 +387,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
               minute: "2-digit",
             });
             // latest msg is here  
-            console.log("🧾 Rendering message:", msg?.sender?.profilePic?.url, "from", msg.sender?.name || msg.sender?._id);
+            // console.log("🧾 Rendering message:", msg?.sender?.profilePic?.url, "from", msg.sender?.name || msg.sender?._id);
 
             return (
               <div
