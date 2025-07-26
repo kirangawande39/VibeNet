@@ -33,7 +33,7 @@ export const requestForToken = async (authToken) => {
     const token = await getToken(messaging, { vapidKey});
 
     if (token) {
-      console.log("FCM Token:", token);
+      // console.log("FCM Token:", token);
 
       // 🔥 API call to save token with userId
       await axios.post(`${backendUrl}/api/users/save-fcm-token`, 
