@@ -122,7 +122,7 @@ const StoryList = ({ stories, hasSeenAllStoriesCurrentUser, currentUserStories, 
                 <small className="d-block mt-1 text-truncate" style={{ maxWidth: "90px" }}>
                   {user.username}
                 </small>
-                {user._id}
+                
               </div>
             );
           })}

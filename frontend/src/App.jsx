@@ -105,7 +105,7 @@ function App() {
       .then(payload => {
         alert("🔔 New Notification: " + payload.notification.title);
       })
-      .catch(err => console.log("FCM listener error:", err));
+      .catch(err => console.error("FCM listener error:", err));
   },[] );
 
 

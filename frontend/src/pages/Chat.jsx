@@ -46,7 +46,7 @@ const Chat = () => {
     // console.log("lastSeen",lastSeen);
     // console.log("loading",loading);
     
-    console.log("allOnlineUsers",allOnlineUsers);
+    // console.log("allOnlineUsers",allOnlineUsers);
 
 
   const dummyMessages = {

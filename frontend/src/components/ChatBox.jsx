@@ -362,7 +362,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
 
 
 
-  console.log("lastMessage :",lastMessage);
+  // console.log("lastMessage :",lastMessage);
 
 
   return (
