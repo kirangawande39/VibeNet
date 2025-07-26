@@ -1,5 +1,5 @@
 const express = require("express");
-const { getUserProfile, updateUserProfile, followUser, unfollowUser, searchUsers, getSuggestedUsers,uploadProfilePic } = require("../controllers/userController");
+const { getUserProfile, updateUserProfile, followUser, unfollowUser, searchUsers, getSuggestedUsers,uploadProfilePic,SaveFcmToken } = require("../controllers/userController");
 const { protect } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
@@ -38,7 +38,7 @@ router.put('/:id/uploadProfilePic', upload.single('profilePic'),protect, uploadP
 
 
 
-
+router.post('/save-fcm-token', protect, SaveFcmToken)
 
 
 

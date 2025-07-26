@@ -9,23 +9,27 @@ import { handleError } from '../utils/errorHandler';
 import { io } from "socket.io-client";
 
 import "../assets/css/Chat.css";
+import { useOnline } from "../context/OnlineStatusContext";
 
 // Initialize socket outside the component to avoid reconnection
-const socket = io(import.meta.env.VITE_BACKEND_URL, {
-  withCredentials: true,
-});
+
 
 const Chat = () => {
+  
   const { user, updateUser } = useContext(AuthContext);
+
+  const { allOnlineUsers } = useOnline();
+
+   
   const [localUser, setLocalUser] = useState();
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [chats, setChats] = useState([]);
-  const [onlineUsers, setOnlineUsers] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState(allOnlineUsers);
   const [lastSeen, setLastSeen] = useState({});
   const [loading, setLoading] = useState(true);
-  const [statusLoading, setStatusLoading] = useState(true);
+  const [statusLoading, setStatusLoading] = useState(false);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const { id } = useParams();
 
@@ -33,6 +37,16 @@ const Chat = () => {
 
   const CHATBOT_ID = "684f268c7dad0bf1b1dfd4f8";
 
+
+    // console.log("onlineUsersStatus",onlineUsersStatus);
+    // console.log("lastSeenStatus",lastSeenStatus);
+    // console.log("statusLoadingStatus",statusLoadingStatus);
+
+    // console.log("onlineUsers",onlineUsers);
+    // console.log("lastSeen",lastSeen);
+    // console.log("loading",loading);
+    
+    console.log("allOnlineUsers",allOnlineUsers);
 
 
   const dummyMessages = {
@@ -106,47 +120,49 @@ const Chat = () => {
   }, []);
 
   // ✅ Emit user-online after user info is ready
-  useEffect(() => {
-    if (user && user._id) {
-      socket.emit("user-online", user._id);
-      // console.log("📡 Emitted user-online:", user._id);
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user && user._id) {
+  //     socket.emit("user-online", user._id);
+  //     // console.log("📡 Emitted user-online:", user._id);
+  //   }
+  // }, [user]);
 
-  // ✅ Listen to online-users broadcast (optional for live update)
-  useEffect(() => {
-    socket.on("online-users", (users) => {
-      // console.log("🌐 Live online users:", users);
-      setOnlineUsers(users);
-    });
+  // // ✅ Listen to online-users broadcast (optional for live update)
+  // useEffect(() => {
+  //   socket.on("online-users", (users) => {
+  //     // console.log("🌐 Live online users:", users);
+  //     setOnlineUsers(users);
+  //   });
 
-    return () => {
-      socket.off("online-users");
-    };
-  }, []);
+  //   return () => {
+  //     socket.off("online-users");
+  //   };
+  // }, []);
 
-  // ✅ Fetch online + last seen from backend REST API every 10 seconds
-  useEffect(() => {
-    const fetchOnlineStatus = async () => {
-      // console.log("🌐 Trying to fetch online status...");
-      try {
-        const res = await axios.get(`${backendUrl}/api/online-status`);
-        // console.log("✅ Online users:", res.data);
-        // console.log("res.data.onlineUsers:", res.data.onlineUsers);
-        // console.log("res.data.lastSeen:", res.data.lastSeen);
-        setOnlineUsers(res.data.onlineUsers || []);
-        setLastSeen(res.data.lastSeen || {});
-      } catch (err) {
-        console.error("❌ Failed to fetch online status:", err);
-      } finally {
-        setStatusLoading(false);
-      }
-    };
+  
 
-    fetchOnlineStatus();
-    const interval = setInterval(fetchOnlineStatus, 10000);
-    return () => clearInterval(interval);
-  }, []);
+  // // ✅ Fetch online + last seen from backend REST API every 10 seconds
+  // useEffect(() => {
+  //   const fetchOnlineStatus = async () => {
+  //     // console.log("🌐 Trying to fetch online status...");
+  //     try {
+  //       const res = await axios.get(`${backendUrl}/api/online-status`);
+  //       // console.log("✅ Online users:", res.data);
+  //       // console.log("res.data.onlineUsers:", res.data.onlineUsers);
+  //       // console.log("res.data.lastSeen:", res.data.lastSeen);
+  //       setOnlineUsers(res.data.onlineUsers || []);
+  //       setLastSeen(res.data.lastSeen || {});
+  //     } catch (err) {
+  //       console.error("❌ Failed to fetch online status:", err);
+  //     } finally {
+  //       setStatusLoading(false);
+  //     }
+  //   };
+
+  //   fetchOnlineStatus();
+  //   const interval = setInterval(fetchOnlineStatus, 10000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   useEffect(() => {
     if (!isMobile && user && user.followers?.length > 0) {

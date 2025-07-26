@@ -504,7 +504,10 @@ const Home = () => {
       {isMobile && showSuggestionModal && (
         <div className="vibenet-suggestion-modal-backdrop">
           <div className="vibenet-suggestion-modal">
+            <div className="d-flex">
             <h5>👋 Follow minimum 5 people to get started</h5>
+             <button className="vibenet-close-suggestion " onClick={() => setShowSuggestionModal(false)}>Close</button>
+            </div>
             <div className="vibenet-suggestion-list-scroll">
               {(showAll ? suggestions : suggestions.slice(0, 10)).map((sugg) => (
                 <div className="vibenet-suggestion-card" key={sugg._id}>
@@ -534,7 +537,7 @@ const Home = () => {
                 </div>
               ))}
             </div>
-            <button className="vibenet-close-suggestion" onClick={() => setShowSuggestionModal(false)}>Close</button>
+           
           </div>
 
 

@@ -135,16 +135,18 @@ const Navbar = ({ totalUnseenCount }) => {
       {/* Bottom Navigation for Mobile */}
       {!hideBottomNav &&
         <div className="bottom-nav d-md-none shadow-sm ">
-          <Link to="/" className="bottom-icon">
-            <FaHome />
-          </Link>
 
-          <Link to="/search" className="bottom-icon">
-            <FaSearch />
-          </Link>
 
           {user && (
             <>
+              <Link to="/" className="bottom-icon">
+                <FaHome />
+              </Link>
+
+              <Link to="/search" className="bottom-icon">
+                <FaSearch />
+              </Link>
+
               <div className="chat-icon-wrapper">
                 <Link to={`/chat/${user.id}`} className="bottom-icon">
                   <FaCommentDots size={24} />

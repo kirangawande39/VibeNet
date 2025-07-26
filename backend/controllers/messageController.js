@@ -121,6 +121,8 @@ const seenMessages = async (req, res, next) => {
   }
 };
 
+
+
 // 👉 Delete a message
 const deleteMessage = async (req, res, next) => {
   try {
@@ -218,6 +220,10 @@ const getUnseenMessageCounts = async (req, res, next) => {
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
+
+
+
+
 
 
 

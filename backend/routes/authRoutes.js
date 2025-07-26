@@ -2,10 +2,12 @@ const express = require("express");
 const { register, login, googleAuth, checkEmail, forgotPassword, resetPassword, googleCallBack } = require("../controllers/authController");
 const { registerLimiter, loginLimiter, forgotPasswordLimiter } = require("../middlewares/rateLimit");
 const passport = require("passport");
-const User = require("../models/User")
+
 
 require("dotenv").config();
 const router = express.Router();
+
+
 
 // router.post('/bulk-register', async (req, res, next) => {
 //   try {

@@ -223,5 +223,24 @@ const uploadProfilePic = async () => {
     }
 }
 
+const SaveFcmToken = async (req,res)=> {
+     const userId = req.user.id;
+     const {token}=req.body;
+    //  console.log("FCM TOKEN ::",token)
+    //  console.log("UserId form save token ",userId)
+     try{
+          const user = await  User.findById(userId);
+          user.fcmToken=token;
+          await user.save();
+          console.log("fcm token save sucessfully ")
+         
+     }
+     catch(error){
+        console.error('Error saving fcm token :', error);
+        res.status(500).json({ message: 'failed to saved fcm token' });
+     }
 
-module.exports = { getUserProfile, updateUserProfile, followUser, unfollowUser, searchUsers, getSuggestedUsers, uploadProfilePic };
+}
+
+
+module.exports = { getUserProfile, updateUserProfile, followUser, unfollowUser, searchUsers, getSuggestedUsers, uploadProfilePic,SaveFcmToken };

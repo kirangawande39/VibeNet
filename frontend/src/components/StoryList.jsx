@@ -1,4 +1,3 @@
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../assets/css/StoryList.css";
 import {
@@ -7,10 +6,9 @@ import {
 
 
 
+const StoryList = ({ stories, hasSeenAllStoriesCurrentUser, currentUserStories, currentUser, otherUsersStories, currentUserId, isVideo, openStory, isSeen }) => {
 
-const StoryList = ({ stories,hasSeenAllStoriesCurrentUser ,currentUserStories ,currentUser,otherUsersStories ,currentUserId ,isVideo ,openStory ,isSeen  }) => {
-
-  if (!stories?.length) return null;
+  // if (!stories?.length) return null;
 
   return (
     <>
@@ -18,12 +16,13 @@ const StoryList = ({ stories,hasSeenAllStoriesCurrentUser ,currentUserStories ,c
       <div className="container mt-3">
         <div className="d-flex overflow-auto pb-2">
           {/* Your Story Bubble */}
+
+
           <div
             className="text-center position-relative me-3 flex-shrink-0"
             onClick={() => openStory(currentUserId, 0)}
             style={{ cursor: "pointer", minWidth: "80px", maxWidth: "90px" }}
           >
-
             <div
               className={`rounded-circle border border-2 ${hasSeenAllStoriesCurrentUser ? "border-secondary" : "border-primary"}`}
               style={{
@@ -63,33 +62,29 @@ const StoryList = ({ stories,hasSeenAllStoriesCurrentUser ,currentUserStories ,c
                   style={{ objectFit: "cover" }}
                 />
               )}
+              {currentUserStories.length === 0 && (
+                <div
+                  className="position-absolute  text-white rounded-circle d-flex align-items-center justify-content-center"
+                  style={{
+                    width: "50px",
+                    height: "50px",
+                    bottom: "8px",
+                    right: "8px",
+                    fontSize: "14px",
+                  }}
+                >
+                  <FaPlus size={30}  />
+                </div>
+              )}
             </div>
-
             <small className="d-block mt-1 text-truncate" style={{ maxWidth: "90px" }}>
               Your Story
             </small>
-
-
-
-            {currentUserStories.length === 0 && (
-              <div
-                className="position-absolute bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
-                style={{
-                  width: "20px",
-                  height: "20px",
-                  bottom: "0",
-                  right: "15px",
-                  fontSize: "14px",
-                }}
-              >
-                <FaPlus size={12} />
-              </div>
-            )}
           </div>
 
           {/* Other Users' Stories */}
           {otherUsersStories.map(({ user, stories }) => {
-           
+
             return (
               <div
                 key={user._id}
@@ -126,18 +121,13 @@ const StoryList = ({ stories,hasSeenAllStoriesCurrentUser ,currentUserStories ,c
                 </div>
                 <small className="d-block mt-1 text-truncate" style={{ maxWidth: "90px" }}>
                   {user.username}
-            
                 </small>
-                  
+                {user._id}
               </div>
             );
           })}
-
         </div>
       </div>
-
- 
-    
     </>
 
   );

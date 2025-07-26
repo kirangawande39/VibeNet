@@ -48,8 +48,8 @@ const StoryViewer = ({
                       i === currentStoryIndex
                         ? `${currentStory.progress || 0}%`
                         : i < currentStoryIndex
-                        ? "100%"
-                        : "0%",
+                          ? "100%"
+                          : "0%",
                   }}
                 ></div>
               </div>
@@ -69,7 +69,7 @@ const StoryViewer = ({
             <span className="ms-2 text-white fw-semibold">{currentStory.user.username}</span>
             <span className="ms-2 text-secondary small">{format(currentStory.createdAt)}</span>
           </div>
-          <button className="btn btn-sm btn-light" onClick={closeStory}><FaTimes /></button>
+          <button className="btn btn-outline-light " onClick={closeStory}><FaTimes /></button>
         </div>
 
         {/* Media */}
@@ -181,6 +181,10 @@ const StoryViewer = ({
 };
 
 export default StoryViewer;
+
+
+
+
 
 
 

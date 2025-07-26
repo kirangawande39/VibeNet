@@ -1,19 +1,18 @@
 import { createContext, useState, useEffect } from "react";
 
-// 🔹 Context बनाओ
+
 export const AuthContext = createContext();
 
 // 🔹 Context Provider
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
-    // ✅ Login Function
+    
     const login = (userData) => {
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
     };
 
-    // ✅ Logout Function
     const logout = () => {
         setUser(null);
         localStorage.removeItem("user");

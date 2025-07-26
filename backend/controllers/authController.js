@@ -1,6 +1,5 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 
 const Message = require("../models/Message");
@@ -44,14 +43,14 @@ const register = async (req, res, next) => {
       },
     });
 
-    // ✅ Create chat between user and bot
+    //  Create chat between user and bot
     const chat = await Chat.create({
       members: [registeredUser._id, BOT_USER_ID],
     });
 
     // console.log("chat :: " + chat);
 
-    // ✅ Send welcome message in that chat
+    //  Send welcome message in that chat
     const message = await Message.create({
       chatId: chat._id,
       sender: BOT_USER_ID,
@@ -61,7 +60,7 @@ const register = async (req, res, next) => {
 
     // console.log("message::" + message);
 
-    // ✅ Final response
+    //  Final response
     res.status(201).json({
       _id: registeredUser.id,
       name: registeredUser.name,
@@ -109,18 +108,18 @@ const googleCallBack = async (req, res, next) => {
 
     const googleAuthUser = await User.findById(_id);
 
-    // ✅ Check if chat with bot already exists
+    // Check if chat with bot already exists
     const existingBotChat = await Chat.findOne({
       members: { $all: [googleAuthUser._id, BOT_USER_ID] },
     });
 
     if (!existingBotChat) {
-      // 🔁 Add bot to user's followers/following
+      // Add bot to user's followers/following
       googleAuthUser.followers.push(BOT_USER_ID);
       googleAuthUser.following.push(BOT_USER_ID);
       await googleAuthUser.save();
 
-      // 🔁 Add user to bot's followers/following
+      // Add user to bot's followers/following
       await User.findByIdAndUpdate(BOT_USER_ID, {
         $addToSet: {
           followers: googleAuthUser._id,
@@ -128,14 +127,14 @@ const googleCallBack = async (req, res, next) => {
         },
       });
 
-      // ✅ Create chat between user and bot
+      // Create chat between user and bot
       const chat = await Chat.create({
         members: [googleAuthUser._id, BOT_USER_ID],
       });
 
       // console.log("chat created:", chat);
 
-      // ✅ Send welcome message
+      //  Send welcome message
       const message = await Message.create({
         chatId: chat._id,
         sender: BOT_USER_ID,

@@ -10,9 +10,7 @@ import { handleError } from '../utils/errorHandler';
 import { ToastContainer, toast } from 'react-toastify';
 import Spinner from "./Spinner";
 const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack }) => {
-  if (!user || !selectedUser) {
-    return <div>Please select a user to start chat</div>;
-  }
+
 
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -90,8 +88,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   }, [messages, isTyping]);
 
   useEffect(() => {
-    if (!selectedUser || !user) return;
 
+    if (!selectedUser || !user) return;
     const createOrFetchChat = async () => {
       try {
         const res = await axios.post(
@@ -101,6 +99,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
         );
         // // console.log("ChatId :",res.data)
         setChatId(res.data._id);
+    
+        
         onLastMessageUpdate(lastMessage);
         setlastMessage(res.data.lastMessage);
       } catch (err) {
@@ -110,6 +110,9 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
 
     createOrFetchChat();
   }, [selectedUser, user, token]);
+
+
+
 
   useEffect(() => {
     if (!chatId) return;
@@ -140,6 +143,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
     const unseen = messages.some(
       (msg) => msg.sender._id !== user.id && !msg.seen
     );
+    
     if (unseen) {
       axios
         .put(`${backendUrl}/api/messages/seen/${chatId}`, {}, {
@@ -156,12 +160,19 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   }, [chatId, messages, user, token]);
 
   useEffect(() => {
+
     if (!user?.id) return;
+    
     socket.emit("user-online", user.id);
 
     const handleOnline = (users) => setOnlineUsers(users);
+    
     socket.on("online-users", handleOnline);
+
+
     return () => socket.off("online-users", handleOnline);
+
+
   }, [user]);
 
 
@@ -286,6 +297,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   const onMessageMouseUpOrLeave = () => {
     clearTimeout(longPressTimer.current);
   };
+
+
   const handleDeleteMessage = async (msgId) => {
     try {
       const res = await axios.delete(
@@ -340,6 +353,16 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
       socket.off("message-seen");
     };
   }, [chatId, user.id]);
+
+
+
+  if (!user || !selectedUser) {
+    return <div>Please select a user to start chat</div>;
+  }
+
+
+
+  console.log("lastMessage :",lastMessage);
 
 
   return (
@@ -469,6 +492,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
                             <span style={{ color: msg.seen ? "#34B7F1" : "gray" }}>✔✔</span>
                           </div>
                         )}
+                        
                       </div>
                     )}
                   </div>

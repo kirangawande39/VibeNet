@@ -21,6 +21,11 @@ const UserSchema = new mongoose.Schema(
     // 🔑 Forgot password fields
     resetToken: { type: String },
     resetTokenExpires: { type: Date },
+
+    fcmToken: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );
@@ -29,3 +34,7 @@ const UserSchema = new mongoose.Schema(
 UserSchema.plugin(passportLocalMongoose, { usernameField: "email" });
 
 module.exports = mongoose.model("User", UserSchema);
+
+
+
+

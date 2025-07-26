@@ -74,8 +74,14 @@ const Login = () => {
         },
         "oP6BKanobJVx_qqDN"
       );
+
+
+
+      console.log("forgotPass ",res.data);
+      
       // console.log(forgotEmail)
-      toast.success("Reset link sent to your email.");
+      toast.success(`Reset link sent to this ${forgotEmail} `);
+
       setShowForgotModal(false);
       setForgotEmail("");
       setEmailCheckStatus(null);
@@ -87,6 +93,7 @@ const Login = () => {
       }
     }
   };
+  
 
   const checkEmailExists = async (emailToCheck) => {
     setEmailChecking(true);
@@ -157,6 +164,7 @@ const Login = () => {
           <img src={googleLogo} alt="Google logo" style={{ width: "20px", height: "20px" }} />
           Sign in with Google
         </button>
+
 
         <p className="mt-3">
           Don't have an account?{" "}

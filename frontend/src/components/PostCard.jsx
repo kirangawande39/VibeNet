@@ -132,7 +132,7 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
 
 
   return (
-    <div className="card ">
+    <div className="card">
 
       {/* Audio element for like sound */}
       <audio

@@ -12,11 +12,12 @@ import EditProfile from "./pages/EditProfile";
 import Navbar from "./components/Navbar";
 import NotFound from "./pages/NotFound";
 import Search from "./pages/Search";
-
+import { requestForToken, onMessageListener } from "./firebase/firebase-messaging";
 import { ToastContainer, Slide } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css'
 
+import { OnlineProvider } from "./context/OnlineStatusContext";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
 import ResetPassword from "./pages/ResetPassword";
 import SidebarNavbar from "./components/SidebarNavbar";
@@ -26,7 +27,9 @@ function AppWrapper() {
   // We just return AuthProvider wrapping App, to avoid hooks outside provider issues
   return (
     <AuthProvider>
-      <App />
+      <OnlineProvider>
+        <App />
+      </OnlineProvider>
     </AuthProvider>
   );
 }
@@ -34,6 +37,10 @@ function AppWrapper() {
 function App() {
   const { login, user } = useContext(AuthContext);
   const [unseenCounts, setUnseenCounts] = useState([])
+
+
+
+
 
   const navigate = useNavigate();
 
@@ -45,6 +52,8 @@ function App() {
     const id = params.get("id");
 
     const currentPath = window.location.pathname;
+
+
 
     // ⛔ Don't redirect if on reset-password page
     if (currentPath.startsWith("/reset-password")) return;
@@ -58,35 +67,54 @@ function App() {
     }
   }, [login, navigate, user]);
 
-const fetchUnseenCounts = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    const res = await axios.get(`${backendUrl}/api/messages/unseen-counts`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    setUnseenCounts(res.data.data);
-  } catch (err) {
-    console.error("Error fetching unseen counts:", err);
-  }
-};
-
-useEffect(() => {
-  fetchUnseenCounts(); // Initial fetch
-
-  // Real-time updates via socket
-  socket.on("message-seen", fetchUnseenCounts);
-  socket.on("receive-message", fetchUnseenCounts);
-
-  return () => {
-    socket.off("message-seen", fetchUnseenCounts);
-    socket.off("receive-message", fetchUnseenCounts);
+  const fetchUnseenCounts = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${backendUrl}/api/messages/unseen-counts`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      setUnseenCounts(res.data.data);
+    } catch (err) {
+      console.error("Error fetching unseen counts:", err);
+    }
   };
-}, []);
+
+  useEffect(() => {
+    fetchUnseenCounts(); // Initial fetch
+
+    // Real-time updates via socket
+    socket.on("message-seen", fetchUnseenCounts);
+    socket.on("receive-message", fetchUnseenCounts);
+
+    return () => {
+      socket.off("message-seen", fetchUnseenCounts);
+      socket.off("receive-message", fetchUnseenCounts);
+    };
+  }, []);
+
+  //  Firebase Notification 
+  useEffect(() => {
+    const authToken = localStorage.getItem("token");
+    if (user && authToken){
+      requestForToken(authToken); 
+    }
+
+    onMessageListener()
+      .then(payload => {
+        alert("🔔 New Notification: " + payload.notification.title);
+      })
+      .catch(err => console.log("FCM listener error:", err));
+  }, 1000);
 
 
   const totalUnseenCount = unseenCounts.reduce((total, item) => total + item.unseenCount, 0);
+
+
+
+
+
 
 
 
