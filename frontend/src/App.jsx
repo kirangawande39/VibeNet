@@ -97,7 +97,7 @@ function App() {
   //  Firebase Notification 
   useEffect(() => {
     const authToken = localStorage.getItem("token");
-    if (user && authToken){
+    if (authToken){
       requestForToken(authToken); 
     }
 
@@ -106,7 +106,7 @@ function App() {
         alert("🔔 New Notification: " + payload.notification.title);
       })
       .catch(err => console.log("FCM listener error:", err));
-  }, 1000);
+  },[] );
 
 
   const totalUnseenCount = unseenCounts.reduce((total, item) => total + item.unseenCount, 0);

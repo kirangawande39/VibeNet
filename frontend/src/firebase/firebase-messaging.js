@@ -8,6 +8,8 @@ const apiKey=import.meta.env.VITE_FIREBASE_API_KEY;
 const projectId=import.meta.env.VITE_FIREBASE_PROJECT_ID;
 const messagingSenderId=import.meta.env.VITE_FIREBASE_MESSAGE_SENDER_ID;
 const appId=import.meta.env.VITE_FIREBASE_APP_ID;
+
+
 const firebaseConfig = {
   apiKey,
   authDomain: "vibenet-d2b6a.firebaseapp.com",
