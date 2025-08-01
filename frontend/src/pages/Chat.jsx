@@ -220,7 +220,7 @@ const Chat = () => {
             {localUser && localUser.followers?.length > 0 ? (
               sortedFollowers.map((follower, index) => {
                 const isChatBot = follower._id === CHATBOT_ID;
-                const isOnline = isChatBot || onlineUsers.includes(follower._id); // chatbot हमेशा online
+                const isOnline = isChatBot || onlineUsers.includes(follower._id); // chatbot online
                 const lastSeenTime = lastSeen[follower._id];
 
 

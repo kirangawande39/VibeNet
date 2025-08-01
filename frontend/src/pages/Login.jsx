@@ -74,14 +74,9 @@ const Login = () => {
         },
         "oP6BKanobJVx_qqDN"
       );
-
-
-
       // console.log("forgotPass ",res.data);
-      
       // console.log(forgotEmail)
       toast.success(`Reset link sent to this ${forgotEmail} `);
-
       setShowForgotModal(false);
       setForgotEmail("");
       setEmailCheckStatus(null);

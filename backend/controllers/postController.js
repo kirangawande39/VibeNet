@@ -102,6 +102,7 @@ const getPostsByUserId = async (req, res, next) => {
   }
 };
 
+
 // 👉 Delete Post
 const deletePost = async (req, res, next) => {
   try {

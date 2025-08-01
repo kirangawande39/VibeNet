@@ -88,6 +88,7 @@ const Home = () => {
 
     fetchSuggestions();
   }, []);
+  
 
 
 

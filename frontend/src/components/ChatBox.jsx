@@ -176,37 +176,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   }, [user]);
 
 
-  useEffect(() => {
-    const handleReceive = (msg) => {
-      // console.log("📥 Message received via socket:", msg);
-      // console.log("💬 Current Chat ID:", chatId)
 
-      if (!msg.sender || !msg.sender._id) {
-        msg.sender = { _id: msg.senderId };
-      }
-
-      const incomingChatId = msg.chatId?._id || msg.chatId;
-
-      if (incomingChatId === chatId) {
-        setMessages((prev) => {
-          // ✅ Check if this message already exists
-          const exists = prev.some((m) => m._id === msg._id);
-          if (!exists && msg._id) {
-            return [...prev, msg];
-          }
-          return prev;
-        });
-
-        // ✅ Scroll to bottom (optional)
-        setTimeout(() => {
-          chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-        }, 100);
-      }
-    };
-
-    socket.on("receive-message", handleReceive);
-    return () => socket.off("receive-message", handleReceive);
-  }, [chatId]);
 
 
 
@@ -333,6 +303,39 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
       socket.off("delete-message");
     };
   }, [socket]);
+
+  
+    useEffect(() => {
+    const handleReceive = (msg) => {
+      // console.log("Message received via socket:", msg);
+      // console.log("Current Chat ID:", chatId)
+
+      if (!msg.sender || !msg.sender._id) {
+        msg.sender = { _id: msg.senderId };
+      }
+
+      const incomingChatId = msg.chatId?._id || msg.chatId;
+
+      if (incomingChatId === chatId) {
+        setMessages((prev) => {
+          //  Check if this message already exists
+          const exists = prev.some((m) => m._id === msg._id);
+          if (!exists && msg._id) {
+            return [...prev, msg];
+          }
+          return prev;
+        });
+
+        //  Scroll to bottom (optional)
+        setTimeout(() => {
+          chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    };
+
+    socket.on("receive-message", handleReceive);
+    return () => socket.off("receive-message", handleReceive);
+  }, [chatId]);
 
 
 

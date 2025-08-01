@@ -1,6 +1,10 @@
 const User = require('../models/User');
 
 
+const {cloudinary} = require('../config/cloudConfig')
+
+
+
 // Get User Profile
 const getUserProfile = async (req, res, next) => {
     try {
@@ -179,11 +183,11 @@ const getSuggestedUsers = async (req, res) => {
 };
 
 
-const uploadProfilePic = async () => {
+const uploadProfilePic = async (req,res) => {
     try {
         const userId = req.params.id;
         // console.log(`Received request to update profile pic for user: ${userId}`);
-
+        console.log("userId ::",userId)
         const user = await User.findById(userId);
         if (!user) {
             // console.log(`User with id ${userId} not found.`);

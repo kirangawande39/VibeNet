@@ -130,66 +130,56 @@ app.use(errorHandler);
 
 
 io.on("connection", (socket) => {
-  // 🔌 Jab naya client socket se connect hota hai
-  // console.log("Socket connected:", socket.id);
+ 
 
   // Jab user online hota hai, uska socket.id ko userId se map karo
   socket.on("user-online", (userId) => {
     onlineUsers.set(userId, socket.id); // userId -> socketId
-    io.emit("online-users", Array.from(onlineUsers.keys())); // Sab clients ko online user list bhejo
+    io.emit("online-users", Array.from(onlineUsers.keys())); 
   });
 
-  // Chat join karne ke liye specific room me socket ko join karna
   socket.on("join-chat", (chatId) => socket.join(chatId));
 
-  // Chat message send karne par same chatId wale room me message bhejna
+  
   socket.on("send-message", ({ chatId, message }) => {
     socket.to(chatId).emit("receive-message", message);
   });
 
-  // Post ke real-time comment feature ke liye room join karwana
+  
   socket.on("join-post", (postId) => {
     socket.join(postId);
-    // console.log(`Socket ${socket.id} joined room ${postId}`);
   });
 
-  // Jab new comment aaye, us postId wale room me sabko emit karo
   socket.on("new-comment", (comment) => {
     const { postId } = comment;
     if (postId) socket.to(postId).emit("new-comment", comment);
   });
 
-  // Comment delete hone par same postId wale room me message bhejna
   socket.on("delete-comment", ({ commentId, postId }) => {
     if (postId) socket.to(postId).emit("delete-comment", { commentId });
   });
 
-  // Typing indicator dikhane ke liye event emit karna
   socket.on("typing", ({ chatId, senderId }) => {
     socket.to(chatId).emit("typing", { senderId });
   });
 
-  // Jab typing ruk jaye to uska indicator hata dena
   socket.on("stop-typing", ({ chatId, senderId }) => {
     socket.to(chatId).emit("stop-typing", { senderId });
   });
 
-  // Message delete hone par us chatId ke room me sabko update bhejna
   socket.on("delete-message", ({ chatId, msgId }) => {
     socket.to(chatId).emit("delete-message", { msgId });
   });
 
-  // Jab kisi user ne message read kiya, to sabko seen update bhejna
   socket.on("message-seen", ({ chatId, userId }) => {
     socket.to(chatId).emit("message-seen", { chatId, userId });
   });
 
-  // Alternate way to mark message as seen (used in some UIs)
   socket.on("mark-seen", ({ chatId, userId }) => {
     socket.to(chatId).emit("message-seen", { chatId, seenBy: userId });
   });
 
-  // ❌ Jab user disconnect hota hai (browser band kare, network jaye, etc.)
+ 
   socket.on("disconnect", () => {
     for (let [userId, socketId] of onlineUsers.entries()) {
       if (socketId === socket.id) {

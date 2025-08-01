@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+
 const Search = () => {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
