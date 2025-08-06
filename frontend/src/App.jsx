@@ -94,30 +94,33 @@ function App() {
     };
   }, []);
 
+
+
+
   //  Firebase Notification 
   useEffect(() => {
     const authToken = localStorage.getItem("token");
-    if (authToken){
-      requestForToken(authToken); 
+    if (authToken && user) {
+      requestForToken(authToken);
     }
 
     onMessageListener()
       .then(payload => {
-        alert("🔔 New Notification: " + payload.notification.title);
+        console.log("📩 Payload Received:", payload);
+
+        const sender = payload.data?.sender || "Unknown";
+        const site = payload.data?.siteName || "VibeNet";
+        const message = payload.notification?.body || "";
+
+        alert(`🔔 New Message from ${sender} on ${site}:\n${message}`);
       })
-      .catch(err => console.error("FCM listener error:", err));
-  },[] );
+      .catch(err => console.error("❌ FCM listener error:", err));
+
+  }, [user]);
+
 
 
   const totalUnseenCount = unseenCounts.reduce((total, item) => total + item.unseenCount, 0);
-
-
-
-
-
-
-
-
 
   return (
     <>

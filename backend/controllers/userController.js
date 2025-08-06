@@ -236,8 +236,7 @@ const SaveFcmToken = async (req,res)=> {
           const user = await  User.findById(userId);
           user.fcmToken=token;
           await user.save();
-          console.log("fcm token save sucessfully ")
-         
+        //   console.log("fcm token save sucessfully ")     
      }
      catch(error){
         console.error('Error saving fcm token :', error);

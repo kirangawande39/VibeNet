@@ -9,15 +9,21 @@ const projectId=import.meta.env.VITE_FIREBASE_PROJECT_ID;
 const messagingSenderId=import.meta.env.VITE_FIREBASE_MESSAGE_SENDER_ID;
 const appId=import.meta.env.VITE_FIREBASE_APP_ID;
 
+const authDomain=import.meta.env.VITE_AUTHDOMAIN;
+
+const storageBucket=import.meta.env.VITE_STORAGEBUCKET;
+
+const measurementId=import.meta.env.VITE_MEASUREMENT_ID;
+
 
 const firebaseConfig = {
   apiKey,
-  authDomain: "vibenet-d2b6a.firebaseapp.com",
+  authDomain,
   projectId,
-  storageBucket: "vibenet-d2b6a.firebasestorage.app",
+  storageBucket,
   messagingSenderId,
   appId,
-  measurementId: "G-DM29KMCD70"
+  measurementId,
 };
 
 const firebaseApp = initializeApp(firebaseConfig);

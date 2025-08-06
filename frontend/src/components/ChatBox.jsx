@@ -12,6 +12,7 @@ import Spinner from "./Spinner";
 const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack }) => {
 
 
+
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
@@ -219,11 +220,11 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   const handleSend = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !chatId) return;
-
+     const receiverId=selectedUser._id;
     try {
       const res = await axios.post(
         `${backendUrl}/api/messages`,
-        { chatId, text: newMessage },
+        { chatId, receiverId, text: newMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 

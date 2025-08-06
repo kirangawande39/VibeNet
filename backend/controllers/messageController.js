@@ -4,6 +4,8 @@ const Chat = require("../models/Chat");
 const mongoose = require("mongoose")
 
 const { generateBotReply } = require("../utils/botReplyLogic.js");
+const User = require('../models/User.js');
+const sendNotification = require('../utils/sendNotification.js');
 
 
 const BOT_USER_ID = process.env.BOT_USER_ID;
@@ -12,9 +14,12 @@ const BOT_USER_ID = process.env.BOT_USER_ID;
 const sendMessage = async (req, res, next) => {
   // console.log("✅ send message route is here");
 
-  const { chatId, text } = req.body;
+  const { chatId, receiverId, text } = req.body;
   const sender = req.user.id;
 
+  // console.log("chatId::", chatId);
+  // console.log("sender::", sender);
+  // console.log("receiverId::", receiverId);
 
   try {
     // Step 1: Save user message
@@ -24,6 +29,19 @@ const sendMessage = async (req, res, next) => {
 
     // Step 2: Update chat last message
     await Chat.findByIdAndUpdate(chatId, { lastMessage: text });
+
+    const receiverUser = await User.findById(receiverId).select('fcmToken');
+
+    const fcmToken = receiverUser?.fcmToken;
+
+    
+   if(fcmToken){
+     sendNotification(fcmToken, "new message form VibeNet", text);
+   }
+
+
+
+
 
     // Step 3: Emit user message
     if (req.io) {

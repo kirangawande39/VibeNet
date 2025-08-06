@@ -22,6 +22,8 @@ function debounce(func, delay = 2000) {
   };
 }
 
+
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -114,6 +116,7 @@ const Login = () => {
 
         <h1 className="text-primary logo fw-bold mb-4">VibeNet</h1>
         <h4 className="mb-3">Login to your account</h4>
+       
 
         <form onSubmit={handleLogin}>
           <div className="mb-3">
