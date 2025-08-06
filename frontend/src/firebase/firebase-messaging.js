@@ -2,11 +2,17 @@ import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import axios from "axios";
 
-const vapidKey = import.meta.env.VITE_VAPID_KEY;
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+const vapidKey = import.meta.env.VITE_VAPID_KEY;
+
+
 const apiKey=import.meta.env.VITE_FIREBASE_API_KEY;
+
 const projectId=import.meta.env.VITE_FIREBASE_PROJECT_ID;
+
 const messagingSenderId=import.meta.env.VITE_FIREBASE_MESSAGE_SENDER_ID;
+
 const appId=import.meta.env.VITE_FIREBASE_APP_ID;
 
 const authDomain=import.meta.env.VITE_AUTHDOMAIN;
@@ -36,7 +42,7 @@ export const requestForToken = async (authToken) => {
 
     // Ya user?.id — jaisa backend me hai
 
-    const token = await getToken(messaging, { vapidKey});
+    const token = await getToken(messaging, {vapidKey});
 
     if (token) {
       // console.log("FCM Token:", token);
