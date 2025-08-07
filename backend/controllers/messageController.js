@@ -7,6 +7,7 @@ const { generateBotReply } = require("../utils/botReplyLogic.js");
 const User = require('../models/User.js');
 const sendNotification = require('../utils/sendNotification.js');
 
+const { getAIReply } = require("../utils/botReplay.js");
 
 const BOT_USER_ID = process.env.BOT_USER_ID;
 
@@ -56,13 +57,19 @@ const sendMessage = async (req, res, next) => {
       });
     }
 
+    // const boatreplay=await getAIReply(text);
+
+    // console.log("boatreplay ::",boatreplay);
+
+
+
     // Step 4: Check if chat has bot and sender is not bot
     const chat = await Chat.findById(chatId);
     if (chat && chat.members.includes(BOT_USER_ID) && sender !== BOT_USER_ID) {
       // ✅ Step 5: Await bot reply
       let botReplyText;
       try {
-        botReplyText = await generateBotReply(text); // 💡 FIXED
+        botReplyText = await getAIReply(text); // 💡 FIXED
       } catch (err) {
         console.error("🤖 Bot failed:", err.message);
         botReplyText = "Sorry, I'm having trouble replying right now. 😔";

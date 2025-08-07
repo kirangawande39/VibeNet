@@ -12,7 +12,7 @@ const serviceAccount = JSON.parse(serviceAccountJson);
 // Fix the \n issue in private_key
 
 
-console.log("Parsed Service Account:", serviceAccount);
+// console.log("Parsed Service Account:", serviceAccount);
 
 
 admin.initializeApp({
