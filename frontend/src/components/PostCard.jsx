@@ -217,7 +217,7 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
         </div>
         <br />
         <div className="d-flex justify-content-between text-muted">
-          <span>❤️ {totalLikes || 0} Likes</span>
+          <span className="">❤️ {totalLikes || 0} Likes</span>
           <span>💬 {post.comments?.length || 0} Comments</span>
         </div>
         <p className="mb-1">

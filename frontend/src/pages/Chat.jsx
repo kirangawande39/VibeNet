@@ -5,50 +5,33 @@ import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import Spinner from "../components/Spinner";
 import { useParams } from "react-router-dom";
-import { handleError } from '../utils/errorHandler';
-import { io } from "socket.io-client";
-
-import "../assets/css/Chat.css";
+import { handleError } from "../utils/errorHandler";
 import { useOnline } from "../context/OnlineStatusContext";
+import "../assets/css/Chat.css";
 
-// Initialize socket outside the component to avoid reconnection
-
-
+// 🔹 Component Start
 const Chat = () => {
-  
   const { user, updateUser } = useContext(AuthContext);
-
   const { allOnlineUsers } = useOnline();
 
-   
   const [localUser, setLocalUser] = useState();
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [chats, setChats] = useState([]);
+  const [chats, setChats] = useState([]); // 🔹 Stores last messages
   const [onlineUsers, setOnlineUsers] = useState(allOnlineUsers);
   const [lastSeen, setLastSeen] = useState({});
   const [loading, setLoading] = useState(true);
   const [statusLoading, setStatusLoading] = useState(false);
+    const [lastMessage, setlastMessage] = useState(null);
+  
+
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const { id } = useParams();
 
-
-
   const CHATBOT_ID = "684f268c7dad0bf1b1dfd4f8";
 
-
-    // console.log("onlineUsersStatus",onlineUsersStatus);
-    // console.log("lastSeenStatus",lastSeenStatus);
-    // console.log("statusLoadingStatus",statusLoadingStatus);
-
-    // console.log("onlineUsers",onlineUsers);
-    // console.log("lastSeen",lastSeen);
-    // console.log("loading",loading);
-    
-    // console.log("allOnlineUsers",allOnlineUsers);
-
-
+  // Dummy messages for testing
   const dummyMessages = {
     user1: [
       { id: 1, sender: "user1", text: "Hey!" },
@@ -60,12 +43,13 @@ const Chat = () => {
     ],
   };
 
+  // Sorting followers: chatbot → online → last seen
   const sortedFollowers = [...(user?.followers || [])].sort((a, b) => {
     const isAChatBot = a._id === CHATBOT_ID;
     const isBChatBot = b._id === CHATBOT_ID;
 
-    if (isAChatBot) return -1; // A is chatbot, goes first
-    if (isBChatBot) return 1;  // B is chatbot, goes after A
+    if (isAChatBot) return -1;
+    if (isBChatBot) return 1;
 
     const isAOnline = onlineUsers.includes(a._id);
     const isBOnline = onlineUsers.includes(b._id);
@@ -79,20 +63,29 @@ const Chat = () => {
     return bLast - aLast;
   });
 
-
-
+  // ✅ Update lastMessage in chats state
   const updateLastMessage = (chatId, newMessage) => {
     setChats((prev) =>
-      prev.map((chat) =>
-        chat._id === chatId ? { ...chat, lastMessage: newMessage } : chat
-      )
+      prev.some((chat) => chat._id === chatId)
+        ? prev.map((chat) =>
+            chat._id === chatId ? { ...chat, lastMessage: newMessage } : chat
+          )
+        : [...prev, { _id: chatId, lastMessage: newMessage }]
     );
   };
 
+
+
+  // Called from ChatBox
   const handleLastMessageUpdate = (newMessage) => {
     if (selectedUser) {
       updateLastMessage(selectedUser._id, newMessage);
-      // console.log("newMessage :", newMessage);
+      console.log(
+        "newMessage Updated:",
+        selectedUser._id,
+        selectedUser.username,
+        newMessage
+      );
     }
   };
 
@@ -105,7 +98,9 @@ const Chat = () => {
   const fetchUserData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${backendUrl}/api/users/${id ? id : user.id}`);
+      const res = await axios.get(
+        `${backendUrl}/api/users/${id ? id : user.id}`
+      );
       setLocalUser(res.data.user);
       updateUser(res.data.user);
     } catch (err) {
@@ -119,50 +114,23 @@ const Chat = () => {
     fetchUserData();
   }, []);
 
-  // ✅ Emit user-online after user info is ready
-  // useEffect(() => {
-  //   if (user && user._id) {
-  //     socket.emit("user-online", user._id);
-  //     // console.log("📡 Emitted user-online:", user._id);
-  //   }
-  // }, [user]);
+  // ✅ Fetch online + last seen every 10s
+  useEffect(() => {
+    const fetchOnlineStatus = async () => {
+      try {
+        const res = await axios.get(`${backendUrl}/api/online-status`);
+        setLastSeen(res.data.lastSeen || {});
+      } catch (err) {
+        console.error("❌ Failed to fetch online status:", err);
+      } finally {
+        setStatusLoading(false);
+      }
+    };
 
-  // // ✅ Listen to online-users broadcast (optional for live update)
-  // useEffect(() => {
-  //   socket.on("online-users", (users) => {
-  //     // console.log("🌐 Live online users:", users);
-  //     setOnlineUsers(users);
-  //   });
-
-  //   return () => {
-  //     socket.off("online-users");
-  //   };
-  // }, []);
-
-  
-
-  // // ✅ Fetch online + last seen from backend REST API every 10 seconds
-  // useEffect(() => {
-  //   const fetchOnlineStatus = async () => {
-  //     // console.log("🌐 Trying to fetch online status...");
-  //     try {
-  //       const res = await axios.get(`${backendUrl}/api/online-status`);
-  //       // console.log("✅ Online users:", res.data);
-  //       // console.log("res.data.onlineUsers:", res.data.onlineUsers);
-  //       // console.log("res.data.lastSeen:", res.data.lastSeen);
-  //       setOnlineUsers(res.data.onlineUsers || []);
-  //       setLastSeen(res.data.lastSeen || {});
-  //     } catch (err) {
-  //       console.error("❌ Failed to fetch online status:", err);
-  //     } finally {
-  //       setStatusLoading(false);
-  //     }
-  //   };
-
-  //   fetchOnlineStatus();
-  //   const interval = setInterval(fetchOnlineStatus, 10000);
-  //   return () => clearInterval(interval);
-  // }, []);
+    fetchOnlineStatus();
+    const interval = setInterval(fetchOnlineStatus, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (!isMobile && user && user.followers?.length > 0) {
@@ -173,9 +141,15 @@ const Chat = () => {
 
   const handleSendMessage = (newMessage) => {
     if (!selectedUser) return;
-    const updatedMessages = [...messages, { sender: user.username, text: newMessage }];
+    const updatedMessages = [
+      ...messages,
+      { sender: user.username, text: newMessage },
+    ];
     setMessages(updatedMessages);
+    handleLastMessageUpdate(newMessage); // ✅ Update last message when sending
   };
+
+
 
   const handleUserSelect = (follower) => {
     setSelectedUser(follower);
@@ -201,10 +175,12 @@ const Chat = () => {
     return "a while ago";
   };
 
-
   if (loading || statusLoading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "80vh" }}
+      >
         <Spinner />
       </div>
     );
@@ -212,22 +188,30 @@ const Chat = () => {
 
   return (
     <div className="container chat-app mt-4">
+      
       <div className="row">
-
-        {/* Follower List */}
+        {/* Followers List */}
         <div className={`col-md-4 ${isMobile && selectedUser ? "d-none" : ""}`}>
           <div className="list-group">
             {localUser && localUser.followers?.length > 0 ? (
               sortedFollowers.map((follower, index) => {
                 const isChatBot = follower._id === CHATBOT_ID;
-                const isOnline = isChatBot || onlineUsers.includes(follower._id); // chatbot online
+                const isOnline =
+                  isChatBot || onlineUsers.includes(follower._id);
                 const lastSeenTime = lastSeen[follower._id];
 
+                // 🔹 Get last message from chats state
+                const chatData = chats.find((c) => c._id === follower._id);
+                const lastMsg = chatData?.lastMessage;
 
                 return (
                   <button
                     key={index}
-                    className={`list-group-item list-group-item-action d-flex align-items-center justify-content-between ${selectedUser && follower._id === selectedUser._id ? "active" : ""}`}
+                    className={`list-group-item list-group-item-action d-flex align-items-center justify-content-between ${
+                      selectedUser && follower._id === selectedUser._id
+                        ? "active"
+                        : ""
+                    }`}
                     onClick={() => handleUserSelect(follower)}
                   >
                     <div className="d-flex align-items-center">
@@ -243,10 +227,20 @@ const Chat = () => {
                         style={{ objectFit: "cover" }}
                       />
                       <div>
-                        <div>{follower.username}</div>
+                        <div className="fw-bold">{follower.username}</div>
+
+                        {/* ✅ Last Message */}
+                        <div
+                          className="text-truncate text-muted"
+                          style={{ maxWidth: "180px" }}
+                        >
+                          <small>{lastMsg}</small>
+                        </div>
+
+                        {/* ✅ Online / Last Seen */}
                         <small className="text-muted">
                           {isOnline ? (
-                            <span className="text-success">Online</span>
+                            <span className="text-success">Active</span>
                           ) : lastSeenTime ? (
                             <span>Last seen {formatLastSeen(lastSeenTime)}</span>
                           ) : (
@@ -260,7 +254,10 @@ const Chat = () => {
               })
             ) : (
               <div className="text-muted p-2 d-flex justify-between items-center gap-2">
-                <button className="btn btn-sm btn-outline-secondary" onClick={() => window.history.back()}>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => window.history.back()}
+                >
                   ← Back
                 </button>
                 <span>No followers to show</span>
@@ -272,18 +269,15 @@ const Chat = () => {
         {/* Chat Box */}
         <div className={`col-md-8 ${isMobile && !selectedUser ? "d-none" : ""}`}>
           {selectedUser ? (
-            <>
-
-              <ChatBox
-                messages={messages}
-                onSendMessage={handleSendMessage}
-                user={user}
-                selectedUser={selectedUser}
-                localUser={localUser}
-                onLastMessageUpdate={handleLastMessageUpdate}
-                onBack={handleBack}
-              />
-            </>
+            <ChatBox
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              user={user}
+              selectedUser={selectedUser}
+              localUser={localUser}
+              onLastMessageUpdate={handleLastMessageUpdate}
+              onBack={handleBack}
+            />
           ) : (
             <div className="text-muted p-4">Select a user to start chatting</div>
           )}

@@ -102,7 +102,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
         setChatId(res.data._id);
     
         
-        onLastMessageUpdate(lastMessage);
+        onLastMessageUpdate(res.data.lastMessage);
         setlastMessage(res.data.lastMessage);
       } catch (err) {
         handleError(err);
@@ -376,9 +376,9 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
           <div className="d-md-none mb-2">
             <button className="btn btn-link" onClick={onBack}>
               <MdArrowBack size={24} />
-
             </button>
           </div>
+          <p>lastMessage::{lastMessage}</p>
           <img
             src={selectedUser.profilePic.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
             alt="Profile"

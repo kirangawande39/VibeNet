@@ -13,6 +13,7 @@ import SidebarNavbar from "../components/SidebarNavbar";
 import "../assets/css/StoryList.css";
 
 
+
 import StoryViewer from "../components/StoryViewer"
 
 
@@ -506,7 +507,7 @@ const Home = () => {
         <div className="vibenet-suggestion-modal-backdrop">
           <div className="vibenet-suggestion-modal">
             <div className="d-flex">
-            <h5>👋 Follow minimum 5 people to get started</h5>
+            <h5 className="font-bold  text-[2rem]">👋 Follow minimum 5 people to get started</h5>
              <button className="vibenet-close-suggestion " onClick={() => setShowSuggestionModal(false)}>Close</button>
             </div>
             <div className="vibenet-suggestion-list-scroll">
