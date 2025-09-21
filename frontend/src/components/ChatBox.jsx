@@ -378,7 +378,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
               <MdArrowBack size={24} />
             </button>
           </div>
-          <p>lastMessage::{lastMessage}</p>
+          {/* <p>lastMessage::{lastMessage}</p> */}
           <img
             src={selectedUser.profilePic.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
             alt="Profile"

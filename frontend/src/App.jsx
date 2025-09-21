@@ -15,7 +15,7 @@ import Search from "./pages/Search";
 import { requestForToken, onMessageListener } from "./firebase/firebase-messaging";
 import { ToastContainer, Slide } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import './App.css'
+
 
 import { OnlineProvider } from "./context/OnlineStatusContext";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
@@ -125,10 +125,7 @@ function App() {
   return (
     <>
       <Navbar totalUnseenCount={totalUnseenCount} />
-      <div className="bg-yellow-500 text-black font-bold ">
-        Tailwind background and bold text
-      </div>
-
+  
       <SidebarNavbar />
       <Routes>
         <Route path="/" element={<Home />} />

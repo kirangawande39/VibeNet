@@ -1,5 +1,6 @@
 // Vite ka config define karte hain
 import { defineConfig } from 'vite'
+import tailwindcss from '@tailwindcss/vite'
 
 // React plugin ko import karte hain for JSX, fast refresh, etc.
 import react from '@vitejs/plugin-react'
@@ -11,7 +12,10 @@ import { resolve } from 'path'
 // Vite ka configuration export karte hain
 export default defineConfig({
   // React plugin ko use karna
-  plugins: [react()],
+   plugins: [
+    react(),
+    tailwindcss(),
+  ],
 
   // Build ke samay kuch extra configuration
   build: {
