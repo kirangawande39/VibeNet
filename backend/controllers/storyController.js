@@ -21,7 +21,7 @@ const createStory = async (req, res, next) => {
       mediaUrl: storyUrl,
       mediaType,
       publicId,
-      expiresAt: new Date(Date.now() + 2 * 60 * 1000),
+      expiresAt:  new Date(Date.now() + 24 * 60 * 60 * 1000) ,
     });
 
     res.status(201).json({ success: true, story });

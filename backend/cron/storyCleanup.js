@@ -5,7 +5,7 @@ const { cloudinary } = require("../config/cloudConfig");
 console.log("🚀 Story Cleanup Cron Job File Loaded");
 
 // Schedule: runs every minute for quick testing; change as needed
-cron.schedule("0 * * * * *", async () => {
+cron.schedule("0 * * * *", async () => {
   const now = new Date();
   console.log("Cron Running - Story Cleanup Task");
 

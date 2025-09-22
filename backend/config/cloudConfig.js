@@ -20,6 +20,8 @@ const StoryStorage = new CloudinaryStorage({
 });
 
 
+
+
 // Profile Pic Storage (different folder)
 const profilePicStorage = new CloudinaryStorage({
   cloudinary,
