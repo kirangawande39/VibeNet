@@ -5,27 +5,35 @@ const { cloudinary } = require("../config/cloudConfig");
 console.log("🚀 Story Cleanup Cron Job File Loaded");
 
 // Schedule: runs every minute for quick testing; change as needed
-cron.schedule("* * * * *", async () => {
+cron.schedule("0 * * * * *", async () => {
   const now = new Date();
-  console.log("🕐 Cron Running - Story Cleanup Task");
+  console.log("Cron Running - Story Cleanup Task");
 
   try {
     const expiredStories = await Story.find({ expiresAt: { $lte: now } });
 
     if (expiredStories.length === 0) {
-      console.log("👌 No expired stories found.");
+      console.log("No expired stories found.");
       return;
     }
+    
 
     for (const story of expiredStories) {
-      const publicId = extractPublicId(story.mediaUrl);
 
-      if (publicId) {
+
+      // console.log("Story exp ::",story)
+
+      // const publicId = extractPublicId(story.publicId);
+      
+      if (story.publicId) {
         try {
-          await cloudinary.uploader.destroy(publicId);
-          console.log(`✅ Deleted from Cloudinary: ${publicId}`);
+          // console.log("publicId story ::",story.publicId)
+          await cloudinary.uploader.destroy(story.publicId);
+
+          // console.log(`✅ Deleted from Cloudinary: ${story.publicId}`);
+
         } catch (cloudErr) {
-          console.error(`❌ Cloudinary deletion error for ${publicId}:`, cloudErr);
+          console.error(`❌ Cloudinary deletion error for ${story.publicId}:`, cloudErr);
         }
       } else {
         console.warn(`⚠️ Could not extract public_id from URL: ${story.mediaUrl}`);
@@ -39,15 +47,6 @@ cron.schedule("* * * * *", async () => {
   }
 });
 
-// Helper: Extracts public_id from Cloudinary mediaUrl (like 'VibeNet/filename')
-function extractPublicId(url) {
-  try {
-    const parts = url.split("/");
-    const fileName = parts.pop().split(".")[0]; // filename without extension
-    const folder = parts.pop();                  // folder name, e.g. "VibeNet"
-    return `${folder}/${fileName}`;
-  } catch (err) {
-    console.error("⚠️ Failed to extract public_id from URL:", url);
-    return null;
-  }
-}
+
+
+

@@ -5,6 +5,9 @@ const createStory = async (req, res, next) => {
 
   try {
     const file = req.file;
+    const publicId=req.file.filename;
+
+   console.log("Story publicId ::", publicId);
 
     if (!file) {
       throw new Error("No file uploaded");
@@ -12,12 +15,13 @@ const createStory = async (req, res, next) => {
 
     const storyUrl = file.path;
     const mediaType = file.mimetype.startsWith("video") ? "video" : "image";
-
+    
     const story = await Story.create({
       user: req.user.id,
       mediaUrl: storyUrl,
       mediaType,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      publicId,
+      expiresAt: new Date(Date.now() + 2 * 60 * 1000),
     });
 
     res.status(201).json({ success: true, story });

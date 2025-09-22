@@ -8,7 +8,9 @@ const StorySchema = new mongoose.Schema(
     expiresAt: {
       type: Date,
       required: true,
-      default: () => new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+      default: () => new Date(Date.now() + 2 * 60 * 1000),
+      
+      // 24 hours
     },
     seenBy: [
       {
@@ -19,7 +21,11 @@ const StorySchema = new mongoose.Schema(
     likedBy: [{
       user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
       likedAt: { type: Date, default: Date.now }
-    }]
+    }],
+    publicId:{
+      type: String,
+      required:true
+    },
 
   },
   { timestamps: true }

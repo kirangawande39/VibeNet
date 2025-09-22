@@ -481,7 +481,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
                         <img
                           src={msg.image.url}
                           alt="sent"
-                          className="message-image"
+                          className="message-image bg"
                           onClick={() => window.open(msg.image.url, "_blank")}
                         />
 
@@ -575,6 +575,5 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
     </div>
   );
 };
-
 export default ChatBox;
 

@@ -8,14 +8,14 @@ import { toast } from 'react-toastify';
 import { BsFillPostcardHeartFill } from "react-icons/bs";
 import "../assets/css/Profile.css"
 import { FaPlus } from "react-icons/fa";
-import { MdOutlinePersonSearch } from "react-icons/md";
 import { FaUserCircle, FaInfoCircle, FaEdit } from "react-icons/fa";
 import { RiDeleteBin2Line } from "react-icons/ri";
 import { handleError } from '../utils/errorHandler';
 import Spinner from "../components/Spinner";
 import { FiMoreVertical, FiX } from "react-icons/fi";
 import { MdAddBox } from "react-icons/md";
-
+import FollowingModal from "../components/FollowingModal";
+import FollowersModal from "../components/FollowersModal";
 
 
 
@@ -56,8 +56,7 @@ const Profile = () => {
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [searchFollower, setSearchFollower] = useState("");
-  const [searchFollowing, setSearchFollowing] = useState("");
+
   const [openMenuId, setOpenMenuId] = useState(null);
 
   const [posts, setPosts] = useState([])
@@ -192,7 +191,7 @@ const Profile = () => {
       const res = await axios.post(`${backendUrl}/api/posts/${user.id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-           Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         },
       });
       toast.success(res.data.message);
@@ -419,225 +418,16 @@ const Profile = () => {
         </div>
 
       </div>
-      {/* Followers Modal */}
+
 
       {showFollowers && (
-        <div className="story-modal-backdrop" onClick={() => setShowFollowers(false)}>
-          <div className="story-modal-content" onClick={(e) => e.stopPropagation()}>
-            <h5>Followers</h5>
-
-            {/* Search Input */}
-            <div className="input-group mb-2">
-              <span className="input-group-text">
-                <MdOutlinePersonSearch />
-              </span>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search followers..."
-                value={searchFollower}
-                onChange={(e) => setSearchFollower(e.target.value)}
-              />
-            </div>
-
-            <ul className="list-group">
-              {profileData.followers.length > 0 ? (
-                profileData.followers
-                  .filter(f =>
-                    f.username.toLowerCase().includes(searchFollower.toLowerCase()) ||
-                    (f.name && f.name.toLowerCase().includes(searchFollower.toLowerCase()))
-                  )
-                  .map((follower) => (
-                    <li key={follower._id} className="list-group-item d-flex align-items-center justify-content-between">
-                      <div className="d-flex align-items-center">
-                        <img
-                          src={follower.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
-                          alt="profile"
-                          className="rounded-circle"
-                          style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "10px" }}
-                        />
-                        <div>
-                          <strong>{follower.username}</strong><br />
-                          <small>{follower.name || ""}</small>
-                        </div>
-                      </div>
-
-                      {/* ✅ Show Remove button only if it's your own profile */}
-                      {isOwnProfile && (
-                        <button
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => setRemoveModal({ show: true, follower })}
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </li>
-                  ))
-              ) : (
-                <li className="list-group-item">No followers yet</li>
-              )}
-            </ul>
-
-            <button className="story-close-btn" onClick={() => setShowFollowers(false)}>×</button>
-          </div>
-
-          {/* ✅ Confirmation Modal */}
-          {removeModal.show && (
-            <div
-              className="modal-backdrop"
-              onClick={() => setRemoveModal({ show: false, follower: null })}
-            >
-              <div className="modal-content-s" onClick={(e) => e.stopPropagation()}>
-                <div className="d-flex align-items-center mb-3">
-                  <img
-                    src={
-                      removeModal.follower?.profilePic?.url ||
-                      "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"
-                    }
-                    alt="profile"
-                    className="rounded-circle"
-                    style={{
-                      width: "50px",
-                      height: "50px",
-                      objectFit: "cover",
-                      marginRight: "12px",
-                    }}
-                  />
-                  <div>
-                    <h6 className="mb-0">{removeModal.follower?.username}</h6>
-                    <small>{removeModal.follower?.name || ""}</small>
-                  </div>
-                </div>
-
-                <p className="mb-3">
-                  Are you sure you want to remove this follower?
-                </p>
-
-                <div className="d-flex justify-content-end gap-2">
-                  <button
-                    className="btn btn-sm btn-outline-secondary"
-                    onClick={() => setRemoveModal({ show: false, follower: null })}
-                  >
-                    Cancel
-                  </button>
-
-                  {/* ✅ Remove only allowed if isOwnProfile */}
-                  {isOwnProfile && removeModal?.follower?._id && (
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleRemove(removeModal.follower._id)}
-                    >
-                      Yes, Remove
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        <FollowersModal profileData={profileData} isOwnProfile={isOwnProfile} removeModal={removeModal} setRemoveModal={setRemoveModal} handleRemove={handleRemove} />
       )}
-
 
 
       {showFollowing && (
-        <div className="story-modal-backdrop" onClick={() => setShowFollowing(false)}>
-          <div className="story-modal-content" onClick={(e) => e.stopPropagation()}>
-            <h5>Following</h5>
-
-            {/* Search Input */}
-            <div className="input-group mb-2">
-              <span className="input-group-text">
-                <MdOutlinePersonSearch />
-              </span>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search following..."
-                value={searchFollowing}
-                onChange={(e) => setSearchFollowing(e.target.value)}
-              />
-            </div>
-
-            <ul className="list-group">
-              {profileData.following.length > 0 ? (
-                profileData.following
-                  .filter(f =>
-                    f.username.toLowerCase().includes(searchFollowing.toLowerCase()) ||
-                    (f.name && f.name.toLowerCase().includes(searchFollowing.toLowerCase()))
-                  )
-                  .map((followed) => (
-                    <li key={followed._id} className="list-group-item d-flex align-items-center justify-content-between">
-                      <div className="d-flex align-items-center">
-                        <img
-                          src={followed.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
-                          alt="profile"
-                          className="rounded-circle"
-                          style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "10px" }}
-                        />
-                        <div>
-                          <strong>{followed.username}</strong><br />
-                          <small>{followed.name || ""}</small>
-                        </div>
-                      </div>
-
-                      {/* ✅ Show "Following" button only if it's your own profile */}
-                      {isOwnProfile && (
-                        <button
-                          className="btn btn-sm btn-outline-primary"
-                          onClick={() => setUnfollowModal({ show: true, user: followed })}
-                        >
-                          Following
-                        </button>
-                      )}
-                    </li>
-                  ))
-              ) : (
-                <li className="list-group-item">Not following anyone</li>
-              )}
-            </ul>
-
-            <button className="story-close-btn" onClick={() => setShowFollowing(false)}>×</button>
-          </div>
-
-          {/* ✅ Confirmation Modal */}
-          {unfollowModal.show && isOwnProfile && (
-            <div className="modal-backdrop" onClick={() => setUnfollowModal({ show: false, user: null })}>
-              <div className="modal-content-s" onClick={(e) => e.stopPropagation()}>
-                <div className="d-flex align-items-center mb-3">
-                  <img
-                    src={unfollowModal.user.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
-                    alt="profile"
-                    className="rounded-circle"
-                    style={{ width: "50px", height: "50px", objectFit: "cover", marginRight: "10px" }}
-                  />
-                  <div>
-                    <h6 className="mb-0">{unfollowModal.user.username}</h6>
-                    <small>{unfollowModal.user.name || ""}</small>
-                  </div>
-                </div>
-
-                <p className="mb-3">Are you sure you want to unfollow this user?</p>
-
-                <div className="d-flex justify-content-end gap-2">
-                  <button
-                    className="btn btn-sm btn-outline-secondary"
-                    onClick={() => setUnfollowModal({ show: false, user: null })}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="btn btn-sm btn-danger"
-                    onClick={() => handleUnfollow(unfollowModal.user._id)}
-                  >
-                    Unfollow
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        <FollowingModal  profileData={profileData} isOwnProfile={isOwnProfile} unfollowModal={unfollowModal} setUnfollowModal={setUnfollowModal} handleUnfollow={handleUnfollow} setShowFollowing={setShowFollowers} />
       )}
-
 
 
 
@@ -707,6 +497,7 @@ const Profile = () => {
           >
             <BsFillPostcardHeartFill /> your posts
           </button>
+
           <button
             className={`btn ${mreals ? "btn-dark" : "btn-outline-dark"}`}
             onClick={() => {
@@ -1024,13 +815,10 @@ const Profile = () => {
               </div>
             </div>
 
-          </div>
+          </div>Fs
         </div>
       )}
-
-
     </div>
   );
 };
-
 export default Profile;
