@@ -27,7 +27,30 @@ const UserSchema = new mongoose.Schema(
       default: null,
     },
 
-    
+    isPrivate: {
+      type: Boolean,
+      default: false
+    },
+
+    followRequests: [
+      {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+
+        status: {
+          type: String,
+          enum: ["pending", "accepted", "rejected"],
+          default: "pending"
+        },
+
+        createdAt: {
+          type: Date,
+          default: Date.now
+        }
+      }
+    ]
+
+
+
   },
   { timestamps: true }
 );

@@ -24,6 +24,7 @@ const CommentBox = ({ postId }) => {
 
   useEffect(() => {
     if (!postId) return; 
+  
 
     const fetchComments = async () => {
       try {

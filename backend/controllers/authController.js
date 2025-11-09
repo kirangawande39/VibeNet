@@ -84,7 +84,7 @@ const login = async (req, res, next) => {
     res.json({
       success: true,
       message: "Login Successful",
-      user: { id, username, email },
+      user: { id, username, email  },
       token,
       redirectUrl: "/"
     });

@@ -1,7 +1,7 @@
 const User = require('../models/User');
 
 
-const {cloudinary} = require('../config/cloudConfig')
+const { cloudinary } = require('../config/cloudConfig')
 
 
 
@@ -10,9 +10,9 @@ const getUserProfile = async (req, res, next) => {
     try {
 
         // console.log("user profile is here")
-        const user = await User.findById(req.params.id).populate("followers").populate("following");
+        const user = await User.findById(req.params.id).populate("followers").populate("following").populate("followRequests.user","username profilePic");
 
-        // console.log("getUser:" + user)
+        // console.log("getUser:" + user.followRequests)
         if (user) {
             // console.log("data send to frontend ")
             res.json({ user });
@@ -183,11 +183,11 @@ const getSuggestedUsers = async (req, res) => {
 };
 
 
-const uploadProfilePic = async (req,res) => {
+const uploadProfilePic = async (req, res) => {
     try {
         const userId = req.params.id;
         // console.log(`Received request to update profile pic for user: ${userId}`);
-        console.log("userId ::",userId)
+        // console.log("userId ::",userId)
         const user = await User.findById(userId);
         if (!user) {
             // console.log(`User with id ${userId} not found.`);
@@ -227,23 +227,49 @@ const uploadProfilePic = async (req,res) => {
     }
 }
 
-const SaveFcmToken = async (req,res)=> {
-     const userId = req.user.id;
-     const {token}=req.body;
+const SaveFcmToken = async (req, res) => {
+    const userId = req.user.id;
+    const { token } = req.body;
     //  console.log("FCM TOKEN ::",token)
     //  console.log("UserId form save token ",userId)
-     try{
-          const user = await  User.findById(userId);
-          user.fcmToken=token;
-          await user.save();
-          console.log("fcm token save sucessfully ")     
-     }
-     catch(error){
+    try {
+        const user = await User.findById(userId);
+        user.fcmToken = token;
+        await user.save();
+        // console.log("fcm token save sucessfully ")
+    }
+    catch (error) {
         console.error('Error saving fcm token :', error);
         res.status(500).json({ message: 'failed to saved fcm token' });
-     }
+    }
+
+}
+
+const updatePrivacy = async (req, res) => {
+    const { isPrivate } = req.body;
+
+    const userId = req.user.id;
+    // console.log("isPrivate",isPrivate)
+    // console.log("Privacy Updated")
+    // console.log("Your user id is : ",userId)
+
+
+    try {
+        const user = await User.findById(userId);
+        user.isPrivate = isPrivate;
+        const updatedUser = await user.save()
+        res.status(201).json({
+            message: "Privacy Setting Updated",
+            isPrivate:updatedUser.isPrivate,
+    });
+    // console.log("User Privacy Setting Updated Sucessfully")
+}
+    catch (error) {
+    console.error("Error to update privacy setting", error)
+}
+
 
 }
 
 
-module.exports = { getUserProfile, updateUserProfile, followUser, unfollowUser, searchUsers, getSuggestedUsers, uploadProfilePic,SaveFcmToken };
+module.exports = { getUserProfile, updateUserProfile, followUser, unfollowUser, searchUsers, getSuggestedUsers, uploadProfilePic, SaveFcmToken, updatePrivacy };

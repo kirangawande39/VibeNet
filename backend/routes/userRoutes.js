@@ -1,5 +1,5 @@
 const express = require("express");
-const { getUserProfile, updateUserProfile, followUser, unfollowUser, searchUsers, getSuggestedUsers,uploadProfilePic,SaveFcmToken } = require("../controllers/userController");
+const { getUserProfile, updateUserProfile, followUser, unfollowUser, searchUsers, getSuggestedUsers,uploadProfilePic,SaveFcmToken ,updatePrivacy} = require("../controllers/userController");
 const { protect } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
@@ -24,7 +24,10 @@ router.get('/suggestions', protect, getSuggestedUsers);
 router.get("/search", protect, searchUsers);
 
 router.get("/:id", getUserProfile); // Get user profile by ID
+
+router.put("/privacy", protect,updatePrivacy)
 router.put("/:id", updateUserProfile);
+
 // Update profile
 router.post("/:id/follow", protect, followUser); // Follow a user
 router.post("/:id/unfollow",protect, unfollowUser); // Unfollow a user

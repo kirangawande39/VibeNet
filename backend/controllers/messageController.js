@@ -35,10 +35,10 @@ const sendMessage = async (req, res, next) => {
 
     const fcmToken = receiverUser?.fcmToken;
 
-    
-   if(fcmToken){
-     sendNotification(fcmToken, "new message form VibeNet", text);
-   }
+
+    if (fcmToken) {
+      sendNotification(fcmToken, "new message form VibeNet", text);
+    }
 
 
 
@@ -205,7 +205,9 @@ const getUnseenMessageCounts = async (req, res, next) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.user.id);
 
+    const user = await User.findById(userId).select("isPrivate");
 
+    // console.log("User privacy status:", user.isPrivate);
 
     const unseenCounts = await Message.aggregate([
       {
@@ -239,7 +241,7 @@ const getUnseenMessageCounts = async (req, res, next) => {
     ]);
 
     // console.log("Unseen Counts:", unseenCounts);
-    res.status(200).json({ success: true, data: unseenCounts });
+    res.status(200).json({ success: true, data: unseenCounts ,privacyStatus:user.isPrivate });
   } catch (err) {
     console.error("Aggregation error:", err);
     res.status(500).json({ success: false, message: "Server Error" });

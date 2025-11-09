@@ -22,7 +22,7 @@ const createChat = async (req, res, next) => {
   }
 };
 
-// 👉 Get All Chats of a User
+// Get All Chats of a User
 const getUserChats = async (req, res, next) => {
   const userId = req.params.userId;
 

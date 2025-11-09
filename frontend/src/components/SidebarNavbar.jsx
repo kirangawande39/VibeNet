@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { ThemeContext } from "../context/ThemeContext";
 import {
@@ -13,20 +13,26 @@ const SidebarNavbar = () => {
   const { darkMode, setDarkMode } = useContext(ThemeContext);
   const navigate = useNavigate();
 
+
+
+
+ 
+
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
   return (
-   <div className={`sidebar d-none d-md-flex flex-column p-3 shadow ${darkMode ? "dark" : ""}`} style={{ height: "100vh" }}>
+    <div className={`sidebar d-none d-md-flex flex-column p-3 shadow ${darkMode ? "dark" : ""}`} style={{ height: "100vh" }}>
 
-      {/* Logo */}
       <h4 className={`mb-4 fw-bold ${darkMode ? "text-light" : "text-primary"}`}>
         VibeNet
       </h4>
+      {/* <img className="h-15 w-20" src="https://res.cloudinary.com/dsp5goxh0/image/upload/v1760445324/viibenet_logo_qa6flg.png" alt="" /> */}
 
-      {/* Theme Toggle */}
+
+
       <button
         onClick={() => setDarkMode((prev) => !prev)}
         className={`btn btn-sm mb-4 d-flex align-items-center ${darkMode ? "btn-light" : "btn-dark"}`}
@@ -49,6 +55,9 @@ const SidebarNavbar = () => {
           <Link to={`/chat/${user.id}`} className="nav-link mb-3">
             <FaCommentDots className="me-2" /> Chat
           </Link>
+         
+
+
           <button onClick={handleLogout} className="btn btn-outline-danger mt-auto">
             <FaSignOutAlt className="me-2" /> Logout
           </button>

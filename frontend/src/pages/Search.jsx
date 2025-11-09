@@ -19,7 +19,8 @@ const Search = () => {
     const [hasMoreExplore, setHasMoreExplore] = useState(true);
     const [loadingMoreExplore, setLoadingMoreExplore] = useState(false);
 
-    // Fetch explore posts with pagination
+    // Fetch explore posts with pagination   
+
     const fetchExplorePosts = async () => {
         if (loadingMoreExplore || !hasMoreExplore) return;
 
@@ -45,6 +46,8 @@ const Search = () => {
     useEffect(() => {
         fetchExplorePosts();
     }, []);
+
+    
 
     // Search logic
     useEffect(() => {

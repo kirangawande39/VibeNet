@@ -1,0 +1,1 @@
+ring(profileData._id) === String(user.id);
