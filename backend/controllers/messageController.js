@@ -42,8 +42,6 @@ const sendMessage = async (req, res, next) => {
 
 
 
-
-
     // Step 3: Emit user message
     if (req.io) {
       // console.log("📡 Emitting receive-message from backend (user)");

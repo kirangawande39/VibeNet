@@ -71,8 +71,8 @@ function App() {
       const res = await axios.get(`${backendUrl}/api/messages/unseen-counts`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setIsPrivateStatus(res.data.privacyStatus);
       setUnseenCounts(res.data.data);
+      setIsPrivateStatus(res.data.privacyStatus);
     } catch (err) {
       console.error("❌ Error fetching unseen counts:", err);
     }
@@ -104,7 +104,7 @@ function App() {
         const sender = payload.data?.sender || "Unknown";
         const site = payload.data?.siteName || "VibeNet";
         const message = payload.notification?.body || "";
-        alert(`New Message from ${sender} on ${site}:\n${message}`);
+       
       })
       .catch((err) => console.error("FCM listener error:", err));
 
@@ -123,8 +123,8 @@ function App() {
     <>
       
       <Navbar totalUnseenCount={totalUnseenCount} isPrivateStatus={isPrivateStatus} />
+      <SidebarNavbar isPrivateStatus={isPrivateStatus} />
 
-      <SidebarNavbar />
 
       {/* Routes */}
       <Routes>

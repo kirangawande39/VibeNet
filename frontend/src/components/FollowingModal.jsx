@@ -5,9 +5,12 @@ const FollowingModal = ({profileData , isOwnProfile ,unfollowModal ,setUnfollowM
     const [searchFollowing, setSearchFollowing] = useState("")
 
     return (
-        <div className="story-modal-backdrop" onClick={() => setShowFollowing(false)}>
+        <div className="story-modal-backdrop" >
             <div className="story-modal-content" onClick={(e) => e.stopPropagation()}>
-                <h5>Following</h5>
+                 <div className='flex justify-between mb-2'>
+                    <h5>Following</h5>
+                    <button className='font-semibold bg-red-600 p-1 text-white rounded flex ' onClick={() => setShowFollowing(false)}>Close</button>
+                </div>
 
                 {/* Search Input */}
                 <div className="input-group mb-2">
@@ -61,7 +64,7 @@ const FollowingModal = ({profileData , isOwnProfile ,unfollowModal ,setUnfollowM
                     )}
                 </ul>
 
-                <button className="story-close-btn text-4xl text-black " onClick={() => setShowFollowing(false)}>×</button>
+              
             </div>
 
             {/* ✅ Confirmation Modal */}

@@ -499,7 +499,7 @@ const Home = () => {
 
   return (
     <div className="vibenet-home">
-      <SidebarNavbar />
+      
 
 
 

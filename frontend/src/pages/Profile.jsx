@@ -55,8 +55,11 @@ const Profile = () => {
   const [removeModal, setRemoveModal] = useState({ show: false, follower: null });
 
   const [showStoryModal, setShowStoryModal] = useState(false); // for modal
+
+
   const [showFollowers, setShowFollowers] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
+
   const [selectedImage, setSelectedImage] = useState(null);
 
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -330,12 +333,16 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      toast.alert(res.data.message)
+
+      toast.success(res.data.message)
+
+      
 
       setProfileData((prev) => ({
         ...prev,
         followers: prev.followers.filter(f => f._id !== followerId)
       }));
+
 
       // Close modal
       setRemoveModal({ show: false, follower: null });
@@ -356,6 +363,7 @@ const Profile = () => {
       );
 
       toast.success(res.data.message)
+      
       if (res.data.sendrequest) {
         setFollowRequest(res.data.sendrequest)
       }
@@ -383,10 +391,11 @@ const Profile = () => {
         }
       );
 
-      // setProfileData(prev => ({
-      //   ...prev,
-      //   following: prev.following.filter(user => user._id !== userIdToUnfollow)
-      // }));
+      setProfileData(prev => ({
+        ...prev,
+        following: prev.following.filter(user => user._id !== userIdToUnfollow)
+      }));
+
       setIsFollowing(false);
 
 
@@ -578,7 +587,7 @@ const handleFollowBack = async (followbackUserId)=>{
         ""
       ) :
         showFollowers && (
-          <FollowersModal profileData={profileData} isOwnProfile={isOwnProfile} removeModal={removeModal} setRemoveModal={setRemoveModal} handleRemove={handleRemove} />
+          <FollowersModal profileData={profileData} isOwnProfile={isOwnProfile} removeModal={removeModal} setRemoveModal={setRemoveModal} handleRemove={handleRemove} setShowFollowers={setShowFollowers} />
         )
       }
 
@@ -590,10 +599,12 @@ const handleFollowBack = async (followbackUserId)=>{
       ) :
         (
           showFollowing && (
-            <FollowingModal profileData={profileData} isOwnProfile={isOwnProfile} unfollowModal={unfollowModal} setUnfollowModal={setUnfollowModal} handleUnfollow={handleUnfollow} setShowFollowing={setShowFollowers} />
+            <FollowingModal profileData={profileData} isOwnProfile={isOwnProfile} unfollowModal={unfollowModal} setUnfollowModal={setUnfollowModal} handleUnfollow={handleUnfollow} setShowFollowing={setShowFollowing} />
           )
         )
       }
+
+
 
 
 

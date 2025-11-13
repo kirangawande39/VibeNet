@@ -1,51 +1,62 @@
 import React from "react";
 import { FaTimes } from "react-icons/fa";
 import axios from "axios";
-import { ToastContainer , toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 
-const FollowRequestModel = ({ onClose, profileData , token ,setProfileData ,setFollowRequest }) => {
+const FollowRequestModel = ({ onClose, profileData, token, setProfileData, setFollowRequest }) => {
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
- 
 
-  const handleDecline = async (declineuserId) =>{
-     try{
-           const res = await axios.delete(`${backendUrl}/api/follow/follow-request/decline/${declineuserId}`,{
-            headers:{
-              Authorization:`Bearer ${token}`
-            }
-           })
 
-           toast.success(res.data.message)
+  const handleDecline = async (declineuserId) => {
+    try {
+      const res = await axios.delete(`${backendUrl}/api/follow/follow-request/decline/${declineuserId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
 
-           setProfileData(prev => ({
-             ...prev,
-             followRequests:prev.followRequests.filter(
-              req => req._id !== declineuserId
-             ),
-           }))
+      toast.success(res.data.message)
 
-     }
-     catch(error){
-        console.error("Failed to Decline follow-request",error);
-     }
+      setProfileData(prev => ({
+        ...prev,
+        followRequests: prev.followRequests.filter(
+          req => req.user._id !== declineuserId
+        ),
+      }));
+
+
+
+    }
+    catch (error) {
+      console.error("Failed to Decline follow-request", error);
+    }
   }
 
-  const handleAccept = async (acceptUserId)=>{
-    try{
-         const res=await axios.put(`${backendUrl}/api/follow/follow-request/accept/${acceptUserId}`,
-          {},
-          {
-            headers:{
-              Authorization:`Bearer ${token}`,
-            },
-          }
-         );
-         toast.success(res.data.message)
+  const handleAccept = async (acceptUserId) => {
+    try {
+      const res = await axios.put(`${backendUrl}/api/follow/follow-request/accept/${acceptUserId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      toast.success(res.data.message)
+
+      setProfileData(prev => ({
+        ...prev,
+        followRequests: prev.followRequests.filter(
+          req => req.user._id !== acceptUserId
+        ),
+      }));
+
     }
-    catch(error){
-      console.error("Failed to Accept follow request",error)
+    catch (error) {
+      console.error("Failed to Accept follow request", error)
     }
 
   }
@@ -53,8 +64,8 @@ const FollowRequestModel = ({ onClose, profileData , token ,setProfileData ,setF
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-xl w-96 max-w-full p-5 relative animate-fadeIn">
-        
-       
+
+
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-600 hover:text-black transition"
@@ -73,8 +84,8 @@ const FollowRequestModel = ({ onClose, profileData , token ,setProfileData ,setF
                 key={index}
                 className="flex items-center justify-between bg-gray-50 p-3 rounded-lg hover:shadow-md transition"
               >
-                
-           
+
+
                 <div className="flex items-center gap-3">
                   <img
                     src={user.user?.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
@@ -85,7 +96,7 @@ const FollowRequestModel = ({ onClose, profileData , token ,setProfileData ,setF
                     <span className="text-gray-900 font-medium">
                       {user?.user?.username}
                     </span>
-                  
+
                     {/* <span className="text-xs text-gray-600 line-clamp-2 max-w-[140px]">
                       {user.bio || "No bio available"}
                     </span> */}
@@ -97,14 +108,14 @@ const FollowRequestModel = ({ onClose, profileData , token ,setProfileData ,setF
                   </div>
                 </div>
 
-              
+
                 <div className="flex flex-col gap-2">
                   {/* <p>{user.user._id}</p> */}
-                  <button onClick={()=> handleAccept(user.user?._id)} className="px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+                  <button onClick={() => handleAccept(user.user?._id)} className="px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
                     Accept
                   </button>
                   {/* <p>{user.user._id}</p> */}
-                  <button onClick={()=>handleDecline(user.user?._id)} className="px-3 py-1 text-xs bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition">
+                  <button onClick={() => handleDecline(user.user?._id)} className="px-3 py-1 text-xs bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition">
                     Decline
                   </button>
                 </div>

@@ -15,3 +15,6 @@ const sendNotification = async (fcmToken, title, body) => {
 };
 
 module.exports = sendNotification;
+
+
+

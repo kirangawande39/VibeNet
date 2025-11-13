@@ -15,7 +15,7 @@ import { useLocation } from "react-router-dom";
 import "../assets/css/Navbar.css";
 import axios from "axios";
 import { ToastContainer, toast, Slide } from "react-toastify";
-const Navbar = ({ totalUnseenCount, isPrivateStatus }) => {
+const Navbar = ({ totalUnseenCount, isPrivateStatus  }) => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const token = user?.token || localStorage.getItem("token");

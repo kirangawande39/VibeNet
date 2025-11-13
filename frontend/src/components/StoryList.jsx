@@ -45,7 +45,7 @@ const StoryList = ({ stories, hasSeenAllStoriesCurrentUser, currentUserStories, 
                 ) : (
                   <img
                     className="w-100 h-100 object-fit-cover"
-                    src={currentUserStories[0].mediaUrl}
+                    src={currentUserStories[0].mediaUrl || "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"}
                     alt="Your Story"
                     style={{ objectFit: "cover" }}
                   />

@@ -156,6 +156,7 @@ const EditProfile = () => {
           <div className="xl:col-span-2 space-y-8">
             {/* Edit Bio & Name */}
             <div className="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl p-6">
+            
               {isEditingBioName ? (
                 <div className="space-y-4">
                   <h5 className="text-lg font-bold text-gray-800">
@@ -222,7 +223,7 @@ const EditProfile = () => {
                     className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 text-white rounded-lg shadow-md hover:scale-105 transition-transform"
                     onClick={() => setIsEditingBioName(true)}
                   >
-                    <FaEdit size={14} />
+                    
                     Edit Name & Bio
                   </button>
                 </div>
@@ -265,30 +266,7 @@ const EditProfile = () => {
         </div>
       </div>
 
-      {/* Floating Action Button */}
-      <div className="fixed bottom-6 right-6">
-        <div className="relative">
-          {showFabMenu && (
-            <div className="absolute bottom-16 right-0 space-y-3">
-              <button className="w-12 h-12 rounded-full bg-gradient-to-r from-pink-500 to-red-500 text-white shadow-md flex items-center justify-center hover:scale-110 transition-transform">
-                <FaPlus />
-              </button>
-              <button className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md flex items-center justify-center hover:scale-110 transition-transform">
-                <FaEdit />
-              </button>
-              <button className="w-12 h-12 rounded-full bg-gradient-to-r from-gray-600 to-gray-800 text-white shadow-md flex items-center justify-center hover:scale-110 transition-transform">
-                <FaCog />
-              </button>
-            </div>
-          )}
-          <button
-            onClick={() => setShowFabMenu(!showFabMenu)}
-            className="w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg flex items-center justify-center hover:scale-110 transition-transform"
-          >
-            <FaPlus />
-          </button>
-        </div>
-      </div>
+    
     </div>
   );
 };

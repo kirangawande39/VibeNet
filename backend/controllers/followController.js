@@ -2,72 +2,74 @@ const mongoose = require("mongoose");
 const Follow = require("../models/Follow");
 const User = require("../models/User");
 
+const sendNotification = require("../utils/sendNotification")
+
 const followUser = async (req, res, next) => {
   try {
-    const followerId = req.user.id;
-    const followingId = req.params.userId;
-
-    // console.log("followerId:", followerId);
-    // console.log("followingId:", followingId);
+    const followerId = req.user.id;             // user who follows
+    const followingId = req.params.userId;      // user being followed
 
     if (followerId === followingId) {
       return res.status(400).json({ message: "You can't follow yourself." });
     }
 
-    // ✅ Already following ?
-    const allreadyFollowed = await Follow.findOne({
+    // ✅ Check if already following
+    const alreadyFollowed = await Follow.findOne({
       follower: followerId,
       following: followingId
     });
 
-    if (allreadyFollowed) {
+    if (alreadyFollowed) {
       return res.status(400).json({ message: "Already following." });
     }
 
-    // console.log("step 2 pass ✅");
+    // ✅ Fetch follower username
+    const { username } = await User.findById(followerId).select("username");
 
-    // ✅ get only isPrivate field
-    const { isPrivate } = await User.findById(followingId).select("isPrivate");
+    // ✅ Fetch following user's privacy & FCM token
+    const { isPrivate, fcmToken } = await User.findById(followingId)
+      .select("isPrivate fcmToken");
 
-    // console.log("followingUserPrivateStatus::", isPrivate);
-
+    // ✅ Private Account → Send Follow Request
     if (isPrivate) {
-      // ✅ Check if follow request already pending!
+      // Check if request already sent
       const alreadySent = await User.findOne({
         _id: followingId,
         "followRequests.user": followerId,
-        "followRequests.status": "pending",
+        "followRequests.status": "pending"
       });
 
-      // console.log("alreadyFollowRequest Sent::", alreadySent);
-
       if (alreadySent) {
-        return res.status(400).json({ message: "Request already sent!" });
+        return res.status(400).json({ message: "Follow request already sent!" });
       }
 
-      // Add follow request
-      await User.findByIdAndUpdate(
-        followingId,
-        {
-          $addToSet: {
-            followRequests: {
-              user: followerId,
-              status: "pending",
-              createdAt: new Date()
-            }
+      // Add follow request entry
+      await User.findByIdAndUpdate(followingId, {
+        $addToSet: {
+          followRequests: {
+            user: followerId,
+            status: "pending",
+            createdAt: new Date()
           }
         }
-      );
+      });
+
+      // ✅ Send notification for follow request
+      if (fcmToken) {
+        await sendNotification(
+          fcmToken,
+          "Follow Request 💌",
+          `${username} sent you a follow request on VibeNet!`
+        );
+      }
 
       return res.status(201).json({
-        message: "Follow request sent ",
-        sendrequest: true
+        message: "Follow request sent successfully",
+        sendRequest: true
       });
     }
 
     // ✅ Public Account → Direct Follow
-    // console.log("Public user → direct follow ✅");
-
     await User.findByIdAndUpdate(followerId, {
       $addToSet: { following: followingId }
     });
@@ -76,13 +78,23 @@ const followUser = async (req, res, next) => {
       $addToSet: { followers: followerId }
     });
 
+    // Create follow record
     const follow = await Follow.create({
       follower: followerId,
       following: followingId
     });
 
+    // ✅ Send notification for new follower
+    if (fcmToken) {
+      await sendNotification(
+        fcmToken,
+        "New Follower 👥",
+        `${username} started following you on VibeNet!`
+      );
+    }
+
     return res.status(201).json({
-      message: "User followed successfully ",
+      message: "User followed successfully",
       follow
     });
 
@@ -91,7 +103,6 @@ const followUser = async (req, res, next) => {
     return next(err);
   }
 };
-
 
 const unfollowUser = async (req, res, next) => {
   // console.log("Unfollow user logic here");

@@ -1,13 +1,16 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import { MdOutlinePersonSearch } from "react-icons/md";
-const FollowersModal = ({profileData, isOwnProfile , removeModal , setRemoveModal , handleRemove }) => {
+const FollowersModal = ({ profileData, isOwnProfile, removeModal, setRemoveModal, handleRemove, setShowFollowers }) => {
 
-const [searchFollower, setSearchFollower] = useState("");
+    const [searchFollower, setSearchFollower] = useState("");
 
     return (
-        <div className="story-modal-backdrop" onClick={() => setShowFollowers(false)}>
+        <div className="story-modal-backdrop">
             <div className="story-modal-content" onClick={(e) => e.stopPropagation()}>
-                <h5>Followers</h5>
+                <div className='flex justify-between mb-2'>
+                    <h5>Followers</h5>
+                    <button className='font-semibold bg-red-600 p-1 text-white rounded flex ' onClick={() => setShowFollowers(false)}>Close</button>
+                </div>
 
                 {/* Search Input */}
                 <div className="input-group mb-2">
@@ -61,7 +64,6 @@ const [searchFollower, setSearchFollower] = useState("");
                     )}
                 </ul>
 
-                <button className="story-close-btn" onClick={() => setShowFollowers(false)}>×</button>
             </div>
 
             {/* ✅ Confirmation Modal */}

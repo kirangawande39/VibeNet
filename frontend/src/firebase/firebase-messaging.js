@@ -36,7 +36,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 const messaging = getMessaging(firebaseApp);
 
 
-// ✅ Function to get FCM token
+// Function to get FCM token
 export const requestForToken = async (authToken) => {
   try {
 
@@ -47,7 +47,7 @@ export const requestForToken = async (authToken) => {
     if (token) {
       // console.log("FCM Token:", token);
 
-      // 🔥 API call to save token with userId
+      // API call to save token with userId
       await axios.post(`${backendUrl}/api/users/save-fcm-token`, 
         { token },
         {
@@ -65,7 +65,7 @@ export const requestForToken = async (authToken) => {
   }
 };
 
-// ✅ Function to listen incoming notification in foreground
+// Function to listen incoming notification in foreground
 export const onMessageListener = () =>
   new Promise((resolve) => {
     onMessage(messaging, (payload) => {

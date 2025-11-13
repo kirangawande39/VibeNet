@@ -100,8 +100,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
         );
         // // console.log("ChatId :",res.data)
         setChatId(res.data._id);
-    
-        
+
+
         onLastMessageUpdate(res.data.lastMessage);
         setlastMessage(res.data.lastMessage);
       } catch (err) {
@@ -144,7 +144,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
     const unseen = messages.some(
       (msg) => msg.sender._id !== user.id && !msg.seen
     );
-    
+
     if (unseen) {
       axios
         .put(`${backendUrl}/api/messages/seen/${chatId}`, {}, {
@@ -163,11 +163,11 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   useEffect(() => {
 
     if (!user?.id) return;
-    
+
     socket.emit("user-online", user.id);
 
     const handleOnline = (users) => setOnlineUsers(users);
-    
+
     socket.on("online-users", handleOnline);
 
 
@@ -220,7 +220,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   const handleSend = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !chatId) return;
-     const receiverId=selectedUser._id;
+    const receiverId = selectedUser._id;
     try {
       const res = await axios.post(
         `${backendUrl}/api/messages`,
@@ -305,8 +305,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
     };
   }, [socket]);
 
-  
-    useEffect(() => {
+
+  useEffect(() => {
     const handleReceive = (msg) => {
       // console.log("Message received via socket:", msg);
       // console.log("Current Chat ID:", chatId)
@@ -477,32 +477,31 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
 
                     {/* 🖼️ Image Block */}
                     {msg.image?.url && (
-                      <div className={`message-image-container ${isOwn ? "sender-image" : "receiver-image"} mt-2`}>
+                      <div className={`message-image-container ${isOwn ? "sender-image" : "receiver-image"}`}>
                         <img
                           src={msg.image.url}
                           alt="sent"
-                          className="message-image bg"
+                          className="message-image"
                           onClick={() => window.open(msg.image.url, "_blank")}
                         />
 
                         {/* Time below image */}
-                        <div className="text-muted text-end mt-1" style={{ fontSize: "0.75rem" }}>
-                          {time}
-                        </div>
+                        <div className="message-time">{time}</div>
 
-                        {/* ✅ Seen Status for image */}
+                        {/* Seen Status */}
                         {isOwn && (
-                          <div className="text-muted text-end" style={{ fontSize: "0.65rem", marginTop: "2px" }}>
+                          <div className="message-seen">
                             <span style={{ color: msg.seen ? "#34B7F1" : "gray" }}>✔✔</span>
                           </div>
                         )}
-                        
                       </div>
                     )}
+
+
                   </div>
                 </div>
 
-                {/* 🗑️ Long-press delete button */}
+
                 {longPressMessageId === msg._id && isOwn && (
                   <button
                     className="msg-delete-btn"
