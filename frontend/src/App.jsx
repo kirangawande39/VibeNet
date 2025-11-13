@@ -100,7 +100,7 @@ function App() {
 
     const unsubscribe = onMessageListener()
       .then((payload) => {
-        console.log("Firebase Payload:", payload);
+        // console.log("Firebase Payload:", payload);
         const sender = payload.data?.sender || "Unknown";
         const site = payload.data?.siteName || "VibeNet";
         const message = payload.notification?.body || "";
@@ -112,7 +112,7 @@ function App() {
   }, [user]);
 
  
-  console.log("Privacy Status:", isPrivateStatus);
+  // console.log("Privacy Status:", isPrivateStatus);
 
   const totalUnseenCount = unseenCounts.reduce(
     (total, item) => total + item.unseenCount,

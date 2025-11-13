@@ -126,7 +126,7 @@ const Profile = () => {
       .some(req => req.user?._id === user.id);
 
     setFollowRequest(isSendFollowRequest);
-    console.log("isSendFollowRequest:", isSendFollowRequest);
+    // console.log("isSendFollowRequest:", isSendFollowRequest);
 
   }, [user?.id, profileData?.followRequests]);
 
@@ -158,8 +158,8 @@ const Profile = () => {
     }
   }
 
-  console.log("Id::", id);
-  console.log("UserId::", user?.id)
+  // console.log("Id::", id);
+  // console.log("UserId::", user?.id)
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -167,8 +167,8 @@ const Profile = () => {
       try {
         const response = await axios.get(`${backendUrl}/api/users/${id}`);
 
-        console.log("user", response.data.user)
-        console.log("isPrivate:::", response.data.user.isPrivate)
+        // console.log("user", response.data.user)
+        // console.log("isPrivate:::", response.data.user.isPrivate)
         setProfileData(response.data.user);
       } catch (err) {
         handleError(err);

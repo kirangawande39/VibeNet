@@ -80,12 +80,12 @@ const Chat = () => {
   const handleLastMessageUpdate = (newMessage) => {
     if (selectedUser) {
       updateLastMessage(selectedUser._id, newMessage);
-      console.log(
-        "newMessage Updated:",
-        selectedUser._id,
-        selectedUser.username,
-        newMessage
-      );
+      // console.log(
+      //   "newMessage Updated:",
+      //   selectedUser._id,
+      //   selectedUser.username,
+      //   newMessage
+      // );
     }
   };
 
