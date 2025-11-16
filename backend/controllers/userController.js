@@ -8,22 +8,56 @@ const { cloudinary } = require('../config/cloudConfig')
 // Get User Profile
 const getUserProfile = async (req, res, next) => {
     try {
+        const currentUserId = req.user.id;
+        const profileUserId = req.params.id;
 
-        // console.log("user profile is here")
-        const user = await User.findById(req.params.id).populate("followers").populate("following").populate("followRequests.user","username profilePic");
-
-        // console.log("getUser:" + user.followRequests)
-        if (user) {
-            // console.log("data send to frontend ")
-            res.json({ user });
-        } else {
-            res.status(404).json({ message: "User not found" });
+        const currentUser = await User.findById(currentUserId).select("following").lean();
+        if (!currentUser) {
+            return res.status(404).json({ message: "Current user not found" });
         }
-    }
-    catch (err) {
+
+        const currentFollowing = currentUser.following || [];
+
+        const profileUser = await User.findById(profileUserId)
+            .populate("followers", "username profilePic")
+            .populate("following", "username profilePic")
+            .populate("followRequests.user", "username profilePic");
+
+        if (!profileUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const profileFollowersIds = profileUser.followers.map(f => f._id.toString());
+
+        const mutualIds = profileFollowersIds.filter(id =>
+            currentFollowing.map(f => f.toString()).includes(id)
+        );
+
+        const mutualUsers = profileUser.followers.filter(f =>
+            mutualIds.includes(f._id.toString())
+        );
+
+        const mutualList = mutualUsers.map(u => ({
+            username: u.username,
+            profilePic: u.profilePic?.url || null
+        }));
+
+
+        // console.log("mutualList ::",mutualList)
+
+
+        res.json({
+            success: true,
+            user: profileUser,
+            mutualCount: mutualList.length,
+            mutualList
+        });
+
+    } catch (err) {
         next(err);
     }
 };
+
 
 // Update User Profile
 const updateUserProfile = async (req, res, next) => {
@@ -78,7 +112,7 @@ const searchUsers = async (req, res, next) => {
     }
 
     try {
-        // Search by username or name (you can modify this logic)
+
 
         const users = await User.find({
             $or: [
@@ -91,6 +125,8 @@ const searchUsers = async (req, res, next) => {
                 path: 'followers',           // followers jo User schema me reference hai
                 select: 'username _id'       // followers ke andar se sirf username aur _id lana hai
             });
+
+        console.log("Search Users::", users)
 
         // Select only needed fields
 
@@ -106,8 +142,9 @@ const getSuggestedUsers = async (req, res) => {
         // console.log("Suggestion route is here");
 
         // console.log("User ID from token:", req.user.id);
+        const userId = req.user.id;
 
-        const currentUser = await User.findById(req.user.id).lean();
+        const currentUser = await User.findById(userId).lean();
 
         if (!currentUser) {
             return res.status(404).json({ message: "User not found" });
@@ -258,15 +295,21 @@ const updatePrivacy = async (req, res) => {
         const user = await User.findById(userId);
         user.isPrivate = isPrivate;
         const updatedUser = await user.save()
+
+
+
+        
+
+
         res.status(201).json({
-            message: "Privacy Setting Updated",
-            isPrivate:updatedUser.isPrivate,
-    });
-    // console.log("User Privacy Setting Updated Sucessfully")
-}
+            message: `${updatedUser.isPrivate ? 'Switched to Private Account' : 'Switched to Public Account'}`,
+            isPrivate: updatedUser.isPrivate,
+        });
+        // console.log("User Privacy Setting Updated Sucessfully")
+    }
     catch (error) {
-    console.error("Error to update privacy setting", error)
-}
+        console.error("Error to update privacy setting", error)
+    }
 
 
 }

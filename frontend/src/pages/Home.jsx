@@ -500,9 +500,6 @@ const Home = () => {
   return (
     <div className="vibenet-home">
       
-
-
-
       {isMobile && showSuggestionModal && (
         <div className="vibenet-suggestion-modal-backdrop">
           <div className="vibenet-suggestion-modal">
@@ -577,10 +574,10 @@ const Home = () => {
 
           {isMobile && !showSuggestionModal && (
             <button
-              className="vibenet-show-suggestions-btn"
+              className="vibenet-show-suggestions-btn bg-slate-200"
               onClick={() => setShowSuggestionModal(true)}
             >
-              Suggestions
+              Suggestions For You
             </button>
           )}
 

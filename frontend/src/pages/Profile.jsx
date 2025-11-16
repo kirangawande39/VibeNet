@@ -68,6 +68,12 @@ const Profile = () => {
   const [isPrivateAccount, setIsPrivateAccount] = useState(false);
   const [followRequest, setFollowRequest] = useState(false);
 
+  const [mutualCount, setMutualCount] = useState(0)
+  const [mutualUsernames, setMutualUserName] = useState([])
+
+  const [showMutualPopup, setShowMutualPopup] = useState(false);
+  const [allMutualUsers, setAllMutualUsers] = useState([]);
+
 
   const [posts, setPosts] = useState([])
 
@@ -161,15 +167,26 @@ const Profile = () => {
   // console.log("Id::", id);
   // console.log("UserId::", user?.id)
 
+
+
   useEffect(() => {
     const fetchProfileData = async () => {
       if (!user) return;
       try {
-        const response = await axios.get(`${backendUrl}/api/users/${id}`);
-
+        const response = await axios.get(`${backendUrl}/api/users/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+        // console.log("mutualList is ::", response.data.mutualList)
         // console.log("user", response.data.user)
         // console.log("isPrivate:::", response.data.user.isPrivate)
         setProfileData(response.data.user);
+        setMutualCount(response.data.mutualCount)
+        setMutualUserName(response.data.mutualList)
+
       } catch (err) {
         handleError(err);
       }
@@ -178,21 +195,27 @@ const Profile = () => {
     fetchProfileData();
   }, [user]);
 
+
+
+
+
+
+
   useEffect(() => {
+    if (!user) return;
+    if (!id) return;
+
     const fetchPostData = async () => {
-      if (!user) return;
       try {
         const res = await axios.get(`${backendUrl}/api/posts/${id}`);
-        // console.log("Posts:", res.data.posts)
-        setPosts(res.data.posts);
+        setPosts(res.data.posts || []);
       } catch (err) {
-        console.error(err);
+        handleError(err)
       }
     };
 
     fetchPostData();
-  }, [user, id]);
-
+  }, [id]);
 
 
 
@@ -232,7 +255,7 @@ const Profile = () => {
     formData.append("postImage", postImage);
 
     try {
-      const res = await axios.post(`${backendUrl}/api/posts/${user.id}`, formData, {
+      const res = await axios.post(`${backendUrl}/api/posts/${user?.id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`
@@ -336,7 +359,7 @@ const Profile = () => {
 
       toast.success(res.data.message)
 
-      
+
 
       setProfileData((prev) => ({
         ...prev,
@@ -363,7 +386,7 @@ const Profile = () => {
       );
 
       toast.success(res.data.message)
-      
+
       if (res.data.sendrequest) {
         setFollowRequest(res.data.sendrequest)
       }
@@ -413,7 +436,8 @@ const Profile = () => {
   // }
 
 
-
+  // console.log("MutuleCounts::", mutualCount)
+  // console.log("MutuleUsername::", mutualCount)
 
 
   const FollowBack = profileData.following.some((followings) => followings._id == user?.id)
@@ -423,23 +447,23 @@ const Profile = () => {
 
 
 
-const handleFollowBack = async (followbackUserId)=>{
-  try{
-      const res=await axios.put(`${backendUrl}/api/follow/follow-back/${followbackUserId}`,
+  const handleFollowBack = async (followbackUserId) => {
+    try {
+      const res = await axios.put(`${backendUrl}/api/follow/follow-back/${followbackUserId}`,
         {},
         {
-          headers:{
-            Authorization:`Bearer ${token}`
+          headers: {
+            Authorization: `Bearer ${token}`
           }
         }
       )
 
       toast.success(res.data.message)
+    }
+    catch (error) {
+      console.error("failed to followback", error)
+    }
   }
-  catch(error){
-    console.error("failed to followback",error)
-  }
-}
 
 
 
@@ -486,13 +510,16 @@ const handleFollowBack = async (followbackUserId)=>{
                   Edit Profile
                 </button>
 
-                <button
-                  onClick={() => setShowFollowRequest(!showFollowRequest)}
-                  className="flex items-center gap-1 px-3 py-1 rounded-lg bg-blue-100 text-blue-600 font-medium text-sm"
-                >
-                  <span className="font-bold">{profileData.followRequests?.length || 0}</span>
-                  <span>Requests</span>
-                </button>
+                {profileData.followRequests?.length > 0 && (
+                  <button
+                    onClick={() => setShowFollowRequest(!showFollowRequest)}
+                    className="flex items-center gap-1 px-3 py-1 rounded-lg bg-blue-100 text-blue-600 font-medium text-sm"
+                  >
+                    <span className="font-bold">{profileData.followRequests?.length}</span>
+                    <span>Requests</span>
+                  </button>
+                )}
+
               </div>
             ) : (
               <div>
@@ -504,10 +531,10 @@ const handleFollowBack = async (followbackUserId)=>{
                 ))}
                </span> */}
                 {FollowBack && !isFollowing ?
-                  <button onClick={()=>handleFollowBack(profileData._id)} className={`mt-2 px-4 py-1 text-sm font-bold rounded-full transition ${isFollowing
-                      ? "bg-gray-200 text-black border"
-                      : "bg-blue-500 text-white"
-                      }`}>Follow Back</button>
+                  <button onClick={() => handleFollowBack(profileData._id)} className={`mt-2 px-4 py-1 text-sm font-bold rounded-full transition ${isFollowing
+                    ? "bg-gray-200 text-black border"
+                    : "bg-blue-500 text-white"
+                    }`}>Follow Back</button>
                   :
                   <button
                     className={`mt-2 px-4 py-1 text-sm font-bold rounded-full transition ${isFollowing
@@ -558,6 +585,76 @@ const handleFollowBack = async (followbackUserId)=>{
         </div>
 
       </div>
+
+
+      {!isOwnProfile && (
+        mutualCount > 0 ? (
+          <div className="flex items-center gap-2 mt-2">
+
+      
+            <div className="flex -space-x-2">
+              {mutualUsernames.slice(0, 2).map((user, index) => (
+                <img
+                  key={index}
+                  src={user.profilePic}
+                  alt={user.username}
+                  className="w-7 h-7 rounded-full border border-white object-cover"
+                />
+              ))}
+            </div>
+
+           
+            <p className="text-sm text-gray-500">
+              Followed by{" "}
+              <span className="font-semibold">{mutualUsernames[0]?.username}</span>
+
+              {mutualCount > 1 && (
+                <>
+                  {" "}and{" "}
+                  <span
+                    className="font-semibold text-blue-400 cursor-pointer"
+                    onClick={() => {
+                      setAllMutualUsers(mutualUsernames);
+                      setShowMutualPopup(true);
+                    }}
+                  >
+                    {mutualCount - 1} others
+                  </span>
+                </>
+              )}
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-400 mt-2">No mutual connections</p>
+        )
+      )}
+
+
+      {showMutualPopup && (
+        <div className="mutual-popup-overlay" onClick={() => setShowMutualPopup(false)}>
+          <div className="mutual-popup" onClick={(e) => e.stopPropagation()}>
+            <h3 className="popup-title">Mutual Connections</h3>
+
+            <ul className="popup-list">
+              {allMutualUsers.map((user, index) => (
+                <li key={index} className="popup-user">
+                  <img
+                    src={user.profilePic}
+                    alt={user.username}
+                    className="popup-avatar"
+                  />
+                  <span className="popup-username">{user.username}</span>
+                </li>
+              ))}
+            </ul>
+
+            <button className="popup-close-btn" onClick={() => setShowMutualPopup(false)}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
 
 
 

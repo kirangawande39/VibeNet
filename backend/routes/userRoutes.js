@@ -23,7 +23,7 @@ router.get('/suggestions', protect, getSuggestedUsers);
 
 router.get("/search", protect, searchUsers);
 
-router.get("/:id", getUserProfile); // Get user profile by ID
+router.get("/:id", protect, getUserProfile); 
 
 router.put("/privacy", protect,updatePrivacy)
 router.put("/:id", updateUserProfile);

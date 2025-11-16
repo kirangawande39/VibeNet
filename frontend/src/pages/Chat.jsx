@@ -12,6 +12,8 @@ import "../assets/css/Chat.css";
 // 🔹 Component Start
 const Chat = () => {
   const { user, updateUser } = useContext(AuthContext);
+  const token = user?.token || localStorage.getItem("token");
+  
   const { allOnlineUsers } = useOnline();
 
   const [localUser, setLocalUser] = useState();
@@ -99,8 +101,14 @@ const Chat = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${backendUrl}/api/users/${id ? id : user.id}`
+        `${backendUrl}/api/users/${id ? id : user.id}`,
+        {
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        }
       );
+
       setLocalUser(res.data.user);
       updateUser(res.data.user);
     } catch (err) {
