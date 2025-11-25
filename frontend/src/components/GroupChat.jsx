@@ -202,7 +202,7 @@ const GroupChat = ({ selectedGroup, onBack, isMobile, user, sortedFollowers }) =
                     )}
 
                     <img
-                        src={selectedGroup?.icon || "https://cdn-icons-png.flaticon.com/512/615/615075.png"}
+                        src={selectedGroup?.icon?.url || "https://cdn-icons-png.flaticon.com/512/615/615075.png"}
                         className="rounded-circle me-3"
                         width="45"
                         height="45"
