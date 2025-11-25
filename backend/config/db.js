@@ -7,7 +7,7 @@ const DB = () => {
         console.log("Mongodb Connected..");
     }
     catch (error) {
-        console.log("Error:" + error);
+        console.error("Error:" + error);
     }
 }
 

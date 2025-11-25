@@ -9,10 +9,10 @@ const passport = require("passport");
 const MongoStore = require("connect-mongo"); // this line used to  store user session in mongodb
 
 //Express app ke liye ek HTTP server banane ke liye use hota hai
-const http = require("http");  
+const http = require("http");
 
 //real-time features (chat, notifications etc.) ke liye use hota hai
-const { Server } = require("socket.io"); 
+const { Server } = require("socket.io");
 
 
 require("./config/passport");
@@ -28,6 +28,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const storyRoutes = require("./routes/storyRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
+const groupRoutes = require("./routes/groupRoutes.js")
 
 
 
@@ -107,6 +108,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/stories", storyRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/groups", groupRoutes)
 
 // Online Status API (after maps are declared)
 app.get("/api/online-status", (req, res) => {
@@ -130,22 +132,26 @@ app.use(errorHandler);
 
 
 io.on("connection", (socket) => {
- 
+
 
   // Jab user online hota hai, uska socket.id ko userId se map karo
   socket.on("user-online", (userId) => {
     onlineUsers.set(userId, socket.id); // userId -> socketId
-    io.emit("online-users", Array.from(onlineUsers.keys())); 
+    io.emit("online-users", Array.from(onlineUsers.keys()));
   });
 
   socket.on("join-chat", (chatId) => socket.join(chatId));
 
-  
+
   socket.on("send-message", ({ chatId, message }) => {
-    socket.to(chatId).emit("receive-message", message);
+    socket.to(chatId).emit("receive-message", {
+      ...message,
+      chatId,
+    });
+
   });
 
-  
+
   socket.on("join-post", (postId) => {
     socket.join(postId);
   });
@@ -167,6 +173,26 @@ io.on("connection", (socket) => {
     socket.to(chatId).emit("stop-typing", { senderId });
   });
 
+
+
+  // forward typing indicator to other users in the room
+  socket.on("group-typing", ({ groupId, user }) => {
+    // broadcast to all in room except sender
+    socket.to(groupId).emit("user-typing", { userId: user._id, username: user.username , icon: user.icon });
+      // console.log("groupId::",groupId)
+    // console.log("user::",user)
+  });
+
+  socket.on("stop-group-typing", ({ groupId, userId }) => {
+    socket.to(groupId).emit("user-stop-typing", { userId });
+    // console.log("groupId::",groupId)
+    // console.log("userId::",userId)
+  });
+
+
+
+
+
   socket.on("delete-message", ({ chatId, msgId }) => {
     socket.to(chatId).emit("delete-message", { msgId });
   });
@@ -179,7 +205,19 @@ io.on("connection", (socket) => {
     socket.to(chatId).emit("message-seen", { chatId, seenBy: userId });
   });
 
- 
+  socket.on("join-group", (groupId) => {
+    socket.join(groupId);
+    // console.log("User joined group:", groupId);
+  });
+
+  // When message sent inside group
+  // socket.on("send-group-message", ({ groupId, message }) => {
+  //   io.to(groupId).emit("receive-group-message", message);
+  //   console.log("groupId::",groupId)
+  //   console.log("message::",message)
+  // });
+
+
   socket.on("disconnect", () => {
     for (let [userId, socketId] of onlineUsers.entries()) {
       if (socketId === socket.id) {

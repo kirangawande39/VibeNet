@@ -591,7 +591,7 @@ const Profile = () => {
         mutualCount > 0 ? (
           <div className="flex items-center gap-2 mt-2">
 
-      
+
             <div className="flex -space-x-2">
               {mutualUsernames.slice(0, 2).map((user, index) => (
                 <img
@@ -603,7 +603,7 @@ const Profile = () => {
               ))}
             </div>
 
-           
+
             <p className="text-sm text-gray-500">
               Followed by{" "}
               <span className="font-semibold">{mutualUsernames[0]?.username}</span>

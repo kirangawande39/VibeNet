@@ -61,7 +61,7 @@ function App() {
     } else if (!user && currentPath !== "/register" && currentPath !== "/login") {
       navigate("/login", { replace: true });
     }
-  }, []); 
+  }, []);
 
   // Fetch unseen message counts + privacy status
   const fetchUnseenCounts = useCallback(async () => {
@@ -98,20 +98,17 @@ function App() {
       requestForToken(authToken);
     }
 
-    const unsubscribe = onMessageListener()
+    onMessageListener()
       .then((payload) => {
-        // console.log("Firebase Payload:", payload);
-        const sender = payload.data?.sender || "Unknown";
-        const site = payload.data?.siteName || "VibeNet";
-        const message = payload.notification?.body || "";
-       
+        // Yahan kuch mat karo
+        // Bas console.log allow hai
+        console.log("FCM foreground:", payload);
       })
       .catch((err) => console.error("FCM listener error:", err));
 
-    return () => unsubscribe;
   }, [user]);
 
- 
+
   // console.log("Privacy Status:", isPrivateStatus);
 
   const totalUnseenCount = unseenCounts.reduce(
@@ -121,7 +118,7 @@ function App() {
 
   return (
     <>
-      
+
       <Navbar totalUnseenCount={totalUnseenCount} isPrivateStatus={isPrivateStatus} />
       <SidebarNavbar isPrivateStatus={isPrivateStatus} />
 

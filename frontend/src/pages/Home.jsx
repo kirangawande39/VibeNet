@@ -29,6 +29,7 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  const [chatBoat, setChatBoat] = useState(true)
 
   const currentUser = user || updateUser;
   const currentUserId = currentUser?._id || currentUser?.id;
@@ -89,7 +90,7 @@ const Home = () => {
 
     fetchSuggestions();
   }, []);
-  
+
 
 
 
@@ -499,13 +500,13 @@ const Home = () => {
 
   return (
     <div className="vibenet-home">
-      
+
       {isMobile && showSuggestionModal && (
         <div className="vibenet-suggestion-modal-backdrop">
           <div className="vibenet-suggestion-modal">
             <div className="d-flex">
-            <h5 className="font-bold  text-[2rem]">👋 Follow minimum 5 people to get started</h5>
-             <button className="vibenet-close-suggestion " onClick={() => setShowSuggestionModal(false)}>Close</button>
+              <h5 className="font-bold  text-[2rem]">👋 Follow minimum 5 people to get started</h5>
+              <button className="vibenet-close-suggestion " onClick={() => setShowSuggestionModal(false)}>Close</button>
             </div>
             <div className="vibenet-suggestion-list-scroll">
               {(showAll ? suggestions : suggestions.slice(0, 10)).map((sugg) => (
@@ -536,7 +537,7 @@ const Home = () => {
                 </div>
               ))}
             </div>
-           
+
           </div>
 
 
@@ -569,7 +570,7 @@ const Home = () => {
         <div className="vibenet-feed">
           <div className="vibenet-stories">
             <StoryList stories={stories} hasSeenAllStoriesCurrentUser={hasSeenAllStoriesCurrentUser} currentUserStories={currentUserStories} currentUser={currentUser} otherUsersStories={otherUsersStories} currentUserId={currentUserId} isVideo={isVideo} openStory={openStory}
-            isSeen={isSeen} />
+              isSeen={isSeen} />
           </div>
 
           {isMobile && !showSuggestionModal && (
@@ -581,6 +582,22 @@ const Home = () => {
             </button>
           )}
 
+          {chatBoat &&
+            <div className=" fixed bottom-10 right-5 
+         rounded-full 
+        p-3 cursor-pointer 
+        z-50">
+              <span className="ml-10 font-extrabold text-2xl" onClick={() => setChatBoat(false)}>×</span>
+              <img
+                onClick={() => navigate(`/chat/${user.id}`)}
+                src="https://cdn3d.iconscout.com/3d/premium/thumb/chatbot-11798649-9666248.png"   // apna icon daal do
+                className="w-20 h-20"
+                alt="Chat Logo"
+              />
+
+            </div>
+          }
+
           <div className="vibenet-posts">
             {loading ? (
               <div className="vibenet-spinner">
@@ -588,8 +605,8 @@ const Home = () => {
               </div>
             ) : posts.length > 0 ? (
               <>
-                {posts.map((post,index) => (
-                  <PostCard key={post._id} post={post} storyUserIds={storyUserIds} openStory={openStory}   isSeen={isSeen} />
+                {posts.map((post, index) => (
+                  <PostCard key={post._id} post={post} storyUserIds={storyUserIds} openStory={openStory} isSeen={isSeen} />
                 ))}
                 {loadingMore && (
                   <div className="text-center my-3">
@@ -632,6 +649,8 @@ const Home = () => {
           </div>
 
 
+
+
           <div className="vibenet-suggestions">
             <div className="vibenet-suggestions-header">
               <span>Suggestions For You</span>
@@ -644,6 +663,7 @@ const Home = () => {
                 </button>
               )}
             </div>
+
 
             {suggestions.length === 0 ? (
               <p className="vibenet-no-suggestions">No suggestions found</p>

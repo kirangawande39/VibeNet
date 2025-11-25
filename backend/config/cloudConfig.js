@@ -51,4 +51,13 @@ const PostImageStorage = new CloudinaryStorage({
     allowed_formats: ['jpg', 'jpeg', 'png'],
   },
 });
-module.exports = { StoryStorage, cloudinary , profilePicStorage ,chatImageStorage,PostImageStorage};  // Export cloudinary instance too
+
+const groupImageStorage= new CloudinaryStorage({
+  cloudinary,
+  params:{
+    folder:'VibeNet/groupIcon',
+    resource_type:'auto',
+    allowed_formats:['jpg', 'jpeg', 'png']
+  },
+})
+module.exports = { StoryStorage, cloudinary , profilePicStorage ,chatImageStorage,PostImageStorage,groupImageStorage};  // Export cloudinary instance too

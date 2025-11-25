@@ -9,7 +9,7 @@ const fcmToken = "fTB0c_61jBRWV_s56iMgh7:APA91bEDiSRSFW37SoZcIZX0NKgSCEUIMAJw49Y
 
 
 const test = async () => {
-  const title = '🚀 Hello from Backend!';
+  const title = 'Hello from Backend!';
   const body = 'This is a test push notification using Firebase Admin SDK.';
   
   await sendNotification(fcmToken, title, body)

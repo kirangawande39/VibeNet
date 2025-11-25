@@ -7,7 +7,7 @@ const createStory = async (req, res, next) => {
     const file = req.file;
     const publicId=req.file.filename;
 
-   console.log("Story publicId ::", publicId);
+  //  console.log("Story publicId ::", publicId);
 
     if (!file) {
       throw new Error("No file uploaded");

@@ -126,7 +126,7 @@ const searchUsers = async (req, res, next) => {
                 select: 'username _id'       // followers ke andar se sirf username aur _id lana hai
             });
 
-        console.log("Search Users::", users)
+        // console.log("Search Users::", users)
 
         // Select only needed fields
 

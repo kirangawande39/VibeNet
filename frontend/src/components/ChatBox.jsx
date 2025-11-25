@@ -3,6 +3,7 @@ import axios from "axios";
 import socket from "../socket";
 import { RiDeleteBin2Line } from "react-icons/ri";
 
+
 import "../assets/css/ChatBox.css"
 import { IoIosSend } from "react-icons/io";
 import { MdInsertPhoto, MdArrowBack } from "react-icons/md";
@@ -10,8 +11,6 @@ import { handleError } from '../utils/errorHandler';
 import { ToastContainer, toast } from 'react-toastify';
 import Spinner from "./Spinner";
 const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack }) => {
-
-
 
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -21,6 +20,11 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   const typingTimeoutRef = useRef(null);
   const [chatId, setChatId] = useState(null);
   const [lastMessage, setlastMessage] = useState(null);
+
+
+  const [startX, setStartX] = useState(0); // touch starting position
+  const [isSwiping, setIsSwiping] = useState(false);
+
 
   const [loading, setLoading] = useState(true);
 
@@ -160,6 +164,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
     }
   }, [chatId, messages, user, token]);
 
+
+
   useEffect(() => {
 
     if (!user?.id) return;
@@ -195,6 +201,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
       socket.off("stop-typing", stopTyping);
     };
   }, [selectedUser]);
+
+  
 
   const handleTyping = (e) => {
     setNewMessage(e.target.value);
@@ -358,6 +366,32 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
     };
   }, [chatId, user.id]);
 
+  const handleTouchStart = (e) => {
+    setStartX(e.touches[0].clientX);
+    setIsSwiping(true);
+  };
+
+
+  const handleTouchMove = (e) => {
+    if (!isSwiping) return;
+
+    const currentX = e.touches[0].clientX;
+
+    const diff = currentX - startX; // right swipe kitna hua
+
+    // 50px threshold like WhatsApp
+    if (diff > 50) {
+      setIsSwiping(false);
+      // onReply(message);  // ORIGINAL MESSAGE KO REPLY KAREGA
+    }
+  };
+
+  const handleTouchEnd = () => {
+  setIsSwiping(false);
+};
+
+
+
 
 
   if (!user || !selectedUser) {
@@ -446,7 +480,9 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
 
                     {msg.text &&
 
-                      <div className={`p-2 rounded ${isOwn ? "sender-message" : "receiver-message"}`}>
+                      <div className={`p-2 rounded ${isOwn ? "sender-message" : "receiver-message"}`} onTouchStart={handleTouchStart}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleTouchEnd}>
 
                         <div>
                           {msg.text}

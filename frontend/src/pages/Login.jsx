@@ -57,6 +57,8 @@ const Login = () => {
     }
   };
 
+
+
   const handleGoogleSignIn = () => {
     window.location.href = `${backendUrl}/api/auth/google`;
   };
@@ -66,6 +68,7 @@ const Login = () => {
     try {
       const res = await axios.post(`${backendUrl}/api/auth/forgot-password`, { email: forgotEmail });
       const { token, name } = res.data;
+      
       await emailjs.send(
         "service_ishxb1z",
         "template_jmfwewd",

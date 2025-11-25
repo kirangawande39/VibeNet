@@ -8,6 +8,8 @@ const User = require("../models/User");
 // ----------- Local Strategy -----------
 passport.use(new LocalStrategy({ usernameField: "email" }, User.authenticate()));
 
+
+
 // ----------- Google Strategy -----------
 passport.use(new GoogleStrategy(
   {
@@ -25,7 +27,6 @@ passport.use(new GoogleStrategy(
           name: profile.displayName,
           email: profile.emails[0].value,
           profilePic: profile.photos[0].value,
-          // yahan username add karo:
           username: profile.emails[0].value.split('@')[0],
         });
       }
