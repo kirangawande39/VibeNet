@@ -16,6 +16,7 @@ const { Server } = require("socket.io");
 
 
 require("./config/passport.session");
+require("./workers/notificationWorker.js")
 
 require("./cron/storyCleanup.js");
 
