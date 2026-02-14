@@ -87,8 +87,8 @@ const login = async (req, res, next) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
@@ -274,7 +274,7 @@ const check = async (req, res, next) => {
   try {
     const user = jwt.verify(token, process.env.JWT_SECRET);
 
-    if(user){
+    if (user) {
       res.json({ loggedIn: true });
     }
   }
