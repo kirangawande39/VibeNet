@@ -13,12 +13,12 @@ import {
 } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 import "../assets/css/Navbar.css";
-import axios from "axios";
 import { ToastContainer, toast, Slide } from "react-toastify";
-const Navbar = ({ totalUnseenCount, isPrivateStatus  }) => {
+import API from "../services/api";
+import { handleError } from "../utils/errorHandler";
+const Navbar = ({ totalUnseenCount, isPrivateStatus }) => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const token = user?.token || localStorage.getItem("token");
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef();
@@ -26,7 +26,6 @@ const Navbar = ({ totalUnseenCount, isPrivateStatus  }) => {
   const [showSetting, setShowSetting] = useState(false);
   const [isPrivate, setIsPrivate] = useState(isPrivateStatus);
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 
 
@@ -37,9 +36,19 @@ const Navbar = ({ totalUnseenCount, isPrivateStatus  }) => {
   const location = useLocation();
   const hideBottomNav = location.pathname.startsWith("/chat");
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
+  const handleLogout = async () => {
+
+    try {
+      const res = await API.post(`/api/auth/logout`,
+        {},
+      )
+      toast.success(res.data.message);
+      logout();
+      navigate("/");
+    }
+    catch (err) {
+      handleError(err);
+    }
   };
 
   useEffect(() => {
@@ -60,14 +69,8 @@ const Navbar = ({ totalUnseenCount, isPrivateStatus  }) => {
       const newStatus = !isPrivate;
       setIsPrivate(newStatus);
 
-      const res = await axios.put(`${backendUrl}/api/users/privacy`,
+      const res = await API.put(`/api/users/privacy`,
         { isPrivate: newStatus },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
       );
 
       toast.success(res.data.message)
@@ -105,10 +108,11 @@ const Navbar = ({ totalUnseenCount, isPrivateStatus  }) => {
           >
             {user ? (
               <>
+
                 <img
                   src={`https://ui-avatars.com/api/?name=${user.username}`}
                   alt="avatar"
-                  className="rounded-circle me-2"
+                  className="rounded-full me-2"
                   width={32}
                   height={32}
                   onClick={() => setMenuOpen(!menuOpen)}
@@ -193,13 +197,15 @@ const Navbar = ({ totalUnseenCount, isPrivateStatus  }) => {
                   to="/login"
                   className="btn btn-outline-primary btn-sm me-2"
                 >
-                  <FaSignInAlt className="me-1" /> Login
+                  {/* <FaSignInAlt className="me-1" />  */}
+                  Login
                 </Link>
                 <Link
                   to="/register"
-                  className="btn btn-outline-success btn-sm"
+                  className="btn btn-outline-success btn-sm "
                 >
-                  <FaUserPlus className="me-1" /> Signup
+                  {/* <FaUserPlus className="me-1" /> */}
+                   Signup
                 </Link>
               </>
             )}

@@ -8,7 +8,7 @@ const sendNotification = async (fcmToken, title, body) => {
 
   try {
     const response = await admin.messaging().send(message);
-    // console.log('Notification sent:', response);
+    console.log('Notification sent:', response);
   } catch (err) {
     console.error('Error sending notification:', err);
   }

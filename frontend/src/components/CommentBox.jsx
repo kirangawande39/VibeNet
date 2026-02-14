@@ -1,7 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { FaPaperPlane } from "react-icons/fa";
 import "../assets/css/CommentBox.css";
-import axios from "axios";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { AuthContext } from "../context/AuthContext";
@@ -9,18 +8,17 @@ import { MdDeleteForever } from "react-icons/md";
 import socket from "../socket";
 import { handleError } from '../utils/errorHandler';
 dayjs.extend(relativeTime);
-import { ToastContainer, toast } from 'react-toastify';
 import Spinner from "./Spinner";
+import API from "../services/api";
+import { toast } from "react-toastify";
 
 const CommentBox = ({ postId }) => {
   const { user, updateUser } = useContext(AuthContext);
-  const token = user?.token || localStorage.getItem("token");
 
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     if (!postId) return; 
@@ -29,13 +27,8 @@ const CommentBox = ({ postId }) => {
     const fetchComments = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
 
-        const res = await axios.get(`${backendUrl}/api/comments/${postId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await API.get(`/api/comments/${postId}`);
 
         setComments(res.data.comments);
       } catch (err) {
@@ -48,12 +41,12 @@ const CommentBox = ({ postId }) => {
     fetchComments();
   }, [postId]);
 
-  // ✅ Join post-specific room
+  // Join post-specific room
   useEffect(() => {
     socket.emit("join-post", postId);
   }, [postId]);
 
-  // ✅ Listen for live comments
+  // Listen for live comments
   useEffect(() => {
     const handleNewComment = (comment) => {
       if (comment.postId === postId) {
@@ -79,34 +72,29 @@ const CommentBox = ({ postId }) => {
     return () => {
       socket.off("delete-comment", handleDeleteComment);
     };
-  }, [postId]); // ✅ make sure it's listening correctly for current post
+  }, [postId]); 
 
 
 
-  // 📝 Submit new comment
+  // Submit new comment
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
     try {
-      const res = await axios.post(
-        `${backendUrl}/api/comments/${postId}`,
+      const res = await API.post(
+        `/api/comments/${postId}`,
         { newComment },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
       );
 
       const commentWithPostId = {
         ...res.data,
         postId: res.data.post,
-        user: user  // ✅ So that delete icon appears immediately
+        user: user  //So that delete icon appears immediately
       };
 
       socket.emit("new-comment", commentWithPostId);
-      setComments((prev) => [...prev, commentWithPostId]);  // ✅ Show live with icon
+      setComments((prev) => [...prev, commentWithPostId]);  //Show live with icon
       setNewComment("");
     } catch (err) {
       handleError(err);
@@ -114,24 +102,19 @@ const CommentBox = ({ postId }) => {
   };
 
 
-  // ❌ Delete comment
+  // Delete comment
   const handleCommentDelete = async (commentId) => {
     try {
-      const res = await axios.delete(
-        `${backendUrl}/api/comments/${commentId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const res = await API.delete(
+        `/api/comments/${commentId}`
       );
 
-      alert(res.data.message);
+      toast.success(res.data.message);
 
-      // ✅ Locally update UI
+      // Locally update UI
       setComments((prev) => prev.filter((c) => c._id !== commentId));
 
-      // ✅ Emit delete to others
+      // Emit delete to others
       socket.emit("delete-comment", {
         commentId,
         postId,

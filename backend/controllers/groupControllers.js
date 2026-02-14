@@ -5,6 +5,8 @@ const GroupChat = require("../models/GroupChat")
 const User = require("../models/User");
 const sendNotification = require("../utils/sendNotification");
 
+const notificationQueue= require("../queues/notificationQueue")
+
 const cretaeNewGroup = async (req, res, next) => {
     let creatorId = req.user.id;
     const formData = req.body;
@@ -81,12 +83,17 @@ const getGroups = async (req, res, next) => {
 
 const sendGroupMessage = async (req, res, next) => {
 
+    
     try {
+        // console.log("Send Group Message");
         const { message, groupId } = req.body;
+
+
+        // console.log("Group Message body is ::",req.body);
         const senderId = req.user.id;
 
 
-
+      
 
 
         const newMessage = await GroupChat.create({
@@ -121,15 +128,24 @@ const sendGroupMessage = async (req, res, next) => {
         const username = populatedMsg.senderId.username;
         const title = `${platformName} - New message form ${username}`;
 
-        const body = `on ${GroupMembers.name} : ${newMessage.message}`
+        const text = `on ${GroupMembers.name} : ${newMessage.message}`
 
-        if(memberToken){
-            memberToken.forEach((token) => {
-                sendNotification(token, title, body)
-                // console.log(token , title , body)
+      
+
+            memberToken.forEach((fcmToken)  => {
+                // sendNotification(token, title, body)
+                notificationQueue.add("send-group-notification",{
+                    fcmToken,
+                    title,
+                    text
+                });
+
+                // console.log(fcmToken , title , text) 
+
+                // console.log("Text is ::",text);
+
             })
-        }
-
+    
 
 
 

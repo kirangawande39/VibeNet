@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useState, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
 import { toast } from 'react-toastify';
 import { BsFillPostcardHeartFill } from "react-icons/bs";
 import "../assets/css/Profile.css"
@@ -17,6 +16,7 @@ import { MdAddBox } from "react-icons/md";
 import FollowingModal from "../components/FollowingModal";
 import FollowersModal from "../components/FollowersModal";
 import FollowRequestModel from "../components/FollowRequestModel";
+import API from "../services/api";
 
 
 
@@ -147,13 +147,8 @@ const Profile = () => {
 
     try {
       // backend route: DELETE /posts/:id
-      const res = await axios.delete(
-        `${backendUrl}/api/posts/${postId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const res = await API.delete(
+        `/api/posts/${postId}`,
       );
 
       // Remove deleted post from local state
@@ -172,20 +167,13 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       if (!user) return;
+
       try {
-        const response = await axios.get(`${backendUrl}/api/users/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        );
-        // console.log("mutualList is ::", response.data.mutualList)
-        // console.log("user", response.data.user)
-        // console.log("isPrivate:::", response.data.user.isPrivate)
+        const response = await API.get(`/api/users/${id}`);
+
         setProfileData(response.data.user);
-        setMutualCount(response.data.mutualCount)
-        setMutualUserName(response.data.mutualList)
+        setMutualCount(response.data.mutualCount);
+        setMutualUserName(response.data.mutualList);
 
       } catch (err) {
         handleError(err);
@@ -201,13 +189,14 @@ const Profile = () => {
 
 
 
+
   useEffect(() => {
     if (!user) return;
     if (!id) return;
 
     const fetchPostData = async () => {
       try {
-        const res = await axios.get(`${backendUrl}/api/posts/${id}`);
+        const res = await API.get(`/api/posts/${id}`);
         setPosts(res.data.posts || []);
       } catch (err) {
         handleError(err)
@@ -255,10 +244,15 @@ const Profile = () => {
     formData.append("postImage", postImage);
 
     try {
-      const res = await axios.post(`${backendUrl}/api/posts/${user?.id}`, formData, {
+
+      if (postImage.size > 5 * 1024 * 1024) {
+        toast.error("Image must be under 5MB");
+        return;
+      }
+
+      const res = await API.post(`/api/posts/${user?.id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`
         },
       });
       toast.success(res.data.message);
@@ -316,10 +310,9 @@ const Profile = () => {
     formData.append("story", selectedFile);
 
     try {
-      const res = await axios.post(`${backendUrl}/api/stories`, formData, {
+      const res = await API.post(`/api/stories`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -349,13 +342,11 @@ const Profile = () => {
 
 
     try {
-      const res = await axios.put(
-        `${backendUrl}/api/follow/remove-follower/${followerId}`,
+      const res = await API.put(
+        `/api/follow/remove-follower/${followerId}`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
+
 
       toast.success(res.data.message)
 
@@ -377,12 +368,13 @@ const Profile = () => {
 
   const handleFollow = async (userIdTofollow) => {
 
+    // console.log("Follow api call");
     try {
+      
 
-      const res = await axios.post(
-        `${backendUrl}/api/follow/${userIdTofollow}/follow`,
+      const res = await API.post(
+        `/api/follow/${userIdTofollow}/follow`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       toast.success(res.data.message)
@@ -406,12 +398,9 @@ const Profile = () => {
 
   const handleUnfollow = async (userIdToUnfollow) => {
     try {
-      const res = await axios.post(
-        `${backendUrl}/api/follow/${userIdToUnfollow}/unfollow`,
+      const res = await API.post(
+        `/api/follow/${userIdToUnfollow}/unfollow`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
 
       setProfileData(prev => ({
@@ -449,13 +438,8 @@ const Profile = () => {
 
   const handleFollowBack = async (followbackUserId) => {
     try {
-      const res = await axios.put(`${backendUrl}/api/follow/follow-back/${followbackUserId}`,
+      const res = await API.put(`/api/follow/follow-back/${followbackUserId}`,
         {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
       )
 
       toast.success(res.data.message)
@@ -503,17 +487,18 @@ const Profile = () => {
 
             {isOwnProfile ? (
               <div className="flex items-center gap-3 mt-2">
-                <button
+                <span
                   onClick={handleEdit}
-                  className="px-3 py-1 border rounded-lg text-sm font-medium hover:bg-gray-100 transition"
+
+                  className="px-3 py-1 border rounded-2xl  text-sm font-medium hover:bg-gray-100 transition shadow cursor-pointer"
                 >
                   Edit Profile
-                </button>
+                </span>
 
                 {profileData.followRequests?.length > 0 && (
                   <button
                     onClick={() => setShowFollowRequest(!showFollowRequest)}
-                    className="flex items-center gap-1 px-3 py-1 rounded-lg bg-blue-100 text-blue-600 font-medium text-sm"
+                    className="border px-3 py-1 shadow hover:bg-gray-100 rounded  "
                   >
                     <span className="font-bold">{profileData.followRequests?.length}</span>
                     <span>Requests</span>
@@ -767,7 +752,7 @@ const Profile = () => {
         <div className="w-full flex justify-center gap-3 mt-4">
 
           <button
-            className={`flex items-center gap-2 px-2  py-2 rounded-4 font-medium transition ${mpost
+            className={`flex items-center gap-2 px-2 shadow py-2 rounded-4 font-medium transition ${mpost
               ? "bg-black text-white"
               : "border border-gray-700 text-black hover:bg-gray-100"
               }`}
@@ -781,7 +766,7 @@ const Profile = () => {
 
 
           <button
-            className={`flex items-center gap-2 px-4 py-2 rounded-4 font-medium transition ${mreals
+            className={`flex items-center gap-2 px-4 py-2  shadow rounded-4 font-medium transition ${mreals
               ? "bg-black text-white"
               : "border border-gray-700 text-black hover:bg-gray-100"
               }`}
@@ -908,7 +893,7 @@ const Profile = () => {
                   <p className="empty-message">No posts available</p>
                   {isOwnProfile && (
                     <button
-                      className="create-first-btn"
+                      className="border p-1 rounded shadow hover:bg-slate-100"
                       onClick={() => setMpost(false)}
                     >
                       Create First Post

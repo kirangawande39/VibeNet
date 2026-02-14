@@ -2,15 +2,19 @@ const mongoose = require("mongoose");
 const Follow = require("../models/Follow");
 const User = require("../models/User");
 
-const sendNotification = require("../utils/sendNotification")
+const sendNotification = require("../utils/sendNotification");
+const notificationQueue = require("../queues/notificationQueue");
 
 const followUser = async (req, res, next) => {
+
+  // console.log("follow route called");
+
   try {
     const followerId = req.user.id;             // user who follows
     const followingId = req.params.userId;      // user being followed
 
     if (followerId === followingId) {
-      return res.status(400).json({ message: "You can't follow yourself." });
+      return res.status(422).json({ message: "You can't follow yourself." });
     }
 
     // ✅ Check if already following
@@ -20,7 +24,7 @@ const followUser = async (req, res, next) => {
     });
 
     if (alreadyFollowed) {
-      return res.status(400).json({ message: "Already following." });
+      return res.status(409).json({ message: "Already following." });
     }
 
     // ✅ Fetch follower username
@@ -40,8 +44,11 @@ const followUser = async (req, res, next) => {
       });
 
       if (alreadySent) {
-        return res.status(400).json({ message: "Follow request already sent!" });
+        return res.status(409).json({
+          message: "Follow request already sent!"
+        });
       }
+
 
       // Add follow request entry
       await User.findByIdAndUpdate(followingId, {
@@ -54,17 +61,30 @@ const followUser = async (req, res, next) => {
         }
       });
 
-      // ✅ Send notification for follow request
+      // Send notification for follow request
+      // if (fcmToken) {
+      //   await sendNotification(
+      //     fcmToken,
+      //     "Follow Request 💌",
+      //     `${username} sent you a follow request on VibeNet!`
+      //   );
+      // }
+
+      // console.log("FcmToken::",fcmToken)
+
       if (fcmToken) {
-        await sendNotification(
+
+        // console.log("follow request add to notificationQueue");
+
+        await notificationQueue.add("send-follow-request", {
           fcmToken,
-          "Follow Request 💌",
-          `${username} sent you a follow request on VibeNet!`
-        );
+          title: "Follow Request 💌",
+          text: `${username} sent you a follow request on VibeNet!`,
+        })
       }
 
       return res.status(201).json({
-        message: "Follow request sent successfully",
+        message: "Follow request sent successfully...",
         sendRequest: true
       });
     }
@@ -85,12 +105,24 @@ const followUser = async (req, res, next) => {
     });
 
     // ✅ Send notification for new follower
+    // if (fcmToken) {
+    //   await sendNotification(
+    //     fcmToken,
+    //     "New Follower 👥",
+    //     `${username} started following you on VibeNet!`
+    //   );
+    // }
+
+
+    // console.log("FcmToken::",fcmToken)
+
     if (fcmToken) {
-      await sendNotification(
+      await notificationQueue.add("send-new-follower", {
         fcmToken,
-        "New Follower 👥",
-        `${username} started following you on VibeNet!`
-      );
+        title: "New Follower 👥",
+        text: `${username} started following you on VibeNet!`
+
+      })
     }
 
     return res.status(201).json({
@@ -217,7 +249,7 @@ const acceptUser = async (req, res, next) => {
 
     // const acceptUserId = new mongoose.Types.ObjectId(req.params.acceptUserId);
 
-    const acceptUserId=req.params.acceptUserId;
+    const acceptUserId = req.params.acceptUserId;
 
 
     // console.log("User ID:", userId);
@@ -235,20 +267,20 @@ const acceptUser = async (req, res, next) => {
 
 
     // Add current user to following of accepted user
-    const AddFollowing=await User.findByIdAndUpdate(acceptUserId,{
-        $addToSet: { following: userId }
-      });
+    const AddFollowing = await User.findByIdAndUpdate(acceptUserId, {
+      $addToSet: { following: userId }
+    });
 
     // console.log("AddFollowing::",AddFollowing)
 
     //  Add accepted user to followers of current user
-    const AddFollowers=await User.findByIdAndUpdate(userId,{
-        $addToSet: { followers: acceptUserId }
-      });
-     
-      // console.log("AddFollowers::",AddFollowers)
+    const AddFollowers = await User.findByIdAndUpdate(userId, {
+      $addToSet: { followers: acceptUserId }
+    });
 
-      
+    // console.log("AddFollowers::",AddFollowers)
+
+
 
     // Create new entry in Follow collection
     const followCreated = await Follow.create({
@@ -261,7 +293,7 @@ const acceptUser = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Follow request accepted successfully",
-      
+
     });
 
   } catch (err) {
@@ -270,47 +302,47 @@ const acceptUser = async (req, res, next) => {
   }
 };
 
-const followBack = async (req,res,next)=>{
+const followBack = async (req, res, next) => {
   // console.log("FollowBack route is here")
-  try{
-    const userId=req.user.id;
-    const followbackUserId=req.params.followbackUserId;
+  try {
+    const userId = req.user.id;
+    const followbackUserId = req.params.followbackUserId;
 
 
     // console.log("userId::",userId)
     // console.log("followbackUserId::",followbackUserId)
-    
+
 
     await User.findByIdAndUpdate(
       userId,
       {
-        $addToSet:{following:followbackUserId}
+        $addToSet: { following: followbackUserId }
       },
-      {new:true}
+      { new: true }
     )
 
     await User.findByIdAndUpdate(
       followbackUserId,
       {
-        $addToSet:{followers:userId}
+        $addToSet: { followers: userId }
       },
-      {new:true}
+      { new: true }
     )
 
 
     await Follow.create({
-      follower:userId,   // who is send followback request
-      following:followbackUserId // who is followback user 
+      follower: userId,   // who is send followback request
+      following: followbackUserId // who is followback user 
     })
 
 
     res.status(200).json({
-      success:true,
-      message:"Follow Back Sucessfully."
+      success: true,
+      message: "Follow Back Sucessfully."
     })
   }
-  catch(err){
-    console.error("Error FollowBack ",err)
+  catch (err) {
+    console.error("Error FollowBack ", err)
     next(err)
   }
 }

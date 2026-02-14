@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { FaEdit, FaSave, FaTimes, FaCamera, FaPlus, FaCog } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import { handleError } from "../utils/errorHandler";
+import API from "../services/api";
 
 const EditProfile = () => {
   const { updateUser } = useContext(AuthContext);
@@ -20,7 +21,6 @@ const EditProfile = () => {
   const fileInputRef = useRef(null);
 
   const [showFabMenu, setShowFabMenu] = useState(false);
-  const token = localStorage.getItem("token");
 
   if (!user) {
     return (
@@ -34,22 +34,18 @@ const EditProfile = () => {
 
   const handleBioNameSave = async () => {
     try {
-      const res = await fetch(`${backendUrl}/api/users/${user._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name, bio }),
-      });
+      const res = await API.put(`/api/users/${user._id}`,
+        { name, bio },
+      );
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to update");
+      // console.log("response::", res.data);
 
-      const updatedUser = { ...user, name, bio };
+
+
+      const updatedUser = { ...user, name: res.data.name, bio: res.data.bio };
       setUser(updatedUser);
       updateUser(updatedUser);
-      toast.success("Profile updated!");
+      toast.success(res.data.message);
       setIsEditingBioName(false);
     } catch (err) {
       handleError(err);
@@ -58,34 +54,39 @@ const EditProfile = () => {
 
   const handleProfilePicUpload = async (e) => {
     const file = e.target.files[0];
+    // console.log("file::",file);
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
 
     try {
       const formData = new FormData();
       formData.append("profilePic", file);
 
-      const res = await fetch(
-        `${backendUrl}/api/users/${user._id}/uploadProfilePic`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
+      const res = await API.put(`/api/users/${user._id}/uploadProfilePic`,
+         formData 
       );
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Upload failed");
+     
 
-      const updatedUser = { ...user, profilePic: data.profilePic };
+      const updatedUser = { ...user, profilePic: res.data.profilePic };
       setUser(updatedUser);
       updateUser(updatedUser);
+
       toast.success("Profile picture updated!");
     } catch (err) {
       handleError(err);
     }
   };
+
 
   const triggerFileInput = () => {
     fileInputRef.current.click();
@@ -97,7 +98,7 @@ const EditProfile = () => {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Profile Card */}
           <div className="xl:col-span-1">
-            <div className="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl p-6 text-center border border-gray-200">
+            <div className="backdrop-blur-lg rounded-2xl  p-6 text-center ">
               {/* Profile Image */}
               <div className="relative inline-block mb-4 group">
                 <img
@@ -110,9 +111,9 @@ const EditProfile = () => {
                 />
                 <button
                   onClick={triggerFileInput}
-                  className="absolute bottom-2 right-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-2 rounded-full shadow-md hover:scale-110 transition-transform"
+                  className="absolute bottom-2 right-1  p-2"
                 >
-                  <FaCamera size={14} />
+                  <FaCamera size={20} />
                 </button>
               </div>
 
@@ -155,8 +156,8 @@ const EditProfile = () => {
           {/* Edit Bio and Posts */}
           <div className="xl:col-span-2 space-y-8">
             {/* Edit Bio & Name */}
-            <div className="bg-white/70 backdrop-blur-lg rounded-2xl shadow-xl p-6">
-            
+            <div className=" backdrop-blur-lg rounded-2xl  p-6">
+
               {isEditingBioName ? (
                 <div className="space-y-4">
                   <h5 className="text-lg font-bold text-gray-800">
@@ -191,17 +192,17 @@ const EditProfile = () => {
 
                   <div className="flex gap-3 pt-2">
                     <button
-                      className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                      className="bg-slate-200 hover:bg-slate-300 p-2 rounded shadow"
                       onClick={handleBioNameSave}
                     >
-                      <FaSave size={14} />
+                    
                       Save
                     </button>
                     <button
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500"
+                      className="bg-slate-200 p-2 rounded hover:bg-slate-300 shadow"
                       onClick={() => setIsEditingBioName(false)}
                     >
-                      <FaTimes size={14} />
+                      
                       Cancel
                     </button>
                   </div>
@@ -220,12 +221,15 @@ const EditProfile = () => {
                   </div>
 
                   <button
-                    className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 text-white rounded-lg shadow-md hover:scale-105 transition-transform"
+                    className="flex items-center gap-2 p-2 bg-gradient-to-r text-black rounded-lg shadow-md hover:scale-105 transition-transform rounded hover:bg-slate-100"
                     onClick={() => setIsEditingBioName(true)}
                   >
-                    
-                    Edit Name & Bio
+
+                    Update Name & Bio
+
                   </button>
+
+
                 </div>
               )}
             </div>
@@ -266,7 +270,7 @@ const EditProfile = () => {
         </div>
       </div>
 
-    
+
     </div>
   );
 };

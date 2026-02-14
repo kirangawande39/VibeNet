@@ -1,5 +1,4 @@
 import { useState, useContext, useEffect, useMemo } from "react";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext";
@@ -9,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import googleLogo from "../assets/img/google_logo.png";
 import { handleError } from "../utils/errorHandler";
 import emailjs from "@emailjs/browser";
+import API from "../services/api";
 
 // Regex to validate email format
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -43,8 +43,10 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${backendUrl}/api/auth/login`, { email, password });
-      localStorage.setItem("token", res.data.token);
+      const res = await API.post(`/api/auth/login`,
+        { email, password },
+      );
+
       login(res.data.user);
       toast.success(res.data.message || "Login successful");
       setTimeout(() => navigate("/"), 1000);
@@ -66,9 +68,9 @@ const Login = () => {
   const handleForgotSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${backendUrl}/api/auth/forgot-password`, { email: forgotEmail });
+      const res = await API.post(`/api/auth/forgot-password`, { email: forgotEmail });
       const { token, name } = res.data;
-      
+
       await emailjs.send(
         "service_ishxb1z",
         "template_jmfwewd",
@@ -89,17 +91,17 @@ const Login = () => {
       if (err.response && err.response.status === 429) {
         toast.error(err.response.data || "Too many requests, try again later.");
       } else {
-        handleError(err); 
+        handleError(err);
       }
     }
   };
-  
+
 
   const checkEmailExists = async (emailToCheck) => {
     setEmailChecking(true);
     setEmailCheckStatus(null);
     try {
-      await axios.post(`${backendUrl}/api/auth/check-email`, { email: emailToCheck });
+      await API.post(`/api/auth/check-email`, { email: emailToCheck });
       setEmailCheckStatus({ exists: true, message: "Email exists. You can reset your password." });
     } catch {
       setEmailCheckStatus({ exists: false, message: "This email is not registered." });
@@ -119,7 +121,7 @@ const Login = () => {
 
         <h1 className="text-primary logo fw-bold mb-4">VibeNet</h1>
         <h4 className="mb-3">Login to your account</h4>
-       
+
 
         <form onSubmit={handleLogin}>
           <div className="mb-3">

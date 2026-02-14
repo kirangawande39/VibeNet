@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ChatBox from "../components/ChatBox";
 import { AuthContext } from "../context/AuthContext";
-import axios from "axios";
 import Spinner from "../components/Spinner";
 import { useParams } from "react-router-dom";
 import { handleError } from "../utils/errorHandler";
@@ -10,10 +9,10 @@ import { useOnline } from "../context/OnlineStatusContext";
 import "../assets/css/Chat.css";
 import { toast } from "react-toastify";
 import GroupChat from "../components/GroupChat";
+import API from "../services/api";
 
 const Chat = () => {
   const { user, updateUser } = useContext(AuthContext);
-  const token = user?.token || localStorage.getItem("token");
   const { allOnlineUsers } = useOnline();
 
   const [localUser, setLocalUser] = useState();
@@ -40,7 +39,6 @@ const Chat = () => {
 
   const [groupsData, setGroupsData] = useState([]);
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const { id } = useParams();
 
   const CHATBOT_ID = "684f268c7dad0bf1b1dfd4f8";
@@ -96,11 +94,7 @@ const Chat = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const res = await axios.get(`${backendUrl}/api/groups`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await API.get(`/api/groups`);
         setGroupsData(res.data.groups);
       } catch (err) {
         console.error("Failed fetch groups", err);
@@ -113,9 +107,7 @@ const Chat = () => {
   const fetchUserData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${backendUrl}/api/users/${id ? id : user.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await API.get(`/api/users/${id ? id : user.id}`);
       setLocalUser(res.data.user);
       updateUser(res.data.user);
     } catch (err) {
@@ -133,7 +125,7 @@ const Chat = () => {
   useEffect(() => {
     const fetchOnlineStatus = async () => {
       try {
-        const res = await axios.get(`${backendUrl}/api/online-status`);
+        const res = await API.get(`/api/online-status`);
         setLastSeen(res.data.lastSeen || {});
         setOnlineUsers(res.data.onlineUsers || allOnlineUsers || []);
       } catch (err) {
@@ -181,7 +173,7 @@ const Chat = () => {
     const groupIcon = e.target.files[0];
 
     if (groupIcon) {
-      console.log("groupIcon::", groupIcon)
+      // console.log("groupIcon::", groupIcon)
       setGroupImage(groupIcon)
 
     }
@@ -198,13 +190,12 @@ const Chat = () => {
     formData.append("privacy", groupFormData.privacy);
 
     try {
-      const res = await axios.post(
-        `${backendUrl}/api/groups`,
+      const res = await API.post(
+        `/api/groups`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`
           },
         }
       );
@@ -315,7 +306,14 @@ const Chat = () => {
                     />
                     <div>
                       <div className="fw-bold">{follower.username}</div>
-                      <small className="text-muted">{lastMsg || "No messages yet"}</small>
+                      <small className="text-muted">
+                        {lastMsg
+                          ? lastMsg.length > 30
+                            ? lastMsg.slice(0, 30) + "..."
+                            : lastMsg
+                          : "No messages yet"}
+                      </small>
+
                       <br />
                       <small className="text-muted">
                         {isOnline ? (

@@ -3,7 +3,7 @@ import { createContext, useState, useEffect } from "react";
 
 export const AuthContext = createContext();
 
-// 🔹 Context Provider
+//Context Provider
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
@@ -16,9 +16,10 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         setUser(null);
         localStorage.removeItem("user");
+        // localStorage.removeItem("token");
     };
 
-    // ✅ Update User Function (bio या कोई भी field अपडेट करने के लिए)
+
     const updateUser = (updatedData) => {
         setUser(prev => {
             const updatedUser = { ...prev, ...updatedData };

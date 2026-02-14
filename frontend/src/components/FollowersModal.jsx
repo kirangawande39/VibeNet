@@ -9,7 +9,7 @@ const FollowersModal = ({ profileData, isOwnProfile, removeModal, setRemoveModal
             <div className="story-modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className='flex justify-between mb-2'>
                     <h5>Followers</h5>
-                    <button className='font-semibold bg-red-600 p-1 text-white rounded flex ' onClick={() => setShowFollowers(false)}>Close</button>
+                    <button className='font-semibold bg-slate-200  p-1 text-red-600 shadow rounded flex ' onClick={() => setShowFollowers(false)}>Close</button>
                 </div>
 
                 {/* Search Input */}

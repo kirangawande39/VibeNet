@@ -1,7 +1,8 @@
 const express = require("express");
-const { register, login, googleAuth, checkEmail, forgotPassword, resetPassword, googleCallBack } = require("../controllers/authController");
+const { register, login,logout, googleAuth, checkEmail, forgotPassword, resetPassword, googleCallBack ,check } = require("../controllers/authController");
 const { registerLimiter, loginLimiter, forgotPasswordLimiter } = require("../middlewares/rateLimit");
 const passport = require("passport");
+const { protect } = require("../middlewares/authMiddleware");
 
 
 require("dotenv").config();
@@ -37,26 +38,29 @@ const router = express.Router();
 // });
 
 
+router.get('/check', check)
+
 router.post("/register", registerLimiter, register);
 
+router.post("/logout", protect, logout);
 router.post("/login", loginLimiter, (req, res, next) => {
   passport.authenticate("local", (err, user, info) => {
     if (err) return next(err);
     if (!user) {
-      // ❌ login failed
+      // login failed
       return res.status(401).json({
         success: false,
         message: info.message || "Invalid email or password"
       });
     }
 
-    // ✅ login success
-    req.logIn(user, (err) => {
-      if (err) return next(err);
-      next(); 
-    });
+    // console.log(user)
+    req.user=user;
+    next();
   })(req, res, next);
 }, login); 
+
+
 
 
 // POST /api/auth/check-email

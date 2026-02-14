@@ -1,11 +1,14 @@
 
+require('dotenv').config()
 
 
+const sendNotification = require('./utils/sendNotification')
 
-const sendNotification = require('./utils/sendNotification');
+
+const fcmToken = process.env.fcmToken; 
 
 
-const fcmToken = "fTB0c_61jBRWV_s56iMgh7:APA91bEDiSRSFW37SoZcIZX0NKgSCEUIMAJw49YROnXo0Th14tM1gSdoR0SSxAdVCl8Nm5-RRKsfiq2Zb0A0hL51WwphUnHBeBWfFWMYS3dxRmiEGIB0nv"; 
+console.log("fcmToken form testNotification :: ",fcmToken)
 
 
 const test = async () => {

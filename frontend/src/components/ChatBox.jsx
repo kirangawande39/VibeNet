@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import socket from "../socket";
 import { RiDeleteBin2Line } from "react-icons/ri";
 
-
 import "../assets/css/ChatBox.css"
-import { IoIosSend } from "react-icons/io";
 import { MdInsertPhoto, MdArrowBack } from "react-icons/md";
 import { handleError } from '../utils/errorHandler';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import Spinner from "./Spinner";
+import API from "../services/api";
 const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack }) => {
 
   const [newMessage, setNewMessage] = useState("");
@@ -19,7 +17,11 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   const chatEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const [chatId, setChatId] = useState(null);
-  const [lastMessage, setlastMessage] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
+
+  const [page, setPage] = useState(1);
+
+  const [lastMessage, setlastMessage]=useState(null);
 
 
   const [startX, setStartX] = useState(0); // touch starting position
@@ -28,8 +30,6 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
 
   const [loading, setLoading] = useState(true);
 
-  const [previewImage, setPreviewImage] = useState(null);
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const fileInputRef = useRef();
 
   const handleImageButtonClick = () => {
@@ -45,10 +45,9 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
       formData.append("image", file);
       formData.append("chatId", chatId);
 
-      const res = await axios.post(`${backendUrl}/api/messages/image`, formData, {
+      const res = await API.post(`/api/messages/image`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -85,7 +84,6 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   const [longPressMessageId, setLongPressMessageId] = useState(null);
   const longPressTimer = useRef(null);
 
-  const token = user?.token || localStorage.getItem("token");
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -97,10 +95,9 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
     if (!selectedUser || !user) return;
     const createOrFetchChat = async () => {
       try {
-        const res = await axios.post(
-          `${backendUrl}/api/chats`,
+        const res = await API.post(
+          `/api/chats`,
           { senderId: user.id, receiverId: selectedUser._id },
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         // // console.log("ChatId :",res.data)
         setChatId(res.data._id);
@@ -109,60 +106,78 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
         onLastMessageUpdate(res.data.lastMessage);
         setlastMessage(res.data.lastMessage);
       } catch (err) {
-        handleError(err);
+        console.error("failed to get chat", err)
       }
     };
 
     createOrFetchChat();
-  }, [selectedUser, user, token]);
+  }, [selectedUser, user]);
 
 
 
 
   useEffect(() => {
     if (!chatId) return;
+    fetchMessages(1);
+  }, [chatId]);
 
-    const fetchMessages = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(
-          `${backendUrl}/api/messages/${chatId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setMessages(res.data);
-        socket.emit("join-chat", chatId);
-      } catch (err) {
-        handleError(err);
-      }
-      finally {
-        setLoading(false);
-      }
-    };
+  const fetchMessages = async (pageNumber) => {
+    try {
+      setLoading(true);
+      const res = await API.get(
+        `/api/messages/${chatId}?page=${pageNumber}&limit=20`,
+      );
 
-    fetchMessages();
-  }, [chatId, token]);
+      if (res.data.lenght === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      setMessages(prev =>
+        pageNumber === 1 ? res.data : [...res.data, ...prev]
+      );
+
+      socket.emit("join-chat", chatId);
+    } catch (err) {
+      handleError(err);
+    }
+    finally {
+      setLoading(false);
+    }
+  };
+
+
+  const loadOlder = () => {
+    if (!hasMore) return;
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchMessages(nextPage);
+  }
+
+
+
+  const hasMarkedSeen = useRef(false);
 
   useEffect(() => {
-    if (!chatId || !user?.id) return;
+    if (!chatId || !user?.id || hasMarkedSeen.current) return;
 
     const unseen = messages.some(
       (msg) => msg.sender._id !== user.id && !msg.seen
     );
 
-    if (unseen) {
-      axios
-        .put(`${backendUrl}/api/messages/seen/${chatId}`, {}, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .catch(err => {
-          console.error(err);
-          const errorMsg = err.response?.data?.message || "Something went wrong!";
-          toast.error(errorMsg);
-        });
+    if (!unseen) return;
 
-      socket.emit("mark-seen", { chatId, userId: user.id });
-    }
-  }, [chatId, messages, user, token]);
+    hasMarkedSeen.current = true;
+
+    API.put(`/api/messages/seen/${chatId}`, {}).catch(console.error);
+
+    socket.emit("mark-seen", { chatId, userId: user.id });
+
+  }, [chatId, messages]);
+
+
+
+
 
 
 
@@ -202,7 +217,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
     };
   }, [selectedUser]);
 
-  
+
 
   const handleTyping = (e) => {
     setNewMessage(e.target.value);
@@ -230,10 +245,9 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
     if (!newMessage.trim() || !chatId) return;
     const receiverId = selectedUser._id;
     try {
-      const res = await axios.post(
-        `${backendUrl}/api/messages`,
+      const res = await API.post(
+        `/api/messages`,
         { chatId, receiverId, text: newMessage },
-        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       // console.log("msg res :", res.data)
@@ -280,11 +294,9 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
 
   const handleDeleteMessage = async (msgId) => {
     try {
-      const res = await axios.delete(
-        `${backendUrl}/api/messages/${msgId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      const res = await API.delete(
+        `/api/messages/${msgId}`,
+
       );
 
       // alert(res.data.message);
@@ -387,8 +399,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   };
 
   const handleTouchEnd = () => {
-  setIsSwiping(false);
-};
+    setIsSwiping(false);
+  };
 
 
 
@@ -431,10 +443,30 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
 
       </div>
 
+
       <div
-        className="card-body chat-box"
-        style={{ height: "400px", overflowY: "auto" }}
+        className="card-body chat-box  overflow-y-auto relative"
+        style={{ height: "400px", }}
       >
+        {hasMore &&
+          <p
+            onClick={loadOlder}
+            className="sticky top-0 z-20
+             mx-auto w-fit
+             text-sm text-black
+             bg-amber-100
+             px-4 py-1
+             rounded-full
+             shadow-md
+             cursor-pointer
+             my-2"
+          >
+            Load older messages
+          </p>
+
+
+
+        }
         {/* no latest msg avialable  */}
         {/* // console.log("🧾 Messages rendering:", messages) */}
 
@@ -462,6 +494,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
                 onTouchEnd={onMessageMouseUpOrLeave}
                 style={{ position: "relative" }}
               >
+
                 <div className={`d-flex ${isOwn ? "flex-row-reverse" : ""}`}>
                   <img
                     src={
@@ -474,6 +507,8 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
                     className="rounded-circle me-2 ms-2"
                     style={{ width: "30px", height: "30px", objectFit: "cover" }}
                   />
+
+
 
                   <div style={{ maxWidth: "60%" }}>
                     {/* 📝 Text Message Box */}

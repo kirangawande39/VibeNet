@@ -1,21 +1,16 @@
 import React from "react";
 import { FaTimes } from "react-icons/fa";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import API from "../services/api";
 
-const FollowRequestModel = ({ onClose, profileData, token, setProfileData, setFollowRequest }) => {
+const FollowRequestModel = ({ onClose, profileData,  setProfileData, setFollowRequest }) => {
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 
 
   const handleDecline = async (declineuserId) => {
     try {
-      const res = await axios.delete(`${backendUrl}/api/follow/follow-request/decline/${declineuserId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
+      const res = await API.delete(`/api/follow/follow-request/decline/${declineuserId}`)
 
       toast.success(res.data.message)
 
@@ -36,13 +31,9 @@ const FollowRequestModel = ({ onClose, profileData, token, setProfileData, setFo
 
   const handleAccept = async (acceptUserId) => {
     try {
-      const res = await axios.put(`${backendUrl}/api/follow/follow-request/accept/${acceptUserId}`,
+      const res = await API.put(`/api/follow/follow-request/accept/${acceptUserId}`,
         {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+       
       );
 
       toast.success(res.data.message)

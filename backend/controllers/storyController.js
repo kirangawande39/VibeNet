@@ -1,13 +1,15 @@
 const Story = require("../models/Story");
+const User = require("../models/User")
+const notificationQueue = require('../queues/notificationQueue')
 
 const createStory = async (req, res, next) => {
   // console.log("Create story logic here");
 
   try {
     const file = req.file;
-    const publicId=req.file.filename;
+    const publicId = req.file.filename;
 
-  //  console.log("Story publicId ::", publicId);
+    //  console.log("Story publicId ::", publicId);
 
     if (!file) {
       throw new Error("No file uploaded");
@@ -15,14 +17,15 @@ const createStory = async (req, res, next) => {
 
     const storyUrl = file.path;
     const mediaType = file.mimetype.startsWith("video") ? "video" : "image";
-    
+
     const story = await Story.create({
       user: req.user.id,
       mediaUrl: storyUrl,
       mediaType,
       publicId,
-      expiresAt:  new Date(Date.now() + 24 * 60 * 60 * 1000) ,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
+
 
     res.status(201).json({ success: true, story });
   } catch (err) {
@@ -100,6 +103,10 @@ const seenStory = async (req, res, next) => {
     const userId = req.user.id;
 
     const story = await Story.findById(storyId);
+
+    // console.log("Story:",story.user);
+
+
     if (!story) {
       throw new Error("Story not found");
     }
@@ -114,8 +121,38 @@ const seenStory = async (req, res, next) => {
 
     if (!alreadySeen) {
       story.seenBy.push({ user: userId, viewedAt: new Date() });
+
+
       await story.save();
+
+
+      const user = await User.findById(story.user).select('fcmToken');
+
+
+
+      // console.log("fcmToken is::",user);
+
+      const fcmToken = user?.fcmToken;
+
+      const title = "VibeNet • Story Viewed 👀";
+      const text = "Someone viewed your story.";
+
+
+      if (fcmToken) {
+        await notificationQueue.add('send-notification', {
+          fcmToken,
+          title,
+          text,
+        })
+      }
+
+
+
       return res.status(200).json({ message: "Story marked as seen" });
+
+
+
+
     }
 
     return res.status(200).json({ message: "Already marked as seen" });

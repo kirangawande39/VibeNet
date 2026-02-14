@@ -1,20 +1,19 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { handleError } from "../utils/errorHandler";
+import API from "../services/api";
 
 const ResetPassword = () => {
   const { token } = useParams();
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const handleReset = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${backendUrl}/api/auth/reset-password`, {
+      await API.post(`/api/auth/reset-password`, {
         token,
         newPassword: password,
       });

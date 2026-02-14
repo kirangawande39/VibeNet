@@ -7,9 +7,12 @@ const { cloudinary } = require('../config/cloudConfig')
 
 // Get User Profile
 const getUserProfile = async (req, res, next) => {
+
     try {
+
         const currentUserId = req.user.id;
         const profileUserId = req.params.id;
+
 
         const currentUser = await User.findById(currentUserId).select("following").lean();
         if (!currentUser) {
@@ -62,21 +65,35 @@ const getUserProfile = async (req, res, next) => {
 // Update User Profile
 const updateUserProfile = async (req, res, next) => {
     // console.log("updateUserProfile is here");
-    // console.log("User ID:", req.params.id);
-    // console.log("New Bio:", req.body);
+    const userId = req.params.id;
+    const { name, bio } = req.body;
+
+
+    // console.log("User ID:", userId);
+    // console.log("Name::",name);
+    // console.log("Bio::",bio);
+
 
     try {
-        const user = await User.findById(req.params.id);
+        if (userId !== req.user.id) {
+            return res.status(403).json({ message: "Not Allowed!" })
+        }
 
+
+        const user = await User.findById(userId);
         if (user) {
-            user.bio = req.body.bio || user.bio;
-            user.name = req.body.name || user.name;
+            user.bio = name || user.bio;
+            user.name = bio || user.name;
 
-            const updatedUser = await user.save();
+            await user.save();
+
+            const updatedUser = await User.findById(user._id).select('name bio')
+            // console.log("updatedUser:",updatedUser);
 
             res.json({
                 message: "Profile updated successfully",
-                updatedUser, // sending updated data back
+                name: updatedUser.name, // sending updated data back
+                bio: updatedUser.bio, // sending updated data back
             });
         } else {
             res.status(404).json({ message: "User not found" });
@@ -219,12 +236,81 @@ const getSuggestedUsers = async (req, res) => {
     }
 };
 
+// const getSuggestedUsers = async (req, res) => {
+//     try {
+//         const userId = req.user.id;
+
+//         const currentUser = await User.findById(userId).lean();
+//         if (!currentUser) return res.status(404).json({ message: "User not found" });
+
+//         const following = currentUser.following || []; // Already following users
+//         const visited = new Set([userId, ...following]); // Avoid suggesting self & already following
+
+//         const queue = [...following]; // BFS queue: start from direct friends
+//         const suggestionsMap = new Map(); // userId -> mutualCount
+
+//         while (queue.length) {
+//             const friendId = queue.shift(); // dequeue
+//             const friend = await User.findById(friendId).lean();
+//             if (!friend || !friend.following) continue;
+
+//             for (let fId of friend.following) {
+//                 if (!visited.has(fId)) {
+//                     visited.add(fId); // mark visited
+//                     queue.push(fId); // enqueue next level
+
+//                     // Count mutuals
+//                     suggestionsMap.set(
+//                         fId,
+//                         (suggestionsMap.get(fId) || 0) + 1
+//                     );
+//                 }
+//             }
+//         }
+
+//         // Convert map to array of user objects
+//         const suggestions = [];
+//         for (let [sId, mutualCount] of suggestionsMap) {
+//             const user = await User.findById(sId)
+//                 .select("_id username name profilePic followers")
+//                 .lean();
+//             if (user) {
+//                 suggestions.push({
+//                     _id: user._id,
+//                     username: user.username,
+//                     name: user.name,
+//                     profilePic: user.profilePic,
+//                     mutualCount,
+//                     popularity: user.followers.length
+//                 });
+//             }
+//         }
+
+//         // Sort: first by mutualCount, then by popularity
+//         suggestions.sort((a, b) => {
+//             if (b.mutualCount !== a.mutualCount) return b.mutualCount - a.mutualCount;
+//             return b.popularity - a.popularity;
+//         });
+
+//         res.status(200).json(suggestions.slice(0, 10)); // Top 10 suggestions
+
+//     } catch (err) {
+//         console.error("BFS Friend suggestion failed:", err.message);
+//         res.status(500).json({ message: "Failed to fetch suggestions" });
+//     }
+// };
+
+
 
 const uploadProfilePic = async (req, res) => {
+
+    const userId = req.params.id;
+    // console.log(`Received request to update profile pic for user: ${userId}`);
+
     try {
-        const userId = req.params.id;
-        // console.log(`Received request to update profile pic for user: ${userId}`);
-        // console.log("userId ::",userId)
+        
+
+
         const user = await User.findById(userId);
         if (!user) {
             // console.log(`User with id ${userId} not found.`);
@@ -247,7 +333,7 @@ const uploadProfilePic = async (req, res) => {
 
         // Update user with new profilePic info
         user.profilePic = {
-            url: req.file.path,          // multer-storage-cloudinary returns secure_url in path
+            url: req.file.path,
             public_id: req.file.filename // filename is Cloudinary public_id
         };
 
@@ -298,7 +384,7 @@ const updatePrivacy = async (req, res) => {
 
 
 
-        
+
 
 
         res.status(201).json({

@@ -1,23 +1,26 @@
+require('dotenv').config();
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
 const Message = require("../models/Message");
 
-const Chat = require("../models/Chat");
+// const Chat = require("../models/Chat");
 
 const BOT_USER_ID = process.env.BOT_USER_ID;
 
 const UI_URL = process.env.FRONTEND_URL;
 // Generate JWT Token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
 
 
 const register = async (req, res, next) => {
   try {
+
+    // console.log("Register route called");
     const { name, email, password, username } = req.body;
 
     const userExists = await User.findOne({ email });
@@ -27,7 +30,7 @@ const register = async (req, res, next) => {
     }
 
     const newUser = new User({ name, email, username });
-    
+
     const registeredUser = await User.register(newUser, password);
 
 
@@ -62,12 +65,7 @@ const register = async (req, res, next) => {
     // console.log("message::" + message);
 
     //  Final response
-    res.status(201).json({
-      _id: registeredUser.id,
-      name: registeredUser.name,
-      email: registeredUser.email,
-      token: generateToken(registeredUser.id),
-    });
+    res.status(201).json({ message: 'Registration Sucessfully..' });
 
   } catch (err) {
     next(err);
@@ -78,21 +76,59 @@ const register = async (req, res, next) => {
 // Login User
 const login = async (req, res, next) => {
   try {
-    const { id, username, email } = req.user;
 
-    const token = generateToken(id);
+    // console.log("login User:", req.user);
+    const userId = req.user._id;
+
+    // console.log("userId:", userId);
+    const token = generateToken(userId);
+    // console.log("Token ::", token);
+    // console.log("NODE_ENV:", process.env.NODE_ENV);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+
 
     res.json({
       success: true,
       message: "Login Successful",
-      user: { id, username, email  },
-      token,
+      user: { id: req.user._id, username: req.user.username, email: req.user.email },
+      // token,
       redirectUrl: "/"
     });
   } catch (err) {
     next(err);
   }
 };
+
+
+
+
+const logout = async (req, res, next) => {
+  try {
+    // console.log("logout called")
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === 'production',
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully"
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 // Google OAuth
 const googleAuth = async (req, res, next) => {
@@ -226,4 +262,27 @@ const resetPassword = async (req, res, next) => {
   }
 }
 
-module.exports = { register, login, googleAuth, checkEmail, forgotPassword, resetPassword, googleCallBack };
+
+const check = async (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(401).json({ loggedIn: false })
+  }
+
+
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+
+    if(user){
+      res.json({ loggedIn: true });
+    }
+  }
+  catch (err) {
+    return res.status(401).json({ loggedIn: false });
+  }
+}
+
+
+
+module.exports = { register, login, logout, googleAuth, checkEmail, forgotPassword, resetPassword, googleCallBack, check };

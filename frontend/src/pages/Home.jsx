@@ -1,5 +1,4 @@
 import { useState, useContext, useEffect, useRef } from "react";
-import axios from "axios";
 import PostCard from "../components/PostCard";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../assets/css/Home.css";
@@ -9,15 +8,12 @@ import Spinner from "../components/Spinner";
 import { useNavigate, Link } from "react-router-dom";
 import { handleError } from '../utils/errorHandler';
 import { toast } from 'react-toastify';
-import SidebarNavbar from "../components/SidebarNavbar";
 import "../assets/css/StoryList.css";
-
-
-
 import StoryViewer from "../components/StoryViewer"
-
-
+import API from "../services/api";
 const isVideo = (url) => url?.match(/\.(mp4|webm|ogg)$/i);
+
+
 
 const Home = () => {
   const { user, updateUser } = useContext(AuthContext);
@@ -33,7 +29,6 @@ const Home = () => {
 
   const currentUser = user || updateUser;
   const currentUserId = currentUser?._id || currentUser?.id;
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
 
 
@@ -78,10 +73,7 @@ const Home = () => {
   useEffect(() => {
     const fetchSuggestions = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(`${backendUrl}/api/users/suggestions`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await API.get(`/api/users/suggestions`);
         setSuggestions(res.data);
       } catch (err) {
         console.error("Error fetching suggestions:", err);
@@ -105,11 +97,11 @@ const Home = () => {
 
   const handleFollow = async (userId) => {
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(
-        `${backendUrl}/api/follow/${userId}/follow`,
+      
+      await API.post(
+        `/api/follow/${userId}/follow`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
+       
       );
       setSuggestions((prev) =>
         prev.map((user) =>
@@ -123,11 +115,9 @@ const Home = () => {
 
   const handleUnfollow = async (userId) => {
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(
-        `${backendUrl}/api/follow/${userId}/unfollow`,
+      await API.post(
+        `/api/follow/${userId}/unfollow`,
         {},
-        { headers: { Authorization: `Bearer ${token}` } }
       );
       setSuggestions((prev) =>
         prev.map((user) =>
@@ -164,7 +154,7 @@ const Home = () => {
     if (loadingMore || !hasMore) return;
     setLoadingMore(true);
     try {
-      const res = await axios.get(`${backendUrl}/api/posts?page=${page}&limit=5`);
+      const res = await API.get(`/api/posts?page=${page}&limit=5`);
       const newPosts = res.data.posts;
       if (newPosts.length === 0) {
         setHasMore(false);
@@ -182,14 +172,10 @@ const Home = () => {
 
   const fetchStories = async () => {
     try {
-      const token = localStorage.getItem("token");
-      // console.log("story token :", token);
+    
+      
 
-      const res = await axios.get(`${backendUrl}/api/stories`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await API.get(`/api/stories`);
 
       setStories(res.data.stories);
     } catch (err) {
@@ -342,19 +328,16 @@ const Home = () => {
 
     const markAsSeen = async () => {
       try {
-        const token = localStorage.getItem("token");
-
-        if (!token) return;
-        await axios.put(
-          `${backendUrl}/api/stories/${currentStory._id}/seen`,
+        await API.put(
+          `/api/stories/${currentStory._id}/seen`,
           {},
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         setSeenStories((prev) => new Set(prev).add(currentStory._id));
       } catch (err) {
         console.error("Error marking story as seen:", err);
       }
     };
+  
     markAsSeen();
   }, [currentStory]);
 
@@ -427,25 +410,21 @@ const Home = () => {
   const toggleLike = async (e) => {
     e.stopPropagation();
     if (!currentStory) return;
-    const token = localStorage.getItem("token");
-    if (!token) return;
 
     setIsUserInteracting(true);
     setTimeout(() => setIsUserInteracting(false), 1000);
 
     try {
       if (likedMap[currentStory._id]) {
-        await axios.put(
-          `${backendUrl}/api/stories/${currentStory._id}/unlike`,
+        await API.put(
+          `/api/stories/${currentStory._id}/unlike`,
           {},
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         setLikedMap((prev) => ({ ...prev, [currentStory._id]: false }));
       } else {
-        await axios.put(
-          `${backendUrl}/api/stories/${currentStory._id}/like`,
+        await API.put(
+          `api/stories/${currentStory._id}/like`,
           {},
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         setLikedMap((prev) => ({ ...prev, [currentStory._id]: true }));
       }
@@ -608,6 +587,7 @@ const Home = () => {
                 {posts.map((post, index) => (
                   <PostCard key={post._id} post={post} storyUserIds={storyUserIds} openStory={openStory} isSeen={isSeen} />
                 ))}
+
                 {loadingMore && (
                   <div className="text-center my-3">
                     <Spinner />
@@ -654,7 +634,7 @@ const Home = () => {
           <div className="vibenet-suggestions">
             <div className="vibenet-suggestions-header">
               <span>Suggestions For You</span>
-              {suggestions.length > 5 && (
+              {suggestions.length > 7 && (
                 <button
                   onClick={() => setShowAll(!showAll)}
                   className="vibenet-show-all"
@@ -669,7 +649,7 @@ const Home = () => {
               <p className="vibenet-no-suggestions">No suggestions found</p>
             ) : (
               <>
-                {(showAll ? suggestions : suggestions.slice(0, 5)).map((sugg) => (
+                {(showAll ? suggestions : suggestions.slice(0, 7)).map((sugg) => (
                   <div className="vibenet-suggestion-card" key={sugg._id}>
                     <Link to={`/profile/${sugg._id}`} className="vibenet-suggestion-link">
                       <img
@@ -705,22 +685,6 @@ const Home = () => {
             )}
           </div>
 
-          <div className="vibenet-footer">
-            <div className="vibenet-footer-links">
-              <a href="#">About</a>
-              <a href="#">Help</a>
-              <a href="#">Press</a>
-              <a href="#">API</a>
-              <a href="#">Jobs</a>
-              <a href="#">Privacy</a>
-              <a href="#">Terms</a>
-              <a href="#">Locations</a>
-              <a href="#">Language</a>
-            </div>
-            <div className="vibenet-copyright">
-              © {new Date().getFullYear()} VibeNet CLONE
-            </div>
-          </div>
         </div>
       </div>
     </div>

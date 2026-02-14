@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { handleError } from "../utils/errorHandler";
-import axios from "axios";
 import { toast } from "react-toastify";
+import API from "../services/api";
 
 const GroupActionsModal = ({ onClose, sortedFollowers, group, user }) => {
   const [showFriendList, setShowFriendList] = useState(false);
@@ -10,8 +10,7 @@ const GroupActionsModal = ({ onClose, sortedFollowers, group, user }) => {
 
   const [selectedMembers, setSelectedMembers] = useState([]);
 
-  const token = user?.token || localStorage.getItem("token");
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
 
   const handleSelectMember = (userId) => {
     setSelectedMembers((prev) =>
@@ -25,16 +24,12 @@ const GroupActionsModal = ({ onClose, sortedFollowers, group, user }) => {
   const handleAddMembers = async () => {
     try {
       // console.log("selectedMembers::",selectedMembers)
-      let res = await axios.post(`${backendUrl}/api/groups/add-members`,
+      let res = await API.post(`/api/groups/add-members`,
         {
           groupId,
           members: selectedMembers
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+       
       )
 
       toast.success(res.data.message)
@@ -47,13 +42,7 @@ const GroupActionsModal = ({ onClose, sortedFollowers, group, user }) => {
 
   const handleDeleteGroup = async (groupId) => {
     try {
-       let res=await axios.delete(`${backendUrl}/api/groups/delete-group/${groupId}`,
-        {
-          headers:{
-            Authorization:`Bearer ${token}`
-          }
-        }
-       )
+       let res=await API.delete(`/api/groups/delete-group/${groupId}`)
 
        toast.success(res.data.message)
     }

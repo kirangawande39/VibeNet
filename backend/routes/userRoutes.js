@@ -4,10 +4,10 @@ const { protect } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 const User = require('../models/User');
-// adjust path as needed
+
 
 const multer = require('multer');
-const { profilePicStorage, cloudinary } = require('../config/cloudConfig');  // yaha import karo
+const { profilePicStorage } = require('../config/cloudConfig');  
 
 
 const upload = multer({ storage: profilePicStorage });
@@ -26,18 +26,18 @@ router.get("/search", protect, searchUsers);
 router.get("/:id", protect, getUserProfile); 
 
 router.put("/privacy", protect,updatePrivacy)
-router.put("/:id", updateUserProfile);
+router.put("/:id", protect, updateUserProfile);
 
 // Update profile
 router.post("/:id/follow", protect, followUser); // Follow a user
 router.post("/:id/unfollow",protect, unfollowUser); // Unfollow a user
 
-// PUT /api/users/:id/uploadProfilePic
 
 
 
 
-router.put('/:id/uploadProfilePic', upload.single('profilePic'),protect, uploadProfilePic);
+
+router.put('/:id/uploadProfilePic', protect , upload.single('profilePic'), uploadProfilePic);
 
 
 

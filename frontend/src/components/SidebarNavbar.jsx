@@ -8,18 +8,17 @@ import {
 } from "react-icons/fa";
 import "../assets/css/SidebarNavbar.css";
 import { ToastContainer, toast, Slide } from "react-toastify";
-import axios from "axios";
+import { handleError } from "../utils/errorHandler";
+import API from "../services/api";
 
 const SidebarNavbar = ({ isPrivateStatus }) => {
   const { user, logout } = useContext(AuthContext);
-  const token = user?.token || localStorage.getItem("token");
   const navigate = useNavigate();
 
 
   const [showSetting, setShowSetting] = useState(false);
   const [isPrivate, setIsPrivate] = useState(isPrivateStatus);
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const menuRef = useRef();
 
 
@@ -46,14 +45,9 @@ const SidebarNavbar = ({ isPrivateStatus }) => {
 
       setIsPrivate(newStatus);
 
-      const res = await axios.put(`${backendUrl}/api/users/privacy`,
+      const res = await API.put(`/api/users/privacy`,
         { isPrivate: newStatus },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        
       );
 
       toast.success(res.data.message)
@@ -69,9 +63,18 @@ const SidebarNavbar = ({ isPrivateStatus }) => {
 
   // console.log("Is Private :: ",isPrivate)
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      const res = await API.post(`/api/auth/logout`,
+        {},
+      )
+      toast.success(res.data.message);
+      logout();
+      navigate("/");
+    }
+    catch (err) {
+      handleError(err);
+    }
   };
 
   return (
@@ -89,27 +92,27 @@ const SidebarNavbar = ({ isPrivateStatus }) => {
 
       {user ? (
         <>
-         <div className="list">
-          <Link to="/" className="nav-link mb-4 d-flex align-items-center ">
-            <FaHome className="me-2" />
-            <span>Home</span>
-          </Link>
-          <Link to="/search" className="nav-link mb-4  d-flex align-items-center">
-            <FaSearch className="me-2" /> Search
-          </Link>
-          <Link to={`/profile/${user.id}`} className="nav-link mb-4  d-flex align-items-center">
-            <FaUser className="me-2" /> Profile
-          </Link>
-          <Link to={`/chat/${user.id}`} className="nav-link mb-4  d-flex align-items-center">
-            <FaCommentDots className="me-2" /> Chat
-          </Link>
-          <button
-            onClick={() => setShowSetting(!showSetting)}
-            className=" d-flex align-items-center"
-          >
-            <FaCog className="me-2" /> Setting
-          </button>
-         </div>
+          <div className="list">
+            <Link to="/" className="nav-link mb-4 d-flex align-items-center ">
+              <FaHome className="me-2" />
+              <span>Home</span>
+            </Link>
+            <Link to="/search" className="nav-link mb-4  d-flex align-items-center">
+              <FaSearch className="me-2" /> Search
+            </Link>
+            <Link to={`/profile/${user.id}`} className="nav-link mb-4  d-flex align-items-center">
+              <FaUser className="me-2" /> Profile
+            </Link>
+            <Link to={`/chat/${user.id}`} className="nav-link mb-4  d-flex align-items-center">
+              <FaCommentDots className="me-2" /> Chat
+            </Link>
+            <button
+              onClick={() => setShowSetting(!showSetting)}
+              className=" d-flex align-items-center"
+            >
+              <FaCog className="me-2" /> Setting
+            </button>
+          </div>
 
 
           {showSetting && (
@@ -138,11 +141,11 @@ const SidebarNavbar = ({ isPrivateStatus }) => {
             </div>
           )}
 
-          
 
 
 
-          <button onClick={handleLogout} className="btn btn-outline-danger mt-auto  d-flex items-center">
+
+          <button onClick={handleLogout} className="btn btn-outline-danger mt-auto w-fit  d-flex items-center">
             <FaSignOutAlt className="me-2" /> Logout
           </button>
         </>

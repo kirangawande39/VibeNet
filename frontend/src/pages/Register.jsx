@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
 import emailjs from "@emailjs/browser";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { toast } from "react-toastify";
@@ -84,8 +83,9 @@ const Register = () => {
     if (!isEmailVerified) return toast.error("Please verify your email first");
 
     try {
-      const res = await axios.post(`${backendUrl}/api/auth/register`, formData);
-      toast.success("Registered Successfully");
+      const res = await API.post(`/api/auth/register`, formData);
+      
+      toast.success(res.data.message);
       navigate("/login");
     } catch (err) {
       if (err.response && err.response.status === 429) {
@@ -96,6 +96,9 @@ const Register = () => {
       }
     }
   };
+
+
+  
 
 
   return (

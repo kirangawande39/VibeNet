@@ -9,6 +9,8 @@ const sendNotification = require('../utils/sendNotification.js');
 
 const { getAIReply } = require("../utils/botReplay.js");
 
+const notificationQueue = require("../queues/notificationQueue.js")
+
 const BOT_USER_ID = process.env.BOT_USER_ID;
 
 
@@ -36,9 +38,20 @@ const sendMessage = async (req, res, next) => {
     const fcmToken = receiverUser?.fcmToken;
 
 
+    // if (fcmToken) {
+    //   sendNotification(fcmToken, "new message form VibeNet", text);
+    // }
+
+
     if (fcmToken) {
-      sendNotification(fcmToken, "new message form VibeNet", text);
+      // console.log('send-message');
+      await notificationQueue.add("send-notification", {
+        fcmToken,
+        title: "new message form VibeNet",
+        text,
+      });
     }
+
 
 
 
@@ -115,13 +128,19 @@ const sendMessage = async (req, res, next) => {
 // 👉 Get all messages of a chat
 const getMessages = async (req, res, next) => {
   const { chatId } = req.params;
+  const { page = 1, limit = 20 } = req.query;
+
+  const skip = (page - 1) * limit;
+
 
   try {
     const messages = await Message.find({ chatId })
       .populate("sender", "name profilePic")
-      .sort({ createdAt: 1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
 
-    res.status(200).json(messages);
+    res.status(200).json(messages.reverse());
   } catch (err) {
     next(err);
   }
@@ -239,7 +258,7 @@ const getUnseenMessageCounts = async (req, res, next) => {
     ]);
 
     // console.log("Unseen Counts:", unseenCounts);
-    res.status(200).json({ success: true, data: unseenCounts ,privacyStatus:user.isPrivate });
+    res.status(200).json({ success: true, data: unseenCounts, privacyStatus: user.isPrivate });
   } catch (err) {
     console.error("Aggregation error:", err);
     res.status(500).json({ success: false, message: "Server Error" });

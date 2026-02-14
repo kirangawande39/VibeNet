@@ -1,5 +1,4 @@
 import { useState, useEffect, useContext, useRef } from "react";
-import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { AiFillLike } from "react-icons/ai";
 import { LiaCommentSolid } from "react-icons/lia";
@@ -9,13 +8,14 @@ import "../assets/css/PostCard.css";
 import CommentBox from "./CommentBox";
 import { handleError } from '../utils/errorHandler';
 dayjs.extend(relativeTime);
-import { ToastContainer, toast } from 'react-toastify';
 import { Link } from "react-router-dom";
+import API from "../services/api";
+import { toast } from "react-toastify";
+
 const PostCard = ({ post, storyUserIds, openStory }) => {
   const [liked, setLiked] = useState(false);
   const [totalLikes, setTotalLikes] = useState(post.likes.length);
   const { user } = useContext(AuthContext);
-  const token = user?.token || localStorage.getItem("token");
 
   const [showComment, setShowComment] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -23,7 +23,6 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
   // Flying hearts state
   const [flyingLikes, setFlyingLikes] = useState([]);
   const likeSoundRef = useRef(null);
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const followingStatus = post.user.followers.includes(user?.id);
     setIsFollowing(followingStatus);
@@ -66,31 +65,27 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
 
   const handleLike = async () => {
     try {
-      const res = await axios.post(
-        `${backendUrl}/api/likes/${post._id}/like`,
+      const res = await API.post(
+        `/api/likes/${post._id}/like`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
       setTotalLikes(res.data.totalLikes);
     } catch (err) {
-      handleError(err);
+      console.error("failed post like", err);
+
     }
   };
 
   const handleUnlike = async () => {
     try {
-      const res = await axios.post(
-        `${backendUrl}/api/likes/${post._id}/unlike`,
+      const res = await API.post(
+        `/api/likes/${post._id}/unlike`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+
       );
       setTotalLikes(res.data.totalLikes);
     } catch (err) {
-      handleError(err);
+      console.error("failed post unLike", err);
     }
   };
 
@@ -100,15 +95,12 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
 
   const handleFollow = async () => {
     try {
-      const res = await axios.post(
-        `${backendUrl}/api/follow/${post.user._id}/follow`,
+      const res = await API.post(
+        `/api/follow/${post.user._id}/follow`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
       );
       setIsFollowing(true);
-      // alert(res.data.message || "Followed successfully!");
+      toast.success(res.data.message || "Followed successfully!");
     } catch (err) {
       handleError(err);
     }
@@ -116,15 +108,13 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
 
   const handleUnfollow = async () => {
     try {
-      const res = await axios.post(
-        `${backendUrl}/api/follow/${post.user._id}/unfollow`,
+      const res = await API.post(
+        `/api/follow/${post.user._id}/unfollow`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+
       );
       setIsFollowing(false);
-      // alert(res.data.message || "Unfollowed successfully!");
+      toast.success(res.data.message || "Unfollowed successfully!");
     } catch (err) {
       handleError(err);
     }
@@ -132,7 +122,7 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
 
 
   return (
-    <div className="card">
+    <div className="mt-3 ">
 
       {/* Audio element for like sound */}
       <audio
@@ -141,19 +131,11 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
         preload="auto"
       />
 
-      {/* Flying hearts animation */}
-      {flyingLikes.map((heart) => (
-        <div
-          key={heart.id}
-          className="flying-like"
-          style={{ left: `${heart.left}%` }}
-        >
-          ❤️
-        </div>
-      ))}
+
+
 
       {/* Post Header */}
-      <div className="card-header d-flex align-items-center bg-white">
+      <div className="card-header d-flex align-items-center">
         <img
           src={post.user?.profilePic?.url || "https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2264922221.jpg"}
           className={`rounded-circle me-2 ${storyUserIds.includes(post?.user?._id) ? "border border-danger border-2" : ""}`}
@@ -162,7 +144,7 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
           style={{ objectFit: "cover", cursor: "pointer" }}
           onClick={() => {
             if (storyUserIds.includes(post.user._id)) {
-              openStory(post.user._id); // ✅ call Home.jsx function
+              openStory(post.user._id); // call Home.jsx function
             }
           }}
         />
@@ -174,6 +156,18 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
         >
           <strong>{post.user?.username || "Unknown"}</strong>
         </Link>
+
+          {flyingLikes.map((heart) => (
+        <div
+          key={heart.id}
+          className="flying-like"
+          style={{ left: `${heart.left}%` }}
+        >
+          ❤️
+        </div>
+      ))}
+
+
 
         <br />
         {user?.id === post.user?._id ? (
@@ -188,18 +182,22 @@ const PostCard = ({ post, storyUserIds, openStory }) => {
           </div>
         )}
       </div>
-
       {/* Post Image */}
-      <div style={{ height: "300px", overflow: "hidden" }}>
+
+     
+
+      <div className="w-full h-[300px]  flex items-center justify-center overflow-hidden rounded-lg">
         <img
           src={post.image}
           alt="post"
-          className="card-img-top img-fluid"
-          style={{ objectFit: "contain", width: "100%", height: "100%" }}
+          className="max-w-full max-h-full object-contain rounded-2xl"
         />
       </div>
 
+
+
       {/* Post Body */}
+
       <div className="card-body">
         <div
           className="like-comments"

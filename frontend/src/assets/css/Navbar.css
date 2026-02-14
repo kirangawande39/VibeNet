@@ -9,6 +9,10 @@
   z-index: 1000;
 }
 
+.nav_icon{
+  background-color:#007bff;
+}
+
 
 .logo {
   font-family: "Lobster", cursive;

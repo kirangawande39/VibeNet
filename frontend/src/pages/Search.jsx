@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { FaSearch, FaTimesCircle } from "react-icons/fa";
 
 import { handleError } from '../utils/errorHandler';
 import '../assets/css/Search.css';
 import { Link } from 'react-router-dom';
+import API from '../services/api';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 
 const Search = () => {
@@ -26,7 +25,7 @@ const Search = () => {
 
         setLoadingMoreExplore(true);
         try {
-            const res = await axios.get(`${backendUrl}/api/posts?page=${explorePage}&limit=5`);
+            const res = await API.get(`/api/posts?page=${explorePage}&limit=5`);
             const newPosts = res.data.posts;
 
             if (newPosts.length === 0) {
@@ -60,15 +59,10 @@ const Search = () => {
         setLoading(true);
         const timeout = setTimeout(async () => {
             try {
-                const token = localStorage.getItem("token");
 
-                const res = await axios.get(
-                    `${backendUrl}/api/users/search?query=${query}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
+                const res = await API.get(
+                    `/api/users/search?query=${query}`,
+                   
                 );
 
                 setResults(res.data.users);

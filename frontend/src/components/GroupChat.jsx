@@ -4,12 +4,12 @@ import GroupDetailModal from "./GroupDetailModal";
 import { BiBold, BiDotsVerticalRounded } from "react-icons/bi";
 import GroupActionsModal from "./GroupActionsModal";
 import { handleError } from "../utils/errorHandler";
-import axios from "axios";
 import dayjs from "dayjs";
 import socket from "../socket";
 import { useNavigate } from "react-router-dom";
 import { MdArrowBack } from "react-icons/md";
 import Spinner from "./Spinner";
+import API from "../services/api";
 
 const GroupChat = ({ selectedGroup, onBack, isMobile, user, sortedFollowers }) => {
     const [showGroupDetails, setShowGroupDetails] = useState(false);
@@ -26,8 +26,6 @@ const GroupChat = ({ selectedGroup, onBack, isMobile, user, sortedFollowers }) =
     const isTypingRef = useRef(false);
 
     const messageEndRef = useRef(null);
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-    const token = user?.token || localStorage.getItem("token");
     const groupId = selectedGroup?._id;
 
     const TYPING_TIMEOUT = 2000;
@@ -55,10 +53,8 @@ const GroupChat = ({ selectedGroup, onBack, isMobile, user, sortedFollowers }) =
 
         const fetchMessages = async () => {
             try {
-                const res = await axios.get(
-                    `${backendUrl}/api/groups/messages/${groupId}`,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
+                const res = await API.get(
+                    `/api/groups/messages/${groupId}`);
 
                 setGroupMessages(res.data.messages);
             } catch (err) {
@@ -159,15 +155,13 @@ const GroupChat = ({ selectedGroup, onBack, isMobile, user, sortedFollowers }) =
         e.preventDefault();
 
         try {
-            await axios.post(
-                `${backendUrl}/api/groups/message`,
+            await API.post(
+                `/api/groups/message`,
                 {
                     message: newGroupMessage,
                     groupId
                 },
-                {
-                    headers: { Authorization: `Bearer ${token}` }
-                }
+              
             );
 
             setNewGroupMessage("");
@@ -178,7 +172,7 @@ const GroupChat = ({ selectedGroup, onBack, isMobile, user, sortedFollowers }) =
     };
 
 
-
+    //  console.log("new group message ::",newGroupMessage);
 
 
     if (!selectedGroup) {
@@ -186,7 +180,7 @@ const GroupChat = ({ selectedGroup, onBack, isMobile, user, sortedFollowers }) =
     }
 
     return (
-        <div className="d-flex flex-column h-100">
+        <div className="d-flex flex-column  h-[115%]">
 
             {/* HEADER */}
             <div className="flex justify-between">
@@ -240,6 +234,7 @@ const GroupChat = ({ selectedGroup, onBack, isMobile, user, sortedFollowers }) =
             {/* MESSAGES */}
 
             <div className="flex-grow-1 p-3 h-[90vh]" style={{ overflowY: "auto", background: "#f7f7f7" }}>
+
                 {loading ?
                     <Spinner />
                     :

@@ -1,6 +1,8 @@
 const Post = require("../models/Post");
 const { cloudinary } = require("../config/cloudConfig");
 
+
+
 // 👉 Create a Post
 const createPost = async (req, res, next) => {
   const { description } = req.body;

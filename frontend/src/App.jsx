@@ -1,6 +1,5 @@
 import { useEffect, useCallback, useState, useContext } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import axios from "axios";
 import socket from "./socket";
 
 import Home from "./pages/Home";
@@ -16,13 +15,13 @@ import ResetPassword from "./pages/ResetPassword";
 import SidebarNavbar from "./components/SidebarNavbar";
 
 import { requestForToken, onMessageListener } from "./firebase/firebase-messaging";
-import { ToastContainer, Slide } from "react-toastify";
+import { ToastContainer, Slide, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { OnlineProvider } from "./context/OnlineStatusContext";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
+import API from "./services/api";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 function AppWrapper() {
   // Wrap App inside Auth and Online providers
@@ -41,6 +40,27 @@ function App() {
   const [isPrivateStatus, setIsPrivateStatus] = useState();
 
   const navigate = useNavigate();
+
+useEffect(()=>{
+  const userVerify = async () => {
+     try{
+        const res=await API.get('/api/auth/check');
+        // console.log("check:",res.data);
+        if(!res.data.loggedIn){
+          localStorage.clear();
+        }
+      }
+      catch(err){
+        localStorage.clear()
+        // console.error("userVerify failed ",err)
+      }
+  }
+
+  userVerify();
+},[]);
+
+
+
 
   // Handle login redirect from OAuth or query params
   useEffect(() => {
@@ -66,15 +86,11 @@ function App() {
   // Fetch unseen message counts + privacy status
   const fetchUnseenCounts = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-      const res = await axios.get(`${backendUrl}/api/messages/unseen-counts`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await API.get(`/api/messages/unseen-counts`);
       setUnseenCounts(res.data.data);
       setIsPrivateStatus(res.data.privacyStatus);
     } catch (err) {
-      console.error("❌ Error fetching unseen counts:", err);
+      console.error("Error fetching unseen counts:", err);
     }
   }, []); // Stable reference
 
@@ -93,16 +109,16 @@ function App() {
 
   // Firebase Notifications
   useEffect(() => {
-    const authToken = localStorage.getItem("token");
-    if (authToken && user) {
-      requestForToken(authToken);
+    if (user) {
+      requestForToken();
     }
 
     onMessageListener()
       .then((payload) => {
         // Yahan kuch mat karo
         // Bas console.log allow hai
-        console.log("FCM foreground:", payload);
+        // console.log("FCM foreground:", payload);
+        toast.info(`${payload.data.title}: ${payload.data.body}`);
       })
       .catch((err) => console.error("FCM listener error:", err));
 

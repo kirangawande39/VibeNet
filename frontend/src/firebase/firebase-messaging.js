@@ -1,8 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import axios from "axios";
+import API from "../services/api";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const vapidKey = import.meta.env.VITE_VAPID_KEY;
 
@@ -37,26 +36,24 @@ const messaging = getMessaging(firebaseApp);
 
 
 // Function to get FCM token
-export const requestForToken = async (authToken) => {
+export const requestForToken = async () => {
   try {
 
     // Ya user?.id — jaisa backend me hai
 
     const token = await getToken(messaging, {vapidKey});
 
+
+  
+
     if (token) {
       // console.log("FCM Token:", token);
 
       // API call to save token with userId
-      await axios.post(`${backendUrl}/api/users/save-fcm-token`, 
+      await API.post(`/api/users/save-fcm-token`, 
         { token },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`
-          },
-        }
       );
+
     } else {
       console.log("No registration token available OR userId missing.");
     }
@@ -69,7 +66,7 @@ export const requestForToken = async (authToken) => {
 export const onMessageListener = () =>
   new Promise((resolve) => {
     onMessage(messaging, (payload) => {
-      console.log("Foreground Message Received: ", payload);
+      // console.log("Foreground Message Received: ", payload);
       resolve(payload);
     });
   });

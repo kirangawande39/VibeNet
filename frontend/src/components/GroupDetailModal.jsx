@@ -21,7 +21,7 @@ const GroupDetailModal = ({ group, onClose }) => {
 
                 <div className="flex items-center gap-3 mb-4">
                     <img
-                        src={group.icon || "https://cdn-icons-png.flaticon.com/512/615/615075.png"}
+                        src={group.icon.url || "https://cdn-icons-png.flaticon.com/512/615/615075.png"}
                         alt="icon"
                         className="w-14 h-14 rounded-full object-cover border"
                     />
