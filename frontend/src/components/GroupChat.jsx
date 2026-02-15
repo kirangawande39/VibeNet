@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { MdArrowBack } from "react-icons/md";
 import Spinner from "./Spinner";
 import API from "../services/api";
+import '../assets/css/GroupChat.css'
 
 const GroupChat = ({ selectedGroup, onBack, isMobile, user, sortedFollowers }) => {
     const [showGroupDetails, setShowGroupDetails] = useState(false);
@@ -180,7 +181,7 @@ const GroupChat = ({ selectedGroup, onBack, isMobile, user, sortedFollowers }) =
     }
 
     return (
-        <div className="d-flex flex-column  h-[115%]">
+        <div className="d-flex flex-column   h-[115%]">
 
             {/* HEADER */}
             <div className="flex justify-between">
@@ -233,7 +234,7 @@ const GroupChat = ({ selectedGroup, onBack, isMobile, user, sortedFollowers }) =
 
             {/* MESSAGES */}
 
-            <div className="flex-grow-1 p-3 h-[90vh]" style={{ overflowY: "auto", background: "#f7f7f7" }}>
+            <div className="group-chat-box flex-grow-1 p-3 h-[90vh] overflow-auto" >
 
                 {loading ?
                     <Spinner />
