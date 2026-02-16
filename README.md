@@ -1,167 +1,232 @@
-🌐 VibeNet – A Modern Social Media Website
+# 🌐 VibeNet – Scalable Social Media Platform
 
-VibeNet is a full-featured, responsive social media web application built with the MERN stack (MongoDB, Express.js, React.js, Node.js).
-It combines core features of Instagram and WhatsApp — including real-time chat, stories, follow system, and a scalable background notification architecture.
+VibeNet is a full-featured, production-oriented social media web application built using the MERN Stack (MongoDB, Express.js, React.js, Node.js).
 
-✨ Features
-👥 User System
+It combines the experience of modern platforms like Instagram and WhatsApp — including real-time chat, group messaging, stories, follow system, smart user suggestions, privacy controls, and a scalable background notification architecture.
 
-Secure Sign Up / Login with JWT Authentication
+---
 
-Edit profile: name, bio, and profile picture
+# ✨ Key Highlights
 
-View followers and following list
+- 🔐 JWT Authentication & Protected APIs  
+- 🌍 Public / 🔒 Private Account System  
+- 🤝 Friends-of-Friends Recommendation Engine  
+- 💬 Real-Time 1:1 & Group Chat (Socket.IO)  
+- 📖 24-Hour Stories with Auto Cleanup  
+- 🔔 Queue-Based Push Notification System  
+- ⚡ Background Workers (BullMQ + Redis)  
+- 🛡️ API Rate Limiting for Security  
+- ☁️ Cloudinary Media Management  
+- ⏳ Cron Job for Story Media Cleanup  
 
-Protected routes accessible only to logged-in users
+---
 
-🔔 Advanced Notification System (FCM + BullMQ + Redis)
+# 🚀 Core Features
 
-VibeNet includes a production-ready background notification system built using:
+---
 
-Firebase Cloud Messaging (FCM)
+## 👥 Authentication & User System
 
-BullMQ (Job Queue)
+- Secure Sign Up / Login (JWT)
+- Protected Routes
+- Edit Profile (Name, Bio, Profile Image)
+- Followers / Following System
+- Personalized Feed
+- Account Privacy Toggle
 
-Redis Cloud
+---
 
-Background Workers
+## 🔒 Public & Private Account System
 
-All notifications are processed asynchronously using queue-based architecture for better scalability and performance.
+### 🌍 Public Account
+- Anyone can view posts & profile
+- Instant follow
 
-📲 Types of Notifications Implemented
-💬 1. Private Chat Notification
+### 🔒 Private Account
+- Follow request approval required
+- Only approved users can:
+  - View posts
+  - View stories
+  - See followers list
+- Follow request notifications
+- Approval notification system
 
-Triggered when a user sends a direct message.
+Access control implemented securely at backend level.
 
-Receiver gets an instant push notification.
+---
 
-Works even when the user is offline.
+## 🔎 User Search & Follow
 
-👥 2. Group Chat Notification
+- Search users by username (case-insensitive)
+- Follow directly from search
+- Privacy-aware follow logic
+- Optimized MongoDB queries
 
-When a message is sent in a group,
+---
 
-All group members (except sender) receive notifications.
+## 🤝 Smart User Suggestions (Friends of Friends)
 
-Efficiently handled using background queue jobs.
+Advanced recommendation logic:
 
-❤️ 3. Follow Notification
+- Suggests friends of friends
+- Ranks by mutual connections
+- Excludes already followed users
+- Excludes self
+- Social graph-based filtering
 
-When a user follows another user,
+---
 
-The followed user receives a push notification.
+# 💬 Real-Time Messaging System
 
-📖 4. Story View Notification
+---
 
-When someone views your story,
+## 💬 One-to-One Chat
 
-The story owner gets notified.
+- Real-time messaging (Socket.IO)
+- Text & image messages
+- Typing indicators
+- Seen status
+- Online / Offline presence
+- Push notifications (FCM)
+- Delete message functionality
 
-👍 5. Post Like Notification
+---
 
-When someone likes your post,
+## 👥 Group Feature
 
-You receive a push notification.
+Users can create and manage chat groups.
 
-💬 6. Comment Notification
+### 🆕 Group Creation
+- Create group with name
+- Optional group image
+- Add members
 
-When someone comments on your post,
+### ➕ Add Friends to Group
+- Add users from following list
+- Prevent duplicate members
+- Controlled membership logic
 
-You receive a real-time + push notification.
+### 💬 Group Chat
+- Real-time group messaging
+- Text & image support
+- All members notified (except sender)
 
-⚙️ Notification Architecture Highlights
+### 🔔 Group Notifications
+- Push notifications for all members
+- Processed asynchronously using BullMQ + Redis
 
-Non-blocking API (queue-based processing)
+---
 
-Jobs stored in Redis Cloud
+# 📖 Story System (24-Hour Expiry)
 
-Worker processes notification jobs in background
+- Upload image/video stories
+- Multiple stories per user
+- Story view tracking
+- MongoDB TTL index for auto-expiry
+- Cloudinary media storage
 
-Automatic cleanup using:
+### ⏳ Story Cleanup Cron Job
 
+- Scheduled cron job runs periodically
+- Deletes expired story media from Cloudinary
+- Prevents unused storage accumulation
+- Keeps cloud storage optimized
+
+---
+
+# 🖼️ Post System
+
+- Create post (text + image)
+- Like / Unlike
+- Real-time comments
+- Delete own posts
+- Live comment count updates
+
+---
+
+# 🔔 Advanced Notification Architecture
+
+Built using:
+
+- Firebase Cloud Messaging (FCM)
+- BullMQ (Job Queue)
+- Redis Cloud
+- Background Workers
+
+### 📲 Notifications Implemented
+
+- Private Chat Notification
+- Group Chat Notification
+- Follow Notification
+- Follow Request Notification
+- Follow Request Accepted Notification
+- Story View Notification
+- Post Like Notification
+- Comment Notification
+
+### ⚙️ Architecture Highlights
+
+- Non-blocking APIs
+- Queue-based async processing
+- Background worker execution
+- Redis-backed job storage
+- Retry mechanism for failures
+- Auto cleanup:
+
+~~~js
 removeOnComplete: true
+~~~
+
+- Horizontally scalable worker system
+
+---
+
+# 🛡️ Security Features
+
+- JWT-based authentication
+- Protected API routes
+- Rate limiting on sensitive routes
+- Secure media upload handling
+- Backend-level access validation
+- Input validation & error handling
+
+---
+
+# 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | React.js + Vite + Tailwind CSS |
+| Backend | Node.js + Express.js |
+| Database | MongoDB (Mongoose) |
+| Authentication | JWT + Passport.js |
+| Real-Time | Socket.IO |
+| Media Storage | Cloudinary |
+| Push Notifications | Firebase Cloud Messaging |
+| Queue System | BullMQ |
+| Queue Storage | Redis Cloud |
+| Background Jobs | Node Cron |
+
+---
 
 
-Scalable: multiple workers can run simultaneously
 
-Retry mechanism for failed notifications
+# 📄 License
 
-🖼️ Post Features
+This project is licensed under the MIT License  
+© 2025 Kiran Gawande
 
-Create posts with text and images (Cloudinary integration)
+---
 
-View posts in gallery format
+# ⭐ Project Strength
 
-Like / Unlike any post
+VibeNet demonstrates:
 
-Add & delete comments in real-time (Socket.IO)
+- Real-time systems  
+- Queue-based architecture  
+- Background job processing  
+- Social graph logic  
+- Cloud resource management  
+- Production-level API security  
+- Scalable backend design  
 
-Delete your own posts
-
-Live comment count updates
-
-📖 Story System (Instagram-style)
-
-Upload temporary 24-hour stories (image/video)
-
-Display “Your Story” with ➕ if no active story
-
-Multiple stories per user shown in one bubble
-
-Auto-deletion after 24 hours using MongoDB TTL
-
-Media uploaded via Cloudinary
-
-Story view tracking system
-
-💬 Real-Time Chat (WhatsApp-style)
-
-One-to-one chat between users
-
-Real-time messaging using Socket.IO
-
-Send text and image messages
-
-Seen status & typing indicators
-
-Online/offline status indicators
-
-Push notifications using FCM
-
-Image preview, zoom & gallery view
-
-Delete messages with long press
-
-Chat list logic (only connected users visible)
-
-👤 Follow / Unfollow System
-
-Follow/unfollow users easily
-
-Followers / Following count on profile
-
-Personalized feed (shows content from followed users only)
-
-🤖 Chatbot Assistant
-
-In-app chatbot helper
-
-Guides new users about features
-
-Helps navigate the application
-
-🛠️ Tech Stack
-Layer	Technology
-Frontend	React.js + Vite + Tailwind CSS
-Backend	Node.js + Express.js
-Database	MongoDB (Mongoose)
-Auth	JWT + Passport.js
-Realtime	Socket.IO
-Media Host	Cloudinary
-Push Notify	Firebase Cloud Messaging (FCM)
-Queue	BullMQ
-Queue DB	Redis Cloud
-🛡️ License
-
-This project is licensed under the MIT License
- © 2025 Kiran Gawande.
