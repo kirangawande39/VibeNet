@@ -1,10 +1,16 @@
 const Comment = require("../models/Comment");
 const Post = require("../models/Post");
+const User = require('../models/User');
+const notificationQueue = require("../queues/notificationQueue");
 
-// Add a Comment
+//Add a Comment
 const addComment = async (req, res, next) => {
   try {
     // console.log("Comment route is here");
+
+    const userId = req.user.id;
+
+    // console.log("userId from comment route::", userId);
 
     // Step 1: Create the comment
     let comment = await Comment.create({
@@ -14,12 +20,31 @@ const addComment = async (req, res, next) => {
     });
 
     // Step 2: Add comment ID to the Post's comments array
-    await Post.findByIdAndUpdate(req.params.postId, {
+    const commentedPost = await Post.findByIdAndUpdate(req.params.postId, {
       $push: { comments: comment._id },
-    });
+    }).select('user').populate('user', 'fcmToken');
 
-    // ✅ Step 3: Populate the user field so client gets full user info
+    // console.log("commentedPost::",commentedPost);
+
+    //Step 3: Populate the user field so client gets full user info
     comment = await comment.populate("user", "username profilePic");
+    // console.log("comment::",comment);
+
+    const fcmToken = commentedPost.user.fcmToken;
+    const username = comment.user.username;
+
+    if (fcmToken) {
+      const title = "VibeNet";
+      const text = `💬 ${username} • commented on your post.`;
+
+
+      await notificationQueue.add('send-post-comment', {
+        fcmToken,
+        title,
+        text
+      })
+    }
+
 
     // Step 4: Respond with populated comment
     res.status(201).json(comment);

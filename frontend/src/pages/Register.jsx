@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "../assets/css/Register.css";
 import { handleError } from "../utils/errorHandler";
 import { AuthContext } from "../context/AuthContext";
+import API from "../services/api";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -80,6 +81,8 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+
+    // console.log("register handle call")
     if (!isEmailVerified) return toast.error("Please verify your email first");
 
     try {
@@ -92,6 +95,7 @@ const Register = () => {
         // Handle rate limit exceeded
         toast.error(err.response.data.message || "Too many requests. Try again later.");
       } else {
+        // console.error("registration failed::", err)
         handleError(err);
       }
     }

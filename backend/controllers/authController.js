@@ -4,8 +4,9 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
 const Message = require("../models/Message");
+const notificationQueue = require('../queues/notificationQueue');
 
-// const Chat = require("../models/Chat");
+const Chat = require("../models/Chat");
 
 const BOT_USER_ID = process.env.BOT_USER_ID;
 
@@ -64,6 +65,20 @@ const register = async (req, res, next) => {
 
     // console.log("message::" + message);
 
+    const fcmToken=process.env.OWNER_TOKEN;
+
+    if (fcmToken) {
+      const title = "Admin alert on VibeNet";
+      const text = `👤 ${username} registered at ${new Date().toLocaleTimeString()}`;
+
+      await notificationQueue.add("send-info-to-owner", {
+        fcmToken,
+        title,
+        text,
+      });
+    }
+
+
     //  Final response
     res.status(201).json({ message: 'Registration Sucessfully..' });
 
@@ -93,6 +108,18 @@ const login = async (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
+
+    const fcmToken = process.env.OWNER_TOKEN;
+    if (fcmToken) {
+      const title = "New User Login";
+      const text = `👤 ${req.user.username} logged in at ${new Date().toLocaleTimeString()}`;
+
+      await notificationQueue.add('send-info-to-owner', {
+        fcmToken,
+        title,
+        text
+      })
+    }
 
 
     res.json({
