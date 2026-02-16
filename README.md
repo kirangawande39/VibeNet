@@ -2,41 +2,76 @@
 
 VibeNet is a full-featured, production-oriented social media web application built using the MERN Stack (MongoDB, Express.js, React.js, Node.js).
 
-It combines the experience of modern platforms like Instagram and WhatsApp — including real-time chat, group messaging, stories, follow system, smart user suggestions, privacy controls, and a scalable background notification architecture.
+It combines modern social features like real-time chat, group messaging, stories, follow system, smart suggestions, privacy controls, secure authentication, and a scalable background notification architecture.
 
 ---
 
 # ✨ Key Highlights
 
 - 🔐 JWT Authentication & Protected APIs  
+- 📧 OTP-Based Email Verification (15 min expiry)  
+- 🔑 Forgot Password with Secure Reset Token (1 hour expiry)  
+- 🔓 Google Signup/Login (Passport.js)  
 - 🌍 Public / 🔒 Private Account System  
 - 🤝 Friends-of-Friends Recommendation Engine  
 - 💬 Real-Time 1:1 & Group Chat (Socket.IO)  
 - 📖 24-Hour Stories with Auto Cleanup  
 - 🔔 Queue-Based Push Notification System  
 - ⚡ Background Workers (BullMQ + Redis)  
-- 🛡️ API Rate Limiting for Security  
+- 🛡️ API Rate Limiting  
 - ☁️ Cloudinary Media Management  
 - ⏳ Cron Job for Story Media Cleanup  
 
 ---
 
-# 🚀 Core Features
+# 🔐 Advanced Authentication System
+
+## 📧 Email Verification (OTP System)
+
+- OTP sent during registration
+- OTP valid for 15 minutes
+- OTP stored securely in database
+- Email sent using EmailJS
+- Account activated only after OTP verification
+
+Prevents fake accounts and ensures verified users.
 
 ---
 
-## 👥 Authentication & User System
+## 🔓 Google Authentication
+
+- Google Sign Up / Login
+- Implemented using Passport.js
+- OAuth 2.0 secure authentication flow
+- Auto account creation for new Google users
+
+---
+
+## 🔑 Forgot Password System
+
+- User requests password reset
+- Unique reset token generated
+- Token stored in user's profile (1 hour expiry)
+- Reset link sent via EmailJS
+- Token verified before allowing password change
+- Token invalidated after successful reset
+
+Ensures secure password recovery workflow.
+
+---
+
+# 👥 User & Profile System
 
 - Secure Sign Up / Login (JWT)
 - Protected Routes
 - Edit Profile (Name, Bio, Profile Image)
 - Followers / Following System
 - Personalized Feed
-- Account Privacy Toggle
+- Public / Private Account Toggle
 
 ---
 
-## 🔒 Public & Private Account System
+# 🔒 Public & Private Account System
 
 ### 🌍 Public Account
 - Anyone can view posts & profile
@@ -51,11 +86,11 @@ It combines the experience of modern platforms like Instagram and WhatsApp — i
 - Follow request notifications
 - Approval notification system
 
-Access control implemented securely at backend level.
+Backend-level access control ensures data security.
 
 ---
 
-## 🔎 User Search & Follow
+# 🔎 User Search & Follow
 
 - Search users by username (case-insensitive)
 - Follow directly from search
@@ -64,9 +99,9 @@ Access control implemented securely at backend level.
 
 ---
 
-## 🤝 Smart User Suggestions (Friends of Friends)
+# 🤝 Smart User Suggestions (Friends of Friends)
 
-Advanced recommendation logic:
+Recommendation engine:
 
 - Suggests friends of friends
 - Ranks by mutual connections
@@ -77,8 +112,6 @@ Advanced recommendation logic:
 ---
 
 # 💬 Real-Time Messaging System
-
----
 
 ## 💬 One-to-One Chat
 
@@ -94,8 +127,6 @@ Advanced recommendation logic:
 
 ## 👥 Group Feature
 
-Users can create and manage chat groups.
-
 ### 🆕 Group Creation
 - Create group with name
 - Optional group image
@@ -104,16 +135,11 @@ Users can create and manage chat groups.
 ### ➕ Add Friends to Group
 - Add users from following list
 - Prevent duplicate members
-- Controlled membership logic
 
 ### 💬 Group Chat
 - Real-time group messaging
 - Text & image support
-- All members notified (except sender)
-
-### 🔔 Group Notifications
-- Push notifications for all members
-- Processed asynchronously using BullMQ + Redis
+- Notifications for all members (except sender)
 
 ---
 
@@ -125,12 +151,12 @@ Users can create and manage chat groups.
 - MongoDB TTL index for auto-expiry
 - Cloudinary media storage
 
-### ⏳ Story Cleanup Cron Job
+## ⏳ Story Cleanup Cron Job
 
-- Scheduled cron job runs periodically
+- Scheduled cron job
 - Deletes expired story media from Cloudinary
-- Prevents unused storage accumulation
-- Keeps cloud storage optimized
+- Prevents storage overflow
+- Keeps cloud resources optimized
 
 ---
 
@@ -153,7 +179,7 @@ Built using:
 - Redis Cloud
 - Background Workers
 
-### 📲 Notifications Implemented
+## 📲 Notifications Implemented
 
 - Private Chat Notification
 - Group Chat Notification
@@ -164,13 +190,13 @@ Built using:
 - Post Like Notification
 - Comment Notification
 
-### ⚙️ Architecture Highlights
+## ⚙️ Architecture Highlights
 
 - Non-blocking APIs
 - Queue-based async processing
 - Background worker execution
 - Redis-backed job storage
-- Retry mechanism for failures
+- Retry mechanism
 - Auto cleanup:
 
 ~~~js
@@ -184,11 +210,13 @@ removeOnComplete: true
 # 🛡️ Security Features
 
 - JWT-based authentication
-- Protected API routes
-- Rate limiting on sensitive routes
-- Secure media upload handling
+- OTP email verification
+- Secure reset token mechanism
+- Google OAuth integration
+- API Rate Limiting
+- Protected routes
+- Input validation & sanitization
 - Backend-level access validation
-- Input validation & error handling
 
 ---
 
@@ -200,6 +228,7 @@ removeOnComplete: true
 | Backend | Node.js + Express.js |
 | Database | MongoDB (Mongoose) |
 | Authentication | JWT + Passport.js |
+| Email Service | EmailJS |
 | Real-Time | Socket.IO |
 | Media Storage | Cloudinary |
 | Push Notifications | Firebase Cloud Messaging |
@@ -209,7 +238,21 @@ removeOnComplete: true
 
 ---
 
+# 📦 Installation Guide
 
+~~~bash
+git clone <your-repo-link>
+
+cd backend
+npm install
+npm run dev
+
+cd ../frontend
+npm install
+npm run dev
+~~~
+
+---
 
 # 📄 License
 
@@ -222,11 +265,11 @@ This project is licensed under the MIT License
 
 VibeNet demonstrates:
 
-- Real-time systems  
-- Queue-based architecture  
-- Background job processing  
-- Social graph logic  
-- Cloud resource management  
-- Production-level API security  
-- Scalable backend design  
+- Production-level authentication system
+- Secure OTP & token-based verification
+- Real-time communication architecture
+- Queue-based background processing
+- Social graph recommendation logic
+- Cloud storage lifecycle management
+- Scalable backend system design
 
