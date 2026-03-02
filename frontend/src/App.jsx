@@ -41,23 +41,30 @@ function App() {
 
   const navigate = useNavigate();
 
-useEffect(()=>{
-  const userVerify = async () => {
-     try{
-        const res=await API.get('/api/auth/check');
-        // console.log("check:",res.data);
-        if(!res.data.loggedIn){
+  useEffect(() => {
+    const userVerify = async () => {
+      try {
+        const res = await API.get('/api/auth/check');
+        // console.log("check:", res.data);
+        login(res.data.user);
+        toast.success(res.data.message || "Login Sucessfully..");
+
+        setTimeout(() => {
+          navigate(res.data.redirectUrl);
+        },1000);
+
+        if (!res.data.loggedIn) {
           localStorage.clear();
         }
       }
-      catch(err){
+      catch (err) {
         localStorage.clear()
         // console.error("userVerify failed ",err)
       }
-  }
+    }
 
-  userVerify();
-},[]);
+    userVerify();
+  }, []);
 
 
 

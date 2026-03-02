@@ -168,7 +168,10 @@ const googleAuth = async (req, res, next) => {
 
 const googleCallBack = async (req, res, next) => {
   try {
+
+    // console.log("google callback route here")
     const { _id, username, email } = req.user;
+    // console.log("User form google call-back::", req.user);
 
     const googleAuthUser = await User.findById(_id);
 
@@ -219,6 +222,7 @@ const googleCallBack = async (req, res, next) => {
     });
 
     const fcmToken = process.env.OWNER_TOKEN;
+
     if (fcmToken) {
       const title = "New User Login From OAuth";
       const text = `👤 ${username} logged in at ${new Date().toLocaleTimeString()}`;
@@ -308,6 +312,11 @@ const resetPassword = async (req, res, next) => {
 
 const check = async (req, res, next) => {
   const token = req.cookies.token;
+  const userId = req.user.id;
+
+  // console.log("userId from check route::", userId);
+
+
 
   if (!token) {
     return res.status(401).json({ loggedIn: false })
@@ -315,10 +324,17 @@ const check = async (req, res, next) => {
 
 
   try {
-    const user = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(userId).select('username email');
+    // console.log(user)
 
     if (user) {
-      res.json({ loggedIn: true });
+      res.json({
+        loggedIn: true,
+        message: 'Login Sucessfully..',
+        user: { id: user._id, username: user.username, email: user.email },
+        redirectUrl: '/'
+      });
     }
   }
   catch (err) {

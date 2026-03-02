@@ -38,7 +38,7 @@ const router = express.Router();
 // });
 
 
-router.get('/check', check)
+router.get('/check',protect, check)
 
 router.post("/register", registerLimiter, register);
 
