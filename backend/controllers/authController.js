@@ -65,7 +65,7 @@ const register = async (req, res, next) => {
 
     // console.log("message::" + message);
 
-    const fcmToken=process.env.OWNER_TOKEN;
+    const fcmToken = process.env.OWNER_TOKEN;
 
     if (fcmToken) {
       const title = "Admin alert on VibeNet";
@@ -211,11 +211,27 @@ const googleCallBack = async (req, res, next) => {
 
     const token = generateToken(_id);
 
-    const redirectUrl = `${UI_URL}/google?token=${token}&username=${encodeURIComponent(
-      username
-    )}&email=${encodeURIComponent(email)}&id=${_id}`;
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax', //lax better for Oauth
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
 
-    res.redirect(redirectUrl);
+    const fcmToken = process.env.OWNER_TOKEN;
+    if (fcmToken) {
+      const title = "New User Login From OAuth";
+      const text = `👤 ${username} logged in at ${new Date().toLocaleTimeString()}`;
+
+      await notificationQueue.add('send-info-to-owner', {
+        fcmToken,
+        title,
+        text
+      })
+    }
+
+
+    res.redirect(UI_URL);
   } catch (err) {
     next(err);
   }
