@@ -165,7 +165,7 @@ const googleCallBack = async (req, res, next) => {
 
     console.log("google callback route here")
     const { _id, username, email } = req.user;
-    console.log("User form google call-back::", req.user);
+    // console.log("User form google call-back::", req.user);
 
     const googleAuthUser = await User.findById(_id);
 
@@ -202,7 +202,7 @@ const googleCallBack = async (req, res, next) => {
         receiver: googleAuthUser._id,
         text: "👋 Welcome to VibeNet! I'm your assistant bot. Feel free to ask anything.",
       });
-
+      
       // console.log("message sent:", message);
     }
 
@@ -216,10 +216,14 @@ const googleCallBack = async (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
-    const fcmToken = process.env.OWNER_TOKEN;
+    const owner_id = process.env.OWNER_Id;
 
-    const title = "New User Login From OAuth";
-    const text = `👤 ${username} logged in at ${new Date().toLocaleTimeString()}`;
+    const owner=await User.findById(owner_id).select('fcmToken');
+    
+    // console.log("ownerId:",owner_id);
+    // console.log("Owner FcmToken::",owner.fcmToken)
+
+    const fcmToken=owner.fcmToken;
 
     if (fcmToken) {
       const title = "New User Login From OAuth";
@@ -311,7 +315,7 @@ const check = async (req, res, next) => {
   const token = req.cookies.token;
   const userId = req.user.id;
 
-  console.log("userId from check route::", userId);
+  // console.log("userId from check route::", userId);
 
 
 
@@ -323,7 +327,7 @@ const check = async (req, res, next) => {
   try {
 
     const user = await User.findById(userId).select('username email');
-    console.log(user)
+    // console.log(user)
 
     if (user) {
       res.json({
