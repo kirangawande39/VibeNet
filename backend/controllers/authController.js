@@ -210,8 +210,9 @@ const googleCallBack = async (req, res, next) => {
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'lax', //lax better for Oauth
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
@@ -310,7 +311,7 @@ const check = async (req, res, next) => {
   const token = req.cookies.token;
   const userId = req.user.id;
 
-  // console.log("userId from check route::", userId);
+  console.log("userId from check route::", userId);
 
 
 
@@ -322,7 +323,7 @@ const check = async (req, res, next) => {
   try {
 
     const user = await User.findById(userId).select('username email');
-    // console.log(user)
+    console.log(user)
 
     if (user) {
       res.json({
