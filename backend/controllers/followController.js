@@ -249,7 +249,7 @@ const acceptUser = async (req, res, next) => {
 
     // const acceptUserId = new mongoose.Types.ObjectId(req.params.acceptUserId);
 
-    const acceptUserId = req.params.acceptUserId;
+    const FollowRequestUserId = req.params.acceptUserId;
 
 
     // console.log("User ID:", userId);
@@ -259,7 +259,7 @@ const acceptUser = async (req, res, next) => {
     await User.findByIdAndUpdate(
       userId,
       {
-        $pull: { followRequests: { user: acceptUserId } }
+        $pull: { followRequests: { user: FollowRequestUserId } }
       },
       { new: true }
     );
@@ -267,7 +267,7 @@ const acceptUser = async (req, res, next) => {
 
 
     // Add current user to following of accepted user
-    const AddFollowing = await User.findByIdAndUpdate(acceptUserId, {
+    const AddFollowing = await User.findByIdAndUpdate(FollowRequestUserId, {
       $addToSet: { following: userId }
     });
 
@@ -275,7 +275,7 @@ const acceptUser = async (req, res, next) => {
 
     //  Add accepted user to followers of current user
     const AddFollowers = await User.findByIdAndUpdate(userId, {
-      $addToSet: { followers: acceptUserId }
+      $addToSet: { followers: FollowRequestUserId }
     });
 
     // console.log("AddFollowers::",AddFollowers)
@@ -284,7 +284,7 @@ const acceptUser = async (req, res, next) => {
 
     // Create new entry in Follow collection
     const followCreated = await Follow.create({
-      follower: acceptUserId, // the one who sent request
+      follower: FollowRequestUserId, // the one who sent request
       following: userId       // the one who accepted request
     });
 

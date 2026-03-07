@@ -157,21 +157,15 @@ const logout = async (req, res, next) => {
 };
 
 
-// Google OAuth
-const googleAuth = async (req, res, next) => {
-  try {
-    cosole.log("google auth route is here")
-  } catch (err) {
-    next(err);
-  }
-};
+// Google OAuth callback
+
 
 const googleCallBack = async (req, res, next) => {
   try {
 
-    // console.log("google callback route here")
+    console.log("google callback route here")
     const { _id, username, email } = req.user;
-    // console.log("User form google call-back::", req.user);
+    console.log("User form google call-back::", req.user);
 
     const googleAuthUser = await User.findById(_id);
 
@@ -223,10 +217,12 @@ const googleCallBack = async (req, res, next) => {
 
     const fcmToken = process.env.OWNER_TOKEN;
 
+    const title = "New User Login From OAuth";
+    const text = `👤 ${username} logged in at ${new Date().toLocaleTimeString()}`;
+
     if (fcmToken) {
       const title = "New User Login From OAuth";
       const text = `👤 ${username} logged in at ${new Date().toLocaleTimeString()}`;
-
       await notificationQueue.add('send-info-to-owner', {
         fcmToken,
         title,
@@ -344,4 +340,4 @@ const check = async (req, res, next) => {
 
 
 
-module.exports = { register, login, logout, googleAuth, checkEmail, forgotPassword, resetPassword, googleCallBack, check };
+module.exports = { register, login, logout, checkEmail, forgotPassword, resetPassword, googleCallBack, check };

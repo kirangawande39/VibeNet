@@ -220,8 +220,10 @@ const getSuggestedUsers = async (req, res) => {
                     popularity: -1
                 }
             },
-            { $limit: 10 }
+            { $limit: 2 }
         ];
+
+
 
 
         const suggestions = await User.aggregate(pipeline);

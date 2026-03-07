@@ -1,5 +1,5 @@
 const express = require("express");
-const { register, login,logout, googleAuth, checkEmail, forgotPassword, resetPassword, googleCallBack ,check } = require("../controllers/authController");
+const { register, login,logout, checkEmail, forgotPassword, resetPassword, googleCallBack ,check } = require("../controllers/authController");
 const { registerLimiter, loginLimiter, forgotPasswordLimiter } = require("../middlewares/rateLimit");
 const passport = require("passport");
 const { protect } = require("../middlewares/authMiddleware");
@@ -73,8 +73,7 @@ router.post("/reset-password", resetPassword);
 
 
 router.get("/google",
-  passport.authenticate("google", { scope: ["profile", "email"] }), googleAuth
-);
+  passport.authenticate("google", { scope: ["profile", "email"] }));
 
 
 router.get(
@@ -83,7 +82,6 @@ router.get(
     failureRedirect: "/login",
     session: false,
   }), googleCallBack
-
 );
 
 
