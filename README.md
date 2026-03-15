@@ -2,7 +2,7 @@
 
 VibeNet is a full-featured, production-oriented social media web application built using the MERN Stack (MongoDB, Express.js, React.js, Node.js).
 
-It combines modern social features like real-time chat, group messaging, stories, follow system, smart suggestions, privacy controls, secure authentication, and a scalable background notification architecture.
+It combines modern social features like real-time chat, group messaging, stories, follow system, smart suggestions, privacy controls, secure authentication,  a scalable background notification architecture and real-time video calling.
 
 ---
 
@@ -14,7 +14,8 @@ It combines modern social features like real-time chat, group messaging, stories
 - 🔓 Google Signup/Login (Passport.js)  
 - 🌍 Public / 🔒 Private Account System  
 - 🤝 Friends-of-Friends Recommendation Engine  
-- 💬 Real-Time 1:1 & Group Chat (Socket.IO)  
+- 💬 Real-Time 1:1 & Group Chat (Socket.IO)
+- 📹 Real-Time 1:1 Video Calling (WebRTC + Socket.IO) 
 - 📖 24-Hour Stories with Auto Cleanup  
 - 🔔 Queue-Based Push Notification System  
 - ⚡ Background Workers (BullMQ + Redis)  
@@ -143,6 +144,37 @@ Recommendation engine:
 
 ---
 
+# 📹 Video Calling System
+
+## 📞 One-to-One Video Calling
+
+- Real-time 1:1 video calling
+- Built using WebRTC for peer-to-peer media streaming
+- Socket.IO used for signaling
+- Incoming call modal with accept / reject flow
+- Call status handling (calling, accepted, rejected, ended)
+- Designed with reusable global call context
+- Structured for production-ready expansion
+
+## ⚙️ Current Working Status
+
+- Call request flow implemented
+- Incoming call notification/modal working
+- Accept / Reject flow implemented
+- Offer / Answer signaling working
+- ICE candidate exchange integrated
+- Call state management handled through context
+
+## 🚧 In Progress / Under Optimization
+
+- Cross-device camera/media consistency tuning
+- Mobile-to-laptop media stream optimization
+- Final production hardening for all network/device scenarios
+- Better handling for call reconnect / failure states
+- TURN server support for stronger real-world connectivity
+
+This feature is actively being integrated and improved as part of the platform’s real-time communication system.
+
 # 📖 Story System (24-Hour Expiry)
 
 - Upload image/video stories
@@ -189,6 +221,8 @@ Built using:
 - Story View Notification
 - Post Like Notification
 - Comment Notification
+- Video Call Incoming Alert
+- Call Rejected / Ended Status Notification
 
 ## ⚙️ Architecture Highlights
 
@@ -229,7 +263,7 @@ removeOnComplete: true
 | Database | MongoDB (Mongoose) |
 | Authentication | JWT + Passport.js |
 | Email Service | EmailJS |
-| Real-Time | Socket.IO |
+| Real-Time | Socket.IO + WebRTC |
 | Media Storage | Cloudinary |
 | Push Notifications | Firebase Cloud Messaging |
 | Queue System | BullMQ |
@@ -270,6 +304,7 @@ VibeNet demonstrates:
 - Real-time communication architecture
 - Queue-based background processing
 - Social graph recommendation logic
+- WebRTC-based video calling integration
 - Cloud storage lifecycle management
 - Scalable backend system design
 
