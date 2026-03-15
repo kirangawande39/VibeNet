@@ -21,6 +21,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { OnlineProvider } from "./context/OnlineStatusContext";
 import { AuthProvider, AuthContext } from "./context/AuthContext";
 import API from "./services/api";
+import { CallProvider } from "./context/CallContext";
+import IncomingCallModal from "./components/IncomingCallModal";
+import VideoCall from "./pages/VideoCall";
 
 
 function AppWrapper() {
@@ -28,7 +31,9 @@ function AppWrapper() {
   return (
     <AuthProvider>
       <OnlineProvider>
-        <App />
+        <CallProvider>
+          <App />
+        </CallProvider>
       </OnlineProvider>
     </AuthProvider>
   );
@@ -38,7 +43,7 @@ function App() {
   const { login, user } = useContext(AuthContext);
   const [unseenCounts, setUnseenCounts] = useState([]);
   const [isPrivateStatus, setIsPrivateStatus] = useState();
- 
+
 
   const navigate = useNavigate();
 
@@ -144,17 +149,18 @@ function App() {
   );
 
 
- 
+
 
   return (
     <>
 
       <Navbar totalUnseenCount={totalUnseenCount} isPrivateStatus={isPrivateStatus} />
       <SidebarNavbar isPrivateStatus={isPrivateStatus} />
-  
+      <IncomingCallModal/>
       {/* Routes */}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/video-call" element={<VideoCall />} />
         <Route path="/profile/:id" element={<Profile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

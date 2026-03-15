@@ -9,8 +9,12 @@ import { handleError } from '../utils/errorHandler';
 import { toast } from 'react-toastify';
 import Spinner from "./Spinner";
 import API from "../services/api";
-import VideoCall from "./VideoCall";
+import { useCall } from "../context/CallContext";
+
+
 const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack }) => {
+
+  const {startOutgoingCall}=useCall();
 
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -408,14 +412,6 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   };
 
 
-  function startVideoCall(id) {
-    setCallUser(id)
-    setShowCall(true)
-  }
-
-
-
-
   if (!user || !selectedUser) {
     return <div>Please select a user to start chat</div>;
   }
@@ -448,7 +444,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
 
         <button
           className="text-green-500 hover:text-green-700 text-6"
-          onClick={() => startVideoCall(selectedUser?._id)}
+          onClick={() => startOutgoingCall(selectedUser?._id)}
         >
           <IoVideocam/>
         </button>

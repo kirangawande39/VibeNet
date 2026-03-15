@@ -4,9 +4,9 @@ const callDB = require("./config/db");
 const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
-const cookieParser=require('cookie-parser');
+const cookieParser = require('cookie-parser');
 
-const MongoStore = require("connect-mongo"); 
+const MongoStore = require("connect-mongo");
 
 //Express app ke liye ek HTTP server banane ke liye use hota hai
 const http = require("http");
@@ -162,7 +162,7 @@ io.on("connection", (socket) => {
 
   socket.on("user-online", (userId) => {
     console.log("User online call");
-    console.log(userId,socket.id);
+    console.log(userId, socket.id);
     onlineUsers.set(userId, socket.id); // userId -> socketId
     io.emit("online-users", Array.from(onlineUsers.keys()));
   });
@@ -257,12 +257,8 @@ io.on("connection", (socket) => {
 
 
 
-
   socket.on("call-user", ({ to, offer }) => {
     const socketId = onlineUsers.get(to);
-
-    console.log("Calling userId:", to);
-    console.log("Receiver socketId:", socketId);
 
     if (!socketId) {
       socket.emit("user-not-available", { message: "User is offline" });
@@ -276,7 +272,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("answer-call", ({ to, answer }) => {
-    console.log("Answer sent to:", to);
     io.to(to).emit("call-answered", answer);
   });
 
@@ -307,7 +302,7 @@ io.on("connection", (socket) => {
   });
 });
 
-console.log("onlineusers",onlineUsers)
+console.log("onlineusers", onlineUsers)
 
 
 
