@@ -4,7 +4,7 @@ import { RiDeleteBin2Line } from "react-icons/ri";
 
 import "../assets/css/ChatBox.css"
 import { MdInsertPhoto, MdArrowBack } from "react-icons/md";
-import {IoVideocam} from "react-icons/io5"
+import { IoVideocam } from "react-icons/io5"
 import { handleError } from '../utils/errorHandler';
 import { toast } from 'react-toastify';
 import Spinner from "./Spinner";
@@ -14,7 +14,7 @@ import { useCall } from "../context/CallContext";
 
 const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack }) => {
 
-  const {startOutgoingCall}=useCall();
+  const { startOutgoingCall } = useCall();
 
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -24,9 +24,6 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   const typingTimeoutRef = useRef(null);
   const [chatId, setChatId] = useState(null);
   const [hasMore, setHasMore] = useState(true);
-
-  const [showCall, setShowCall] = useState(false)
-  const [callUser, setCallUser] = useState(null)
 
   const [page, setPage] = useState(1);
 
@@ -443,10 +440,14 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
         </div>
 
         <button
-          className="text-green-500 hover:text-green-700 text-6"
-          onClick={() => startOutgoingCall(selectedUser?._id)}
+          className="text-green-500 hover:text-green-700 text-6xl opacity-50 cursor-not-allowed"
+          onClick={() => {
+            toast.warning("Video calling feature is currently disabled");
+            return;
+            // startOutgoingCall(selectedUser?._id);
+          }}
         >
-          <IoVideocam/>
+          <IoVideocam />
         </button>
         <span className={`badge ${selectedUser?._id === "684f268c7dad0bf1b1dfd4f8" || isSelectedUserOnline ? "bg-success" : "bg-secondary"}`}>
           {selectedUser?._id === "684f268c7dad0bf1b1dfd4f8"
@@ -457,11 +458,6 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
         </span>
 
       </div>
-
-      {showCall &&
-        <VideoCall receiverId={callUser} />
-      }
-
 
       <div
         className="card-body chat-box  overflow-y-auto relative"

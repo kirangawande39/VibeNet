@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import socket from "../socket";
+import { toast } from "react-toastify";
 
 const CallContext = createContext();
 
@@ -20,7 +21,7 @@ export const CallProvider = ({ children }) => {
       console.log("Call rejected by receiver");
       setIncomingCall(null);
       setCallData(null);
-      alert("Call rejected");
+      toast.warning("Call rejected");
     });
 
     socket.on("call-ended", () => {
