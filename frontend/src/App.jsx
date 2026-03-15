@@ -38,8 +38,11 @@ function App() {
   const { login, user } = useContext(AuthContext);
   const [unseenCounts, setUnseenCounts] = useState([]);
   const [isPrivateStatus, setIsPrivateStatus] = useState();
+ 
 
   const navigate = useNavigate();
+
+  // console.log("user",user)
 
   useEffect(() => {
     const userVerify = async () => {
@@ -47,11 +50,11 @@ function App() {
         const res = await API.get('/api/auth/check');
         console.log("check:", res.data);
         login(res.data.user);
-        toast.success(res.data.message || "Login Sucessfully..");
+        // toast.success(res.data.message || "Login Sucessfully..");
 
         setTimeout(() => {
           navigate(res.data.redirectUrl);
-        },1000);
+        }, 1000);
 
         if (!res.data.loggedIn) {
           localStorage.clear();
@@ -65,6 +68,7 @@ function App() {
 
     userVerify();
   }, []);
+
 
 
 
@@ -139,13 +143,15 @@ function App() {
     0
   );
 
+
+ 
+
   return (
     <>
 
       <Navbar totalUnseenCount={totalUnseenCount} isPrivateStatus={isPrivateStatus} />
       <SidebarNavbar isPrivateStatus={isPrivateStatus} />
-
-
+  
       {/* Routes */}
       <Routes>
         <Route path="/" element={<Home />} />

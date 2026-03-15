@@ -10,7 +10,10 @@ cron.schedule("0 * * * *", async () => {
   console.log("Cron Running - Story Cleanup Task");
 
   try {
-    const expiredStories = await Story.find({ expiresAt: { $lte: now } });
+    const expiredStories = await Story.find({
+       expiresAt: { $lte: now } 
+      }
+    );
 
     if (expiredStories.length === 0) {
       console.log("No expired stories found.");

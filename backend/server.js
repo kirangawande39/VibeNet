@@ -72,6 +72,11 @@ callDB();
 const onlineUsers = new Map();
 const lastSeen = new Map();
 
+
+// console.log("Online Users::",onlineUsers)
+
+
+
 app.use((req, res, next) => {
   req.io = io;
   next();
@@ -156,9 +161,15 @@ io.on("connection", (socket) => {
   // Jab user online hota hai, uska socket.id ko userId se map karo
 
   socket.on("user-online", (userId) => {
+    console.log("User online call");
+    console.log(userId,socket.id);
     onlineUsers.set(userId, socket.id); // userId -> socketId
     io.emit("online-users", Array.from(onlineUsers.keys()));
   });
+
+
+
+
 
 
   socket.on("join-chat", (chatId) => socket.join(chatId));
@@ -245,6 +256,45 @@ io.on("connection", (socket) => {
   // });
 
 
+
+
+  socket.on("call-user", ({ to, offer }) => {
+    const socketId = onlineUsers.get(to);
+
+    console.log("Calling userId:", to);
+    console.log("Receiver socketId:", socketId);
+
+    if (!socketId) {
+      socket.emit("user-not-available", { message: "User is offline" });
+      return;
+    }
+
+    io.to(socketId).emit("incoming-call", {
+      from: socket.id,
+      offer,
+    });
+  });
+
+  socket.on("answer-call", ({ to, answer }) => {
+    console.log("Answer sent to:", to);
+    io.to(to).emit("call-answered", answer);
+  });
+
+  socket.on("ice-candidate", ({ to, candidate }) => {
+    if (!to || !candidate) return;
+    io.to(to).emit("ice-candidate", candidate);
+  });
+
+  socket.on("call-rejected", ({ to }) => {
+    io.to(to).emit("call-rejected");
+  });
+
+  socket.on("end-call", ({ to }) => {
+    io.to(to).emit("call-ended");
+  });
+
+
+
   socket.on("disconnect", () => {
     for (let [userId, socketId] of onlineUsers.entries()) {
       if (socketId === socket.id) {
@@ -256,6 +306,8 @@ io.on("connection", (socket) => {
     }
   });
 });
+
+console.log("onlineusers",onlineUsers)
 
 
 

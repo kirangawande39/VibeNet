@@ -220,7 +220,7 @@ const getSuggestedUsers = async (req, res) => {
                     popularity: -1
                 }
             },
-            { $limit: 2 }
+            { $limit: 7 }
         ];
 
 

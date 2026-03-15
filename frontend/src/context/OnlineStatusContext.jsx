@@ -12,30 +12,32 @@ export const OnlineProvider = ({ children }) => {
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+  // console.log("user",user.id)
+
   // ✅ Emit user-online on load
   useEffect(() => {
-    if (user && user._id) {
-      socket.emit("user-online", user._id);
+    if (user && user.id) {
+      socket.emit("user-online", user.id);
     }
 
     // ✅ Emit user-offline when tab/browser closes
     const handleUnload = () => {
-      if (user && user._id) {
-        socket.emit("user-offline", user._id);
+      if (user && user.id) {
+        socket.emit("user-offline", user.id);
       }
     };
 
     window.addEventListener("beforeunload", handleUnload);
     return () => {
       window.removeEventListener("beforeunload", handleUnload);
-      if (user && user._id) {
-        socket.emit("user-offline", user._id);
+      if (user && user.id) {
+        socket.emit("user-offline", user.id);
       }
     };
   }, [user]);
 
 
-  // ✅ Listen for online-users update from server
+  // Listen for online-users update from server
   useEffect(() => {
     const handleOnlineUsers = (users) => {
       setAllOnlineUsers(users);

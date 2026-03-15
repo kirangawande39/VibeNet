@@ -4,10 +4,12 @@ import { RiDeleteBin2Line } from "react-icons/ri";
 
 import "../assets/css/ChatBox.css"
 import { MdInsertPhoto, MdArrowBack } from "react-icons/md";
+import {IoVideocam} from "react-icons/io5"
 import { handleError } from '../utils/errorHandler';
 import { toast } from 'react-toastify';
 import Spinner from "./Spinner";
 import API from "../services/api";
+import VideoCall from "./VideoCall";
 const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack }) => {
 
   const [newMessage, setNewMessage] = useState("");
@@ -19,9 +21,12 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   const [chatId, setChatId] = useState(null);
   const [hasMore, setHasMore] = useState(true);
 
+  const [showCall, setShowCall] = useState(false)
+  const [callUser, setCallUser] = useState(null)
+
   const [page, setPage] = useState(1);
 
-  const [lastMessage, setlastMessage]=useState(null);
+  const [lastMessage, setlastMessage] = useState(null);
 
 
   const [startX, setStartX] = useState(0); // touch starting position
@@ -403,12 +408,19 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
   };
 
 
+  function startVideoCall(id) {
+    setCallUser(id)
+    setShowCall(true)
+  }
+
 
 
 
   if (!user || !selectedUser) {
     return <div>Please select a user to start chat</div>;
   }
+
+
 
 
 
@@ -433,6 +445,13 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
           />
           <strong>{selectedUser.username}</strong>
         </div>
+
+        <button
+          className="text-green-500 hover:text-green-700 text-6"
+          onClick={() => startVideoCall(selectedUser?._id)}
+        >
+          <IoVideocam/>
+        </button>
         <span className={`badge ${selectedUser?._id === "684f268c7dad0bf1b1dfd4f8" || isSelectedUserOnline ? "bg-success" : "bg-secondary"}`}>
           {selectedUser?._id === "684f268c7dad0bf1b1dfd4f8"
             ? "Online"
@@ -442,6 +461,10 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
         </span>
 
       </div>
+
+      {showCall &&
+        <VideoCall receiverId={callUser} />
+      }
 
 
       <div
