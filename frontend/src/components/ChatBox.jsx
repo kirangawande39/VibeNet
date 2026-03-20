@@ -442,9 +442,9 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
         <button
           className="text-green-500 hover:text-green-700 text-6xl opacity-50 cursor-not-allowed"
           onClick={() => {
-            // toast.warning("Video calling feature is currently disabled");
-            // return;
-            startOutgoingCall(selectedUser?._id);
+            toast.warning("Video calling feature is currently disabled");
+            return;
+            // startOutgoingCall(selectedUser?._id);
           }}
         >
           <IoVideocam />
