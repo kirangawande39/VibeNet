@@ -57,7 +57,7 @@ const IncomingCallModal = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
           <div className="bg-white p-6 rounded-xl shadow-lg text-center w-11/12 max-w-sm">
             <h2 className="text-xl font-bold mb-2">Incoming Video Call</h2>
-            <p className="mb-4 break-all">From: {incomingCall.from}</p>
+            <p className="mb-4 break-all">From: {incomingCall.username}</p>
 
             <div className="flex gap-4 justify-center">
               <button
