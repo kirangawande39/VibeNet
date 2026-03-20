@@ -259,7 +259,7 @@ io.on("connection", (socket) => {
 
 
 
-  socket.on("call-user", ({ to, offer }) => {
+  socket.on("call-user", ({ to, offer , username }) => {
     const socketId = onlineUsers.get(to);
 
     if (!socketId) {
@@ -268,7 +268,7 @@ io.on("connection", (socket) => {
     }
 
     io.to(socketId).emit("incoming-call", {
-      from: socket.id,
+      from: username,
       offer,
     });
   });

@@ -53,7 +53,7 @@ function App() {
     const userVerify = async () => {
       try {
         const res = await API.get('/api/auth/check');
-        console.log("check:", res.data);
+        // console.log("check:", res.data);
         login(res.data.user);
         // toast.success(res.data.message || "Login Sucessfully..");
 

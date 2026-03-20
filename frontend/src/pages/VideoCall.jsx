@@ -1,10 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import socket from "../socket";
 import { useCall } from "../context/CallContext";
+import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const VideoCall = () => {
+  const { user } = useContext(AuthContext)
   const navigate = useNavigate();
   const { callData, setCallData } = useCall();
 
@@ -21,6 +23,9 @@ const VideoCall = () => {
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     })
   ).current;
+
+
+  // console.log("user:",user)
 
   const startCamera = async () => {
     try {
@@ -161,6 +166,7 @@ const VideoCall = () => {
           await peer.setLocalDescription(offer);
 
           socket.emit("call-user", {
+            username: user?.username,
             to: callData.to,
             offer,
           });
@@ -239,47 +245,35 @@ const VideoCall = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-      <div className="bg-white shadow-lg rounded-2xl p-4 w-full max-w-5xl">
-        <h2 className="text-2xl font-bold text-center mb-4">Video Call</h2>
+ <div className="h-[90vh] w-full bg-black relative overflow-hidden">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-black rounded-xl overflow-hidden w-full h-64 sm:h-80 md:h-96">
-            <video
-              ref={localVideo}
-              autoPlay
-              muted
-              playsInline
-              className="w-full h-full object-cover"
-            />
-            <p className="text-center text-sm py-1 bg-gray-900 text-white">
-              You
-            </p>
-          </div>
+  <video
+    ref={remoteVideo}
+    autoPlay
+    playsInline
+    className="w-full h-full object-cover"
+  />
 
-          <div className="bg-black rounded-xl overflow-hidden w-full h-64 sm:h-80 md:h-96">
-            <video
-              ref={remoteVideo}
-              autoPlay
-              playsInline
-              className="w-full h-full object-cover"
-            />
-            <p className="text-center text-sm py-1 bg-gray-900 text-white">
-              Friend
-            </p>
-          </div>
-        </div>
+  <div className="absolute top-4 right-4 w-28 h-40 sm:w-36 sm:h-48 rounded-xl overflow-hidden border-2 border-white shadow-lg">
+    <video
+      ref={localVideo}
+      autoPlay
+      muted
+      playsInline
+      className="w-full h-full object-cover"
+    />
+  </div>
 
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={endCall}
-            className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-full text-lg shadow-md transition w-full sm:w-auto"
-          >
-            {callActive ? "End Call" : "Cancel"}
-          </button>
-        </div>
-      </div>
-    </div>
+  <div className="absolute bottom-8 w-full flex justify-center">
+    <btn
+      onClick={endCall}
+      className="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-full text-lg shadow-lg transition"
+    >
+      {callActive ? "End Call" : "Cancel"}
+    </btn>
+  </div>
+
+</div>
   );
 };
 

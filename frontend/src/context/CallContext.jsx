@@ -10,11 +10,15 @@ export const CallProvider = ({ children }) => {
 
   const [incomingCall, setIncomingCall] = useState(null);
   const [callData, setCallData] = useState(null);
+  const [isCalling, setIsCalling]=useState(false);
+
+
 
   useEffect(() => {
     socket.on("incoming-call", (data) => {
       console.log("Incoming call received:", data);
       setIncomingCall(data);
+      setIsCalling(true);
     });
 
     socket.on("call-rejected", () => {
@@ -77,6 +81,7 @@ export const CallProvider = ({ children }) => {
         acceptIncomingCall,
         rejectIncomingCall,
         startOutgoingCall,
+        isCalling
       }}
     >
       {children}
