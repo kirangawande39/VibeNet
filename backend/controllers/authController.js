@@ -140,9 +140,10 @@ const login = async (req, res, next) => {
 const logout = async (req, res, next) => {
   try {
     // console.log("logout called")
+
     res.clearCookie("token", {
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
       secure: process.env.NODE_ENV === 'production',
     });
 
@@ -163,7 +164,7 @@ const logout = async (req, res, next) => {
 const googleCallBack = async (req, res, next) => {
   try {
 
-    console.log("google callback route here")
+    // console.log("google callback route here")
     const { _id, username, email } = req.user;
     // console.log("User form google call-back::", req.user);
 

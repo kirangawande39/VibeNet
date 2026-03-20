@@ -56,6 +56,7 @@ const notFound = require("./middlewares/notFound");
 
 
 const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: {
     origin: process.env.FRONTEND_URL,
@@ -74,6 +75,7 @@ const lastSeen = new Map();
 
 
 // console.log("Online Users::",onlineUsers)
+// console.log("lastSeen ::",lastSeen)
 
 
 
@@ -161,8 +163,8 @@ io.on("connection", (socket) => {
   // Jab user online hota hai, uska socket.id ko userId se map karo
 
   socket.on("user-online", (userId) => {
-    console.log("User online call");
-    console.log(userId, socket.id);
+    // console.log("User online call");
+    // console.log(userId, socket.id);
     onlineUsers.set(userId, socket.id); // userId -> socketId
     io.emit("online-users", Array.from(onlineUsers.keys()));
   });
@@ -302,7 +304,7 @@ io.on("connection", (socket) => {
   });
 });
 
-console.log("onlineusers", onlineUsers)
+
 
 
 

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useMemo } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ChatBox from "../components/ChatBox";
 import { AuthContext } from "../context/AuthContext";
@@ -52,19 +52,26 @@ const Chat = () => {
   };
 
   // Followers sorting logic
-  const sortedFollowers = [...(user?.followers || [])].sort((a, b) => {
-    const isAChatBot = a._id === CHATBOT_ID;
-    const isBChatBot = b._id === CHATBOT_ID;
-    if (isAChatBot) return -1;
-    if (isBChatBot) return 1;
-    const isAOnline = onlineUsers.includes(a._id);
-    const isBOnline = onlineUsers.includes(b._id);
-    if (isAOnline && !isBOnline) return -1;
-    if (!isAOnline && isBOnline) return 1;
-    const aLast = new Date(lastSeen[a._id] || 0).getTime();
-    const bLast = new Date(lastSeen[b._id] || 0).getTime();
-    return bLast - aLast;
-  });
+  const sortedFollowers = useMemo(() => {
+    return [...(localUser?.followers || [])].sort((a, b) => {
+      const isAChatBot = a._id === CHATBOT_ID;
+      const isBChatBot = b._id === CHATBOT_ID;
+
+      if (isAChatBot) return -1;
+      if (isBChatBot) return 1;
+
+      const isAOnline = onlineUsers.includes(a._id);
+      const isBOnline = onlineUsers.includes(b._id);
+
+      if (isAOnline && !isBOnline) return -1;
+      if (!isAOnline && isBOnline) return 1;
+
+      const aLast = new Date(lastSeen[a._id] || 0).getTime();
+      const bLast = new Date(lastSeen[b._id] || 0).getTime();
+
+      return bLast - aLast;
+    });
+  }, [localUser?.followers, onlineUsers, lastSeen]);
 
   // Update last message
   const handleLastMessageUpdate = (newMessage) => {
@@ -82,6 +89,16 @@ const Chat = () => {
         : [...prev, { _id: chatId, lastMessage: newMessage }]
     );
   };
+
+
+  let chatMap = useMemo(() => {
+    const map = {};
+
+    chats.forEach((chat) => {
+      map[chat._id] = chat;
+    })
+    return map;
+  }, [chats])
 
   // Window resize
   useEffect(() => {
@@ -126,6 +143,8 @@ const Chat = () => {
     const fetchOnlineStatus = async () => {
       try {
         const res = await API.get(`/api/online-status`);
+
+        console.log("Online Status::", res.data);
         setLastSeen(res.data.lastSeen || {});
         setOnlineUsers(res.data.onlineUsers || allOnlineUsers || []);
       } catch (err) {
@@ -288,7 +307,17 @@ const Chat = () => {
               sortedFollowers.map((follower, index) => {
                 const isOnline = onlineUsers.includes(follower._id);
                 const lastSeenTime = lastSeen[follower._id];
-                const chatData = chats.find((c) => c._id === follower._id);
+
+                // const chatData = chats.find((c) => c._id === follower._id);
+
+
+
+                const chatData = chatMap[follower._id]
+
+
+
+
+
                 const lastMsg = chatData?.lastMessage;
 
                 return (
