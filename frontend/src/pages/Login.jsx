@@ -9,6 +9,7 @@ import googleLogo from "../assets/img/google_logo.png";
 import { handleError } from "../utils/errorHandler";
 import emailjs from "@emailjs/browser";
 import API from "../services/api";
+import LoadingDots from "../components/common/LoadingDots";
 
 // Regex to validate email format
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -31,6 +32,9 @@ const Login = () => {
   const [forgotEmail, setForgotEmail] = useState("");
   const [emailCheckStatus, setEmailCheckStatus] = useState(null);
   const [emailChecking, setEmailChecking] = useState(false);
+  const [sendLinkStatus, setSendLinkStatus] = useState(false);
+  const [loginStatus, setLoginStatus] = useState(false);
+
 
   const navigate = useNavigate();
   const { login, user } = useContext(AuthContext);
@@ -43,10 +47,11 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      setLoginStatus(true);
       const res = await API.post(`/api/auth/login`,
         { email, password },
       );
-
+      setLoginStatus(false)
       login(res.data.user);
       toast.success(res.data.message || "Login successful");
       setTimeout(() => navigate("/"), 1000);
@@ -68,22 +73,12 @@ const Login = () => {
   const handleForgotSubmit = async (e) => {
     e.preventDefault();
     try {
+      setSendLinkStatus(true);
       const res = await API.post(`/api/auth/forgot-password`, { email: forgotEmail });
       const { token, name } = res.data;
+      setSendLinkStatus(false)
+      toast.success(res.data.message || `Reset link sent to this ${forgotEmail}`);
 
-      await emailjs.send(
-        "service_ishxb1z",
-        "template_jmfwewd",
-        {
-          to_email: forgotEmail,
-          reset_link: `https://vibe-net-two.vercel.app/reset-password/${token}`,
-          user_name: name,
-        },
-        "oP6BKanobJVx_qqDN"
-      );
-      // console.log("forgotPass ",res.data);
-      // console.log(forgotEmail)
-      toast.success(`Reset link sent to this ${forgotEmail} `);
       setShowForgotModal(false);
       setForgotEmail("");
       setEmailCheckStatus(null);
@@ -155,7 +150,11 @@ const Login = () => {
           </div>
 
           <button type="submit" className="btn btn-primary w-100 rounded-pill">
-            Login
+            {loginStatus ? (
+              <LoadingDots text="Wait Logging" />
+            ) : (
+              "Login"
+            )}
           </button>
         </form>
 
@@ -233,7 +232,7 @@ const Login = () => {
                   className="btn btn-primary"
                   disabled={!emailCheckStatus?.exists || emailChecking}
                 >
-                  Send Link
+                  {sendLinkStatus ? 'Sending Reset Link...' : 'Send Reset Link'}
                 </button>
               </div>
             </form>

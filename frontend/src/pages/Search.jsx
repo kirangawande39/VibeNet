@@ -5,7 +5,7 @@ import { handleError } from '../utils/errorHandler';
 import '../assets/css/Search.css';
 import { Link } from 'react-router-dom';
 import API from '../services/api';
-
+import LoadingDots from '../components/common/LoadingDots';
 
 
 const Search = () => {
@@ -17,7 +17,7 @@ const Search = () => {
     const [explorePage, setExplorePage] = useState(1);
     const [hasMoreExplore, setHasMoreExplore] = useState(true);
     const [loadingMoreExplore, setLoadingMoreExplore] = useState(false);
-
+    const [searchStatus, setSearchStatus]=useState(false);
     // Fetch explore posts with pagination   
 
     const fetchExplorePosts = async () => {
@@ -59,11 +59,12 @@ const Search = () => {
         setLoading(true);
         const timeout = setTimeout(async () => {
             try {
-
+                
                 const res = await API.get(
                     `/api/users/search?query=${query}`,
                    
                 );
+               
 
                 setResults(res.data.users);
             } catch (err) {

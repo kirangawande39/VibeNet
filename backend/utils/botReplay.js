@@ -7,7 +7,7 @@ async function getAIReply(userMessage) {
   const response = await axios.post(
     "https://openrouter.ai/api/v1/chat/completions",
     {
-      model: "mistralai/mixtral-8x7b-instruct", // ✅ Ye free model hai, as-it-is rakh sakte ho
+      model: "mistralai/mixtral-8x7b-instruct", 
       messages: [
         {
           role: "system",
@@ -16,7 +16,7 @@ async function getAIReply(userMessage) {
         },
         {
           role: "user",
-          content: userMessage // ✅ Yahi user ka message pass hoga
+          content: userMessage 
         }
       ]
     },
@@ -33,7 +33,7 @@ async function getAIReply(userMessage) {
     }
   );
 
-  return response.data.choices[0].message.content; // ✅ Bot ka reply return hota hai
+  return response.data.choices[0].message.content; 
 }
 
 

@@ -8,7 +8,7 @@ const sendNotification = require('./utils/sendNotification')
 const fcmToken = process.env.fcmToken; 
 
 
-console.log("fcmToken form testNotification :: ",fcmToken)
+// console.log("fcmToken form testNotification :: ",fcmToken)
 
 
 const test = async () => {

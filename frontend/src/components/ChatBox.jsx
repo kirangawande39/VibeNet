@@ -256,7 +256,7 @@ const ChatBox = ({ user, selectedUser, localUser, onLastMessageUpdate, onBack })
         { chatId, receiverId, text: newMessage },
       );
 
-      // console.log("msg res :", res.data)
+      console.log("msg res :", res.data)
 
       const sentMessage = {
         ...res.data,

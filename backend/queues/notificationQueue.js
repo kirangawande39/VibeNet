@@ -11,6 +11,8 @@ const notificationQueue = new Queue("notification-queue", {
     },
 });
 
-module.exports = notificationQueue;
+
+
+module.exports = { notificationQueue};
 
 

@@ -8,15 +8,16 @@ const router = express.Router();
 
 const { groupImageStorage } = require("../config/cloudConfig")
 
-const upload = multer({ storage:groupImageStorage })
+const storage=multer.memoryStorage();
+
+const upload = multer({ storage })
 
 router.post("/", upload.single('groupIcon'), protect, cretaeNewGroup)
 
 router.get("/", protect, getGroups)
 router.get("/messages/:groupId", protect, getGroupsMessage)
 
-
-router.post("/message", protect, sendGroupMessage)
+router.post("/message", protect, sendGroupMessage);
 
 router.post("/add-members", protect, addGropuMembers);
 

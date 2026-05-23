@@ -18,7 +18,7 @@ const IncomingCallModal = () => {
           audio.pause();
           audio.currentTime = 0;
         })
-        .catch(() => {});
+        .catch(() => { });
 
       document.removeEventListener("click", unlockAudio);
     };
@@ -49,10 +49,12 @@ const IncomingCallModal = () => {
 
   return (
     <>
-     
+
+
+
       <audio ref={audioRef} src={ringtone} loop preload="auto" />
 
-     
+
       {!incomingCall ? null : (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
           <div className="bg-white p-6 rounded-xl shadow-lg text-center w-11/12 max-w-sm">

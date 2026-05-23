@@ -27,6 +27,8 @@ const Chat = () => {
   const [loading, setLoading] = useState(true);
   const [statusLoading, setStatusLoading] = useState(false);
 
+  const [groupCreateStatus, setGroupCreateStatus] = useState(false);
+
   const [showGroupForm, setShowGroupForm] = useState(false);
   const [groupFormData, setGroupFormData] = useState({
     name: "",
@@ -144,7 +146,7 @@ const Chat = () => {
       try {
         const res = await API.get(`/api/online-status`);
 
-        console.log("Online Status::", res.data);
+        // console.log("Online Status::", res.data);
         setLastSeen(res.data.lastSeen || {});
         setOnlineUsers(res.data.onlineUsers || allOnlineUsers || []);
       } catch (err) {
@@ -209,6 +211,7 @@ const Chat = () => {
     formData.append("privacy", groupFormData.privacy);
 
     try {
+      setGroupCreateStatus(true);
       const res = await API.post(
         `/api/groups`,
         formData,
@@ -218,7 +221,7 @@ const Chat = () => {
           },
         }
       );
-
+      setGroupCreateStatus(false)
       toast.success(res.data.message);
 
       setGroupFormData({
@@ -227,6 +230,8 @@ const Chat = () => {
         icon: "",
         privacy: "public",
       });
+
+      
 
     } catch (err) {
       handleError(err);
@@ -260,8 +265,7 @@ const Chat = () => {
   return (
     <div className="container chat-app mt-4">
 
-
-
+    
       <div className="row gx-0">
 
         <div className={`col-md-4 border-end ${isMobile && (selectedUser || selectedGroup) ? "d-none" : ""}`} style={{ maxHeight: "78vh", overflowY: "auto" }}>
@@ -387,17 +391,28 @@ const Chat = () => {
         </div>
       </div>
 
+ 
 
       {showGroupForm && (
         <div className="fixed inset-0 z-50">
+          
           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setShowGroupForm(false)} />
           <div className="flex items-center justify-center p-4" style={{ position: "fixed", inset: 0 }}>
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative">
+
+              <span className={groupCreateStatus ? 'absolute - left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm animate-pulse whitespace-nowrap':'hidden'}>
+                Creating Group...
+              </span>
+
               <button onClick={() => setShowGroupForm(false)} className="absolute top-3 right-3 text-gray-500 hover:text-black text-2xl font-bold">
                 ×
               </button>
 
+
+
               <h2 className="text-2xl font-semibold text-gray-800 mb-3 text-center">Create Group</h2>
+
+             
 
               <form className="space-y-4" onSubmit={handleGroupForm}>
                 <div>
@@ -422,8 +437,10 @@ const Chat = () => {
                     <option value="private">Private Group</option>
                   </select>
                 </div>
+              
 
                 <button type="submit" className="btn btn-primary w-100">Create Group</button>
+
               </form>
 
             </div>

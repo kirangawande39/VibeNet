@@ -1,31 +1,9 @@
-const Story = require("../models/Story");
-const User = require("../models/User")
-const notificationQueue = require('../queues/notificationQueue')
+const {createStoryService,getStoriesService,deleteStoryService,seenStoryService,likeStoryService,unLikeStoryService} = require("../services/storyService");
 
+// 👉 Create
 const createStory = async (req, res, next) => {
-  // console.log("Create story logic here");
-
   try {
-    const file = req.file;
-    const publicId = req.file.filename;
-
-    //  console.log("Story publicId ::", publicId);
-
-    if (!file) {
-      throw new Error("No file uploaded");
-    }
-
-    const storyUrl = file.path;
-    const mediaType = file.mimetype.startsWith("video") ? "video" : "image";
-
-    const story = await Story.create({
-      user: req.user.id,
-      mediaUrl: storyUrl,
-      mediaType,
-      publicId,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    });
-
+    const story = await createStoryService(req);
 
     res.status(201).json({ success: true, story });
   } catch (err) {
@@ -33,153 +11,54 @@ const createStory = async (req, res, next) => {
   }
 };
 
-// const getStories = async (req, res, next) => {
-
-//   console.log(req.user.id);
-//   console.log("Get stories logic here");
-
-//   try {
-//     const stories = await Story.find()
-//       .populate("user")
-//       .populate("seenBy.user", "username name profilePic");
-
-//     res.status(201).json({ success: true, stories });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
+// 👉 Get
 const getStories = async (req, res, next) => {
-  // console.log("Get stories logic here");
-
   try {
-    const currentUserId = req.user.id;
+    const stories = await getStoriesService(req.user.id);
 
-    const stories = await Story.find()
-      .populate("user")
-      .populate("seenBy.user", "username name profilePic");
-
-    // 1. Divide into seen and unseen for current user
-    const unseenStories = [];
-    const seenStories = [];
-
-    for (const story of stories) {
-      const seenByCurrentUser = story.seenBy.some(
-        (viewer) => viewer.user._id.toString() === currentUserId
-      );
-
-      if (seenByCurrentUser) {
-        seenStories.push(story);
-      } else {
-        unseenStories.push(story);
-      }
-    }
-
-    // 2. Sort each group by latest first
-    unseenStories.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    seenStories.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    // 3. Combine both groups (unseen first)
-    const sortedStories = [...unseenStories, ...seenStories];
-
-    res.status(200).json({ success: true, stories: sortedStories });
+    res.status(200).json({ success: true, stories });
   } catch (err) {
     next(err);
   }
 };
 
-
+// 👉 Delete (NOW REAL IMPLEMENTATION 🔥)
 const deleteStory = async (req, res, next) => {
   try {
-    res.send("Delete story logic here");
+    await deleteStoryService(req.params.id, req.user.id);
+
+    res.status(200).json({
+      success: true,
+      message: "Story deleted successfully",
+    });
   } catch (err) {
     next(err);
   }
 };
 
+// 👉 Seen
 const seenStory = async (req, res, next) => {
   try {
-    const storyId = req.params.id;
-    const userId = req.user.id;
+    const result = await seenStoryService(
+      req.params.id,
+      req.user.id
+    );
 
-    const story = await Story.findById(storyId);
-
-    // console.log("Story:",story.user);
-
-
-    if (!story) {
-      throw new Error("Story not found");
-    }
-
-    const alreadySeen = story.seenBy.some((entry) => {
-      if (typeof entry === "object" && entry.user) {
-        return entry.user.toString() === userId;
-      } else {
-        return entry.toString() === userId;
-      }
-    });
-
-    if (!alreadySeen) {
-      story.seenBy.push({ user: userId, viewedAt: new Date() });
-
-
-      await story.save();
-
-
-      const user = await User.findById(story.user).select('fcmToken');
-
-
-
-      // console.log("fcmToken is::",user);
-
-      const fcmToken = user?.fcmToken;
-
-      const title = "VibeNet • Story Viewed 👀";
-      const text = "Someone viewed your story.";
-
-
-      if (fcmToken) {
-        await notificationQueue.add('send-notification', {
-          fcmToken,
-          title,
-          text,
-        })
-      }
-
-
-
-      return res.status(200).json({ message: "Story marked as seen" });
-
-
-
-
-    }
-
-    return res.status(200).json({ message: "Already marked as seen" });
+    res.status(200).json(result);
   } catch (err) {
     next(err);
   }
 };
 
+// 👉 Like
 const likeStory = async (req, res, next) => {
   try {
-    const storyId = req.params.id;
-    const userId = req.user.id;
+    const story = await likeStoryService(
+      req.params.id,
+      req.user.id
+    );
 
-    const story = await Story.findById(storyId);
-    if (!story) {
-      throw new Error("Story not found");
-    }
-
-    const alreadyLiked = story.likedBy.some((like) => like.user.toString() === userId);
-    if (alreadyLiked) {
-      throw new Error("Story already liked");
-    }
-
-    story.likedBy.push({ user: userId });
-    await story.save();
-
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "Story liked successfully",
       data: story,
@@ -189,18 +68,15 @@ const likeStory = async (req, res, next) => {
   }
 };
 
+// 👉 Unlike
 const unLikeStory = async (req, res, next) => {
   try {
-    const storyId = req.params.id;
-    const userId = req.user.id;
-
-    const story = await Story.findByIdAndUpdate(
-      storyId,
-      { $pull: { likedBy: { user: userId } } },
-      { new: true }
+    const story = await unLikeStoryService(
+      req.params.id,
+      req.user.id
     );
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "Story unliked successfully",
       data: story,
@@ -210,11 +86,4 @@ const unLikeStory = async (req, res, next) => {
   }
 };
 
-module.exports = {
-  createStory,
-  getStories,
-  deleteStory,
-  seenStory,
-  likeStory,
-  unLikeStory,
-};
+module.exports = {createStory,getStories,deleteStory,seenStory,likeStory,unLikeStory };

@@ -84,6 +84,8 @@ const Navbar = ({ totalUnseenCount, isPrivateStatus }) => {
     }
   }
 
+  if (!user) return null;
+
   return (
     <>
       {/* Top Navbar for Mobile */}
@@ -106,109 +108,89 @@ const Navbar = ({ totalUnseenCount, isPrivateStatus }) => {
             className="d-flex align-items-center position-relative"
             ref={menuRef}
           >
-            {user ? (
-              <>
 
-                <img
-                  src={`https://ui-avatars.com/api/?name=${user.username}`}
-                  alt="avatar"
-                  className="rounded-full me-2"
-                  width={32}
-                  height={32}
-                  onClick={() => setMenuOpen(!menuOpen)}
-                  style={{ cursor: "pointer" }}
-                />
+            <img
+              src={`https://ui-avatars.com/api/?name=${user.username}`}
+              alt="avatar"
+              className="rounded-full me-2"
+              width={32}
+              height={32}
+              onClick={() => setMenuOpen(!menuOpen)}
+              style={{ cursor: "pointer" }}
+            />
 
-                {menuOpen && (
-                  <div className="dropdown-menu-custom">
-                    <Link
-                      to={`/profile/${user.id}`}
-                      className="dropdown-item d-flex align-items-center"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <FaUser className="me-2" /> Profile
-                    </Link>
+            {menuOpen && (
+              <div className="dropdown-menu-custom">
+                <Link
+                  to={`/profile/${user.id}`}
+                  className="dropdown-item d-flex align-items-center"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <FaUser className="me-2" /> Profile
+                </Link>
 
-                    <Link
-                      to={`/chat/${user.id}`}
-                      className="dropdown-item d-flex align-items-center"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <FaCommentDots className="me-2" /> Chat
-                    </Link>
+                <Link
+                  to={`/chat/${user.id}`}
+                  className="dropdown-item d-flex align-items-center"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <FaCommentDots className="me-2" /> Chat
+                </Link>
 
-                    <Link
-                      to={`/search`}
-                      className="dropdown-item d-flex align-items-center"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <FaSearch className="me-2" /> Search
-                    </Link>
+                <Link
+                  to={`/search`}
+                  className="dropdown-item d-flex align-items-center"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <FaSearch className="me-2" /> Search
+                </Link>
 
-                    {/* Setting Toggle */}
-                    <button
-                      onClick={() => setShowSetting(!showSetting)}
-                      className="dropdown-item d-flex align-items-center"
-                    >
-                      <FaCog className="me-2" /> Setting
-                    </button>
+                {/* Setting Toggle */}
+                <button
+                  onClick={() => setShowSetting(!showSetting)}
+                  className="dropdown-item d-flex align-items-center"
+                >
+                  <FaCog className="me-2" /> Setting
+                </button>
 
-                    {showSetting && (
-                      <div className="p-2 border-top">
-                        <label className="form-check-label d-flex justify-content-between align-items-center">
-                          <span>
-                            Account Privacy:{" "}
-                            <strong>
-                              {isPrivate ? "Private" : "Public"}
-                            </strong>
-                          </span>
-                          <div className="form-check form-switch m-0">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              checked={isPrivate}
-                              onChange={handlePrivacyToggle}
-                            />
-                          </div>
-                        </label>
-                        <small className="text-muted d-block mt-1">
-                          {isPrivate
-                            ? "Only approved followers can see your posts."
-                            : "Everyone can see your posts."}
-                        </small>
+                {showSetting && (
+                  <div className="p-2 border-top">
+                    <label className="form-check-label d-flex justify-content-between align-items-center">
+                      <span>
+                        Account Privacy:{" "}
+                        <strong>
+                          {isPrivate ? "Private" : "Public"}
+                        </strong>
+                      </span>
+                      <div className="form-check form-switch m-0">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          checked={isPrivate}
+                          onChange={handlePrivacyToggle}
+                        />
                       </div>
-                    )}
-
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setMenuOpen(false);
-                      }}
-                      className="dropdown-item d-flex align-items-center text-danger"
-                    >
-                      <FaSignOutAlt className="me-2" /> Logout
-                    </button>
+                    </label>
+                    <small className="text-muted d-block mt-1">
+                      {isPrivate
+                        ? "Only approved followers can see your posts."
+                        : "Everyone can see your posts."}
+                    </small>
                   </div>
                 )}
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  className="btn btn-outline-primary btn-sm me-2"
+
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMenuOpen(false);
+                  }}
+                  className="dropdown-item d-flex align-items-center text-danger"
                 >
-                  {/* <FaSignInAlt className="me-1" />  */}
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  className="btn btn-outline-success btn-sm "
-                >
-                  {/* <FaUserPlus className="me-1" /> */}
-                   Signup
-                </Link>
-              </>
+                  <FaSignOutAlt className="me-2" /> Logout
+                </button>
+              </div>
             )}
+
           </div>
         </div>
       </nav>

@@ -43,7 +43,7 @@ cron.schedule("0 * * * *", async () => {
       }
 
       await Story.findByIdAndDelete(story._id);
-      console.log(`🗑️ Deleted story from DB: ${story._id}`);
+      // console.log(`🗑️ Deleted story from DB: ${story._id}`);
     }
   } catch (err) {
     console.error("❌ Error during story cleanup:", err);

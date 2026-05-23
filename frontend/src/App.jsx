@@ -143,7 +143,7 @@ function App() {
 
   // console.log("Privacy Status:", isPrivateStatus);
 
-  const totalUnseenCount = unseenCounts.reduce(
+  const totalUnseenCount = unseenCounts?.reduce(
     (total, item) => total + item.unseenCount,
     0
   );

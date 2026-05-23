@@ -1,9 +1,13 @@
 const express = require("express");
 const { createPost, getAllPosts, getPostsByUserId, deletePost } = require("../controllers/postController");
 const multer = require('multer');
-const { PostImageStorage } = require('../config/cloudConfig');  // yaha import karo
+const { PostImageStorage } = require('../config/cloudConfig');  
 const { protect } = require("../middlewares/authMiddleware");
-const upload = multer({ storage:PostImageStorage });  // CloudinaryStorage se multer banayen
+
+const storage=multer.memoryStorage();
+
+const upload = multer({ storage }); 
+
 
 const router = express.Router();
 

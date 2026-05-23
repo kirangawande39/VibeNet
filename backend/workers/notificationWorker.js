@@ -19,7 +19,7 @@ const worker = new Worker(
       const { fcmToken, title, text } = job.data;
 
       if (!fcmToken) {
-        console.log("No FCM token, skipping");
+        // console.log("No FCM token, skipping");
         return;
       }
 

@@ -8,7 +8,7 @@ const BOT_USER_ID = process.env.BOT_USER_ID;
 async function addBotToAllUsers() {
   try {
     await mongoose.connect(MONGO_URI);
-    console.log("📦 MongoDB connected");
+    // console.log("📦 MongoDB connected");
 
     // Sab users nikaalo except chatbot
     const users = await User.find({ _id: { $ne: BOT_USER_ID } });

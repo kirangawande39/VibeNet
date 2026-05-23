@@ -6,6 +6,7 @@ import { FaEdit, FaSave, FaTimes, FaCamera, FaPlus, FaCog } from "react-icons/fa
 import "react-toastify/dist/ReactToastify.css";
 import { handleError } from "../utils/errorHandler";
 import API from "../services/api";
+import LoadingDots from "../components/common/LoadingDots";
 
 const EditProfile = () => {
   const { updateUser } = useContext(AuthContext);
@@ -19,6 +20,7 @@ const EditProfile = () => {
   const [name, setName] = useState(profileData?.name || "");
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const fileInputRef = useRef(null);
+  const [profileUploadStatus, setProfileUploadStatus] = useState(false);
 
   const [showFabMenu, setShowFabMenu] = useState(false);
 
@@ -71,13 +73,18 @@ const EditProfile = () => {
       const formData = new FormData();
       formData.append("profilePic", file);
 
+
+      setProfileUploadStatus(true);
       const res = await API.put(`/api/users/${user._id}/uploadProfilePic`,
-         formData 
+        formData
       );
 
-     
+
+
+
 
       const updatedUser = { ...user, profilePic: res.data.profilePic };
+      setProfileUploadStatus(false)
       setUser(updatedUser);
       updateUser(updatedUser);
 
@@ -97,6 +104,7 @@ const EditProfile = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:ml-[220px]">
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           {/* Profile Card */}
+
           <div className="xl:col-span-1">
             <div className="backdrop-blur-lg rounded-2xl  p-6 text-center ">
               {/* Profile Image */}
@@ -115,6 +123,11 @@ const EditProfile = () => {
                 >
                   <FaCamera size={20} />
                 </button>
+                <span className={`${profileUploadStatus ? 'absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm animate-pulse whitespace-nowrap'
+                  :
+                  'hidden'} `}>
+                  {profileUploadStatus && (<LoadingDots text="Uploading"/>)}
+                </span>
               </div>
 
               <input
@@ -195,14 +208,14 @@ const EditProfile = () => {
                       className="bg-slate-200 hover:bg-slate-300 p-2 rounded shadow"
                       onClick={handleBioNameSave}
                     >
-                    
+
                       Save
                     </button>
                     <button
                       className="bg-slate-200 p-2 rounded hover:bg-slate-300 shadow"
                       onClick={() => setIsEditingBioName(false)}
                     >
-                      
+
                       Cancel
                     </button>
                   </div>

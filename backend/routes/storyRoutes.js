@@ -6,7 +6,10 @@ const router = express.Router();
 const multer = require('multer');
 const { StoryStorage } = require('../config/cloudConfig');  // yaha import karo
 const { storyUploadLimiter } = require("../middlewares/rateLimit");
-const upload = multer({ storage:StoryStorage });
+
+const storage=multer.memoryStorage();
+
+const upload = multer({ storage });
 
 // Multer setup
 

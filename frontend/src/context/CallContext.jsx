@@ -41,6 +41,8 @@ export const CallProvider = ({ children }) => {
     };
   }, []);
 
+  
+
   const acceptIncomingCall = () => {
     if (!incomingCall) return;
 

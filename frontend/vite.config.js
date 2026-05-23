@@ -12,10 +12,21 @@ import { resolve } from 'path'
 // Vite ka configuration export karte hain
 export default defineConfig({
   // React plugin ko use karna
-   plugins: [
+  plugins: [
     react(),
     tailwindcss(),
   ],
+
+  server: {
+  
+    // allowedHosts: [
+    //   "why-ready-whenever-thumb.trycloudflare.com"
+    // ],
+    allowedHosts: [
+      "https://vibe-net-two.vercel.app"
+    ],
+    
+  },
 
   // Build ke samay kuch extra configuration
   build: {

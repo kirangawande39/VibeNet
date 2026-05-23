@@ -1,5 +1,5 @@
 const express = require("express");
-const { register, login,logout, checkEmail, forgotPassword, resetPassword, googleCallBack ,check } = require("../controllers/authController");
+const { register, login,logout, checkEmail, forgotPassword, resetPassword, googleCallBack ,check,sendOtp , verifyOtp } = require("../controllers/authController");
 const { registerLimiter, loginLimiter, forgotPasswordLimiter } = require("../middlewares/rateLimit");
 const passport = require("passport");
 const { protect } = require("../middlewares/authMiddleware");
@@ -85,6 +85,7 @@ router.get(
 );
 
 
-
+router.post("/send-otp", sendOtp)
+router.post("/verify-otp", verifyOtp)
 
 module.exports = router;

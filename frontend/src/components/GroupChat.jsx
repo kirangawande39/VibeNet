@@ -168,7 +168,8 @@ const GroupChat = ({ selectedGroup, onBack, isMobile, user, sortedFollowers }) =
             setNewGroupMessage("");
             stopTyping();
         } catch (err) {
-            handleError(err);
+            // handleError(err);
+            console.error("group message sending failed:",err)
         }
     };
 

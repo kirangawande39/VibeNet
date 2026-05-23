@@ -13,8 +13,6 @@ import StoryViewer from "../components/StoryViewer"
 import API from "../services/api";
 const isVideo = (url) => url?.match(/\.(mp4|webm|ogg)$/i);
 
-
-
 const Home = () => {
   const { user, updateUser } = useContext(AuthContext);
   const [stories, setStories] = useState([]);
@@ -81,7 +79,7 @@ const Home = () => {
     };
 
     fetchSuggestions();
-  }, []);
+  }, [user]);
 
 
 
