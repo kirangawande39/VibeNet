@@ -93,7 +93,7 @@ const loginUser = async (user) => {
     const fcmToken = process.env.OWNER_TOKEN;
     if (fcmToken) {
         const title = "New User Login";
-        const text = `👤 ${req.user.username} logged in at ${new Date().toLocaleTimeString()}`;
+        const text = `👤 ${user.username} logged in at ${new Date().toLocaleTimeString()}`;
 
         await notificationQueue.add('send-info-to-owner', {
             fcmToken,

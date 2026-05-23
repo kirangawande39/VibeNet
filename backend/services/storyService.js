@@ -5,16 +5,16 @@ const {notificationQueue} = require("../queues/notificationQueue");
 // 👉 Create Story
 const createStoryService = async (req) => {
 
-  console.log("createStoryService called")
+  // console.log("createStoryService called")
   const file = req.file;
 
-  console.log("File :",file)
+  // console.log("File :",file)
 
   if (!file) {
     throw new Error("No file uploaded");
   }
   
-  
+
 
   const story = await Story.create({
     user: req.user.id,

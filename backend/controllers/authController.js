@@ -22,6 +22,8 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
 
+    // console.log("Req.user:",req.user)
+
     const { user, token } = await authServices.loginUser(req.user);
 
     // console.log(token)
