@@ -7,9 +7,9 @@ const multer = require('multer');
 const { StoryStorage } = require('../config/cloudConfig');  // yaha import karo
 const { storyUploadLimiter } = require("../middlewares/rateLimit");
 
-const storage=multer.memoryStorage();
+// const storage=multer.memoryStorage();
 
-const upload = multer({ storage });
+const upload = multer({ storage:StoryStorage });
 
 // Multer setup
 

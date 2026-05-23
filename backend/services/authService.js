@@ -80,8 +80,10 @@ const registerUser = async ({ name, email, password, username }) => {
 
 
 const loginUser = async (user) => {
-    // console.log("login User:", req.user);
-    const userId = user._id;
+    // console.log("login User:", user);
+    const userId = user?._id;
+
+
 
     // console.log("userId:", userId);
     const token = await generateToken(userId);
