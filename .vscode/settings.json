@@ -1,5 +1,0 @@
-{
-  "typescript.disableAutomaticTypeAcquisition": true,
-  "javascript.suggest.autoImports": false,
-  "typescript.suggest.autoImports": false
-}
