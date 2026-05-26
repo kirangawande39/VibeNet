@@ -50,7 +50,8 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   event.waitUntil(
-    clients.openWindow(`http://localhost:5173`)
+    // clients.openWindow(`http://localhost:5173`)
+    clients.openWindow(`https://vibe-net-two.vercel.app`)
     // clients.openWindow(`https://why-ready-whenever-thumb.trycloudflare.com`)
   );
 });
