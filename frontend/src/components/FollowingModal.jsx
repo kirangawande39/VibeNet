@@ -67,7 +67,7 @@ const FollowingModal = ({profileData , isOwnProfile ,unfollowModal ,setUnfollowM
               
             </div>
 
-            {/* ✅ Confirmation Modal */}
+          
             {unfollowModal.show && isOwnProfile && (
                 <div className="modal-backdrop" onClick={() => setUnfollowModal({ show: false, user: null })}>
                     <div className="modal-content-s" onClick={(e) => e.stopPropagation()}>

@@ -93,8 +93,7 @@ const SidebarNavbar = ({ isPrivateStatus }) => {
       className="sidebar d-none d-md-flex flex-column p-3 shadow"
       style={{ height: "100vh" }}
     >
-      {/* Logo */}
-      <h4 className="vibenet-logo">VibeNet</h4>
+     <h1 className="text-primary logo fw-bold mb-4">VibeNet</h1>
 
      
       <div className="list  " >

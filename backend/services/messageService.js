@@ -4,6 +4,7 @@ const Chat = require("../models/Chat");
 const mongoose = require("mongoose");
 const User = require("../models/User");
 const { getAIReply } = require("../utils/botReplay.js");
+const { generateBotReply } = require("../utils/botReplyLogic.js");
 const { notificationQueue } = require("../queues/notificationQueue.js");
 
 const BOT_USER_ID = process.env.BOT_USER_ID;
@@ -58,7 +59,8 @@ const sendMessage = async (req) => {
     let botReplyText;
 
     try {
-      botReplyText = await getAIReply(text);
+      // botReplyText = await getAIReply(text);
+      botReplyText = await generateBotReply(text);
     } catch (err) {
       botReplyText = "Sorry, I'm having trouble replying right now. 😔";
     }

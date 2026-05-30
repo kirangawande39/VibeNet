@@ -157,7 +157,7 @@ function App() {
       <Navbar totalUnseenCount={totalUnseenCount} isPrivateStatus={isPrivateStatus} />
       <SidebarNavbar isPrivateStatus={isPrivateStatus} />
       <IncomingCallModal/>
-      {/* Routes */}
+      
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/video-call" element={<VideoCall />} />
@@ -171,7 +171,6 @@ function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
 
-      {/* Toast Notification */}
       <ToastContainer
         position="top-center"
         autoClose={3000}

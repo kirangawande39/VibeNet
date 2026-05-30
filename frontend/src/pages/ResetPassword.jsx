@@ -1,109 +1,147 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { handleError } from "../utils/errorHandler";
 import API from "../services/api";
-import LoadingDots from '../components/common/LoadingDots';
-
+import LoadingDots from "../components/common/LoadingDots";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../assets/css/Login.css";
 
 const ResetPassword = () => {
   const { token } = useParams();
   const navigate = useNavigate();
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [resetPassStatus, setResetPassStatus] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const passwordsMatch = password && confirmPassword && password === confirmPassword;
+  const [showPass, setShowPass] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const passwordError =
+    password && password.length < 6
+      ? "Password must be at least 6 characters"
+      : "";
+
+  const matchError =
+    confirmPassword && password !== confirmPassword
+      ? "Passwords do not match"
+      : "";
 
   const handleReset = async (e) => {
     e.preventDefault();
-    setErrorMessage("");
 
-    if (!passwordsMatch) {
-      setErrorMessage("Passwords do not match.");
-      return;
-    }
-
-    if (password.length < 6) {
-      setErrorMessage("Password must be at least 6 characters.");
-      return;
-    }
+    if (password.length < 6 || password !== confirmPassword) return;
 
     try {
-      setResetPassStatus(true);
-      await API.post(`/api/auth/reset-password`, {
+      setLoading(true);
+
+      await API.post("/api/auth/reset-password", {
         token,
         newPassword: password,
       });
-      setResetPassStatus(false);
+
       toast.success("Password reset successful");
-      setTimeout(() => navigate("/login"), 2000);
+
+      setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
-      setResetPassStatus(false);
-      handleError(err);
+      toast.error(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md rounded-[28px] border border-slate-700 bg-slate-900/95 p-8 shadow-2xl shadow-slate-950/50 backdrop-blur-md">
-        <div className="mb-6 text-center">
-          <p className="text-sm uppercase tracking-[0.28em] text-cyan-400">Reset Password</p>
-          <h2 className="mt-3 text-3xl font-semibold text-white">Choose a new password</h2>
-          <p className="mt-2 text-sm text-slate-400">Type your new password and confirm it below.</p>
-        </div>
+    <div className="login-container d-flex align-items-center justify-content-center vh-100 px-3">
 
-        <form onSubmit={handleReset} className="space-y-5">
-          <div>
-            <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-300">
-              New Password
-            </label>
+      <div className="login-box shadow-lg p-4 rounded bg-white text-center w-100" style={{ maxWidth: "420px" }}>
+
+        <h1 className="text-primary logo fw-bold mb-3">VibeNet</h1>
+
+        <h4 className="mb-1">Reset Password</h4>
+        <p className="text-muted mb-3" style={{ fontSize: "0.9rem" }}>
+          Enter new password for your account
+        </p>
+
+        <form onSubmit={handleReset}>
+
+          <div className="mb-2 position-relative">
             <input
-              id="password"
-              type="password"
-              className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
-              placeholder="Enter new password"
+              type={showPass ? "text" : "password"}
+              className="form-control rounded-pill pe-5"
+              placeholder="New Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+
+            <span
+              onClick={() => setShowPass(!showPass)}
+              style={{
+                position: "absolute",
+                right: "15px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                cursor: "pointer",
+                color: "#6c757d",
+              }}
+            >
+              {showPass ? <FaEyeSlash /> : <FaEye />}
+            </span>
           </div>
 
-          <div>
-            <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-slate-300">
-              Confirm Password
-            </label>
+          {passwordError && (
+            <div className="text-danger mb-2" style={{ fontSize: "0.85rem" }}>
+              {passwordError}
+            </div>
+          )}
+
+          <div className="mb-2 position-relative">
             <input
-              id="confirmPassword"
-              type="password"
-              className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
-              placeholder="Confirm new password"
+              type={showConfirm ? "text" : "password"}
+              className="form-control rounded-pill pe-5"
+              placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
+
+            <span
+              onClick={() => setShowConfirm(!showConfirm)}
+              style={{
+                position: "absolute",
+                right: "15px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                cursor: "pointer",
+                color: "#6c757d",
+              }}
+            >
+              {showConfirm ? <FaEyeSlash /> : <FaEye />}
+            </span>
           </div>
 
-          {errorMessage ? (
-            <div className="rounded-2xl bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
-              {errorMessage}
+          {matchError && (
+            <div className="text-warning mb-2" style={{ fontSize: "0.85rem" }}>
+              {matchError}
             </div>
-          ) : password && confirmPassword && !passwordsMatch ? (
-            <div className="rounded-2xl bg-amber-400/10 px-4 py-3 text-sm text-amber-200">
-              Passwords must match.
-            </div>
-          ) : null}
+          )}
 
           <button
             type="submit"
-            disabled={resetPassStatus}
-            className="inline-flex w-full items-center justify-center rounded-2xl bg-cyan-500 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:bg-slate-600"
+            className="btn btn-primary w-100 rounded-pill"
+            disabled={loading || passwordError || matchError}
           >
-            {resetPassStatus ? <LoadingDots test="Resetting" /> : "Reset Password"}
+            {loading ? (
+              <LoadingDots text="Resetting Password" />
+            ) : (
+              "Reset Password"
+            )}
           </button>
         </form>
+
+       
+
       </div>
     </div>
   );

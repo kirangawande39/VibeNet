@@ -52,7 +52,6 @@ self.addEventListener("notificationclick", (event) => {
   event.waitUntil(
     // clients.openWindow(`http://localhost:5173`)
     clients.openWindow(`https://vibe-net-two.vercel.app`)
-    // clients.openWindow(`https://why-ready-whenever-thumb.trycloudflare.com`)
   );
 });
 

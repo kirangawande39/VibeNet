@@ -24,7 +24,7 @@ const createStoryService = async (req) => {
     expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
   });
 
-  return story;
+  return story; 
 };
 
 // 👉 Get Stories

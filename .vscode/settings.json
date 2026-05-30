@@ -1,5 +1,7 @@
 {
   "typescript.disableAutomaticTypeAcquisition": true,
   "javascript.suggest.autoImports": false,
-  "typescript.suggest.autoImports": false
+  "typescript.suggest.autoImports": false,
+  "editor.inlineSuggest.edits.allowCodeShifting": "never",
+  "editor.inlineSuggest.edits.renderSideBySide": "never"
 }

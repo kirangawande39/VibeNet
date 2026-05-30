@@ -20,11 +20,14 @@ export default defineConfig({
   server: {
   
     // allowedHosts: [
-    //   "why-ready-whenever-thumb.trycloudflare.com"
+    //   "res-toe-cast-satellite.trycloudflare.com"
     // ],
     allowedHosts: [
       "https://vibe-net-two.vercel.app"
     ],
+    // allowedHosts: [
+    //   "http://localhost:5173"
+    // ],
     
   },
 

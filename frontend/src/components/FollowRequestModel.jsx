@@ -5,9 +5,6 @@ import API from "../services/api";
 
 const FollowRequestModel = ({ onClose, profileData,  setProfileData, setFollowRequest }) => {
 
-
-
-
   const handleDecline = async (declineuserId) => {
     try {
       const res = await API.delete(`/api/follow/follow-request/decline/${declineuserId}`)
